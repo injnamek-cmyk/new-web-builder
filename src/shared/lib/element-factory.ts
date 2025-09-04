@@ -18,6 +18,18 @@ export function createElement(
     x,
     y,
     zIndex: 0,
+    padding: {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+    },
+    margin: {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+    },
   };
 
   switch (type) {
@@ -56,7 +68,12 @@ export function createElement(
         backgroundColor: "#3b82f6",
         textColor: "#ffffff",
         borderRadius: 4,
-        padding: 8,
+        padding: {
+          top: 8,
+          right: 16,
+          bottom: 8,
+          left: 16,
+        },
       } as ButtonElement;
 
     case "container":
@@ -67,7 +84,12 @@ export function createElement(
         height: 200,
         backgroundColor: "#f8f9fa",
         borderRadius: 8,
-        padding: 16,
+        padding: {
+          top: 16,
+          right: 16,
+          bottom: 16,
+          left: 16,
+        },
         children: [],
       } as ContainerElement;
 

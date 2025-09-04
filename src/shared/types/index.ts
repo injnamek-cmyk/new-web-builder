@@ -1,8 +1,24 @@
 // 기본 요소 타입
 export type ElementType = "text" | "image" | "button" | "container";
 
+// 스타일 속성 인터페이스
+export interface SpacingStyle {
+  padding: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
+  margin: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  };
+}
+
 // 기본 요소 인터페이스
-export interface BaseElement {
+export interface BaseElement extends SpacingStyle {
   id: string;
   type: ElementType;
   x: number;
@@ -38,7 +54,6 @@ export interface ButtonElement extends BaseElement {
   backgroundColor: string;
   textColor: string;
   borderRadius: number;
-  padding: number;
   href?: string;
 }
 
@@ -47,7 +62,6 @@ export interface ContainerElement extends BaseElement {
   type: "container";
   backgroundColor: string;
   borderRadius: number;
-  padding: number;
   children: string[]; // 자식 요소 ID들
 }
 

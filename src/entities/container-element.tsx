@@ -3,6 +3,7 @@
 import React from "react";
 import { ContainerElement } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
+import { cn } from "@/lib/utils";
 
 interface ContainerElementProps {
   element: ContainerElement;
@@ -24,7 +25,10 @@ export default function ContainerElementComponent({
   const containerStyle = {
     backgroundColor: element.backgroundColor,
     borderRadius: element.borderRadius,
-    padding: element.padding,
+    paddingTop: element.padding.top,
+    paddingRight: element.padding.right,
+    paddingBottom: element.padding.bottom,
+    paddingLeft: element.padding.left,
     width: "100%",
     height: "100%",
     position: "relative" as const,
@@ -32,15 +36,20 @@ export default function ContainerElementComponent({
 
   return (
     <div
-      className={`absolute cursor-pointer select-none ${
+      className={cn(
+        "absolute cursor-pointer select-none",
         isSelected ? "ring-2 ring-blue-500 ring-offset-2" : ""
-      }`}
+      )}
       style={{
         left: element.x,
         top: element.y,
         width: element.width,
         height: element.height,
         zIndex: element.zIndex,
+        marginTop: element.margin.top,
+        marginRight: element.margin.right,
+        marginBottom: element.margin.bottom,
+        marginLeft: element.margin.left,
       }}
       onClick={onSelect}
     >

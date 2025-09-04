@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { useEditorStore } from "@/processes/editor-store";
 import { Element } from "@/shared/types";
+import { cn } from "@/lib/utils";
 
 export default function PropertyPanel() {
   const { canvas, updateElement, deleteElement } = useEditorStore();
@@ -41,6 +42,155 @@ export default function PropertyPanel() {
       deleteElement(selectedElement.id);
     }
   };
+
+  const handleSpacingChange = (
+    property: "padding" | "margin",
+    side: "top" | "right" | "bottom" | "left",
+    value: number
+  ) => {
+    updateElement(selectedElement.id, {
+      [property]: {
+        ...selectedElement[property],
+        [side]: value,
+      },
+    });
+  };
+
+  const renderSpacingControls = (element: Element) => (
+    <div className="space-y-4">
+      <div>
+        <h4 className="text-sm font-medium text-gray-700 mb-2">패딩</h4>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label htmlFor="padding-top">위</Label>
+            <Input
+              id="padding-top"
+              type="number"
+              value={element.padding.top}
+              onChange={(e) =>
+                handleSpacingChange(
+                  "padding",
+                  "top",
+                  parseInt(e.target.value) || 0
+                )
+              }
+            />
+          </div>
+          <div>
+            <Label htmlFor="padding-right">오른쪽</Label>
+            <Input
+              id="padding-right"
+              type="number"
+              value={element.padding.right}
+              onChange={(e) =>
+                handleSpacingChange(
+                  "padding",
+                  "right",
+                  parseInt(e.target.value) || 0
+                )
+              }
+            />
+          </div>
+          <div>
+            <Label htmlFor="padding-bottom">아래</Label>
+            <Input
+              id="padding-bottom"
+              type="number"
+              value={element.padding.bottom}
+              onChange={(e) =>
+                handleSpacingChange(
+                  "padding",
+                  "bottom",
+                  parseInt(e.target.value) || 0
+                )
+              }
+            />
+          </div>
+          <div>
+            <Label htmlFor="padding-left">왼쪽</Label>
+            <Input
+              id="padding-left"
+              type="number"
+              value={element.padding.left}
+              onChange={(e) =>
+                handleSpacingChange(
+                  "padding",
+                  "left",
+                  parseInt(e.target.value) || 0
+                )
+              }
+            />
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h4 className="text-sm font-medium text-gray-700 mb-2">마진</h4>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label htmlFor="margin-top">위</Label>
+            <Input
+              id="margin-top"
+              type="number"
+              value={element.margin.top}
+              onChange={(e) =>
+                handleSpacingChange(
+                  "margin",
+                  "top",
+                  parseInt(e.target.value) || 0
+                )
+              }
+            />
+          </div>
+          <div>
+            <Label htmlFor="margin-right">오른쪽</Label>
+            <Input
+              id="margin-right"
+              type="number"
+              value={element.margin.right}
+              onChange={(e) =>
+                handleSpacingChange(
+                  "margin",
+                  "right",
+                  parseInt(e.target.value) || 0
+                )
+              }
+            />
+          </div>
+          <div>
+            <Label htmlFor="margin-bottom">아래</Label>
+            <Input
+              id="margin-bottom"
+              type="number"
+              value={element.margin.bottom}
+              onChange={(e) =>
+                handleSpacingChange(
+                  "margin",
+                  "bottom",
+                  parseInt(e.target.value) || 0
+                )
+              }
+            />
+          </div>
+          <div>
+            <Label htmlFor="margin-left">왼쪽</Label>
+            <Input
+              id="margin-left"
+              type="number"
+              value={element.margin.left}
+              onChange={(e) =>
+                handleSpacingChange(
+                  "margin",
+                  "left",
+                  parseInt(e.target.value) || 0
+                )
+              }
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   const renderTextProperties = (element: any) => (
     <div className="space-y-4">
@@ -177,29 +327,16 @@ export default function PropertyPanel() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label htmlFor="borderRadius">모서리 둥글기</Label>
-          <Input
-            id="borderRadius"
-            type="number"
-            value={element.borderRadius}
-            onChange={(e) =>
-              handlePropertyChange("borderRadius", parseInt(e.target.value))
-            }
-          />
-        </div>
-        <div>
-          <Label htmlFor="padding">여백</Label>
-          <Input
-            id="padding"
-            type="number"
-            value={element.padding}
-            onChange={(e) =>
-              handlePropertyChange("padding", parseInt(e.target.value))
-            }
-          />
-        </div>
+      <div>
+        <Label htmlFor="borderRadius">모서리 둥글기</Label>
+        <Input
+          id="borderRadius"
+          type="number"
+          value={element.borderRadius}
+          onChange={(e) =>
+            handlePropertyChange("borderRadius", parseInt(e.target.value))
+          }
+        />
       </div>
 
       <div>
@@ -228,29 +365,16 @@ export default function PropertyPanel() {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label htmlFor="borderRadius">모서리 둥글기</Label>
-          <Input
-            id="borderRadius"
-            type="number"
-            value={element.borderRadius}
-            onChange={(e) =>
-              handlePropertyChange("borderRadius", parseInt(e.target.value))
-            }
-          />
-        </div>
-        <div>
-          <Label htmlFor="padding">여백</Label>
-          <Input
-            id="padding"
-            type="number"
-            value={element.padding}
-            onChange={(e) =>
-              handlePropertyChange("padding", parseInt(e.target.value))
-            }
-          />
-        </div>
+      <div>
+        <Label htmlFor="borderRadius">모서리 둥글기</Label>
+        <Input
+          id="borderRadius"
+          type="number"
+          value={element.borderRadius}
+          onChange={(e) =>
+            handlePropertyChange("borderRadius", parseInt(e.target.value))
+          }
+        />
       </div>
     </div>
   );
@@ -350,6 +474,7 @@ export default function PropertyPanel() {
 
       <div className="space-y-6">
         {renderSpecificProperties()}
+        {renderSpacingControls(selectedElement)}
         {renderCommonProperties(selectedElement)}
       </div>
     </Card>

@@ -3,6 +3,7 @@
 import React, { useRef } from "react";
 import { ImageElement } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 interface ImageElementProps {
@@ -30,21 +31,26 @@ export default function ImageElementComponent({
     }
   };
 
-  const handleStyleChange = (property: keyof ImageElement, value: any) => {
-    updateElement(element.id, { [property]: value });
-  };
-
   return (
     <div
-      className={`absolute cursor-pointer select-none ${
+      className={cn(
+        "absolute cursor-pointer select-none",
         isSelected ? "ring-2 ring-blue-500 ring-offset-2" : ""
-      }`}
+      )}
       style={{
         left: element.x,
         top: element.y,
         width: element.width,
         height: element.height,
         zIndex: element.zIndex,
+        paddingTop: element.padding.top,
+        paddingRight: element.padding.right,
+        paddingBottom: element.padding.bottom,
+        paddingLeft: element.padding.left,
+        marginTop: element.margin.top,
+        marginRight: element.margin.right,
+        marginBottom: element.margin.bottom,
+        marginLeft: element.margin.left,
       }}
       onClick={onSelect}
     >
