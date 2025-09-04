@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useCallback } from "react";
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -12,8 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEditorStore } from "@/processes/editor-store";
-import { Element } from "@/shared/types";
-import { cn, getValidPaddingValue } from "@/lib/utils";
+import { Element, TextElement, ImageElement, ButtonElement, ContainerElement } from "@/shared/types";
+import { getValidPaddingValue } from "@/lib/utils";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 
 export default function PropertyPanel() {
@@ -27,7 +27,7 @@ export default function PropertyPanel() {
       const value = input.value;
       const inputType = input.type;
 
-      let processedValue: any = value;
+      let processedValue: string | number = value;
 
       // input type에 따라 자동으로 값 변환
       if (inputType === "number") {
@@ -102,7 +102,7 @@ export default function PropertyPanel() {
   );
 
   // 일반 속성 변경 핸들러
-  const handlePropertyChange = (property: string, value: any) => {
+  const handlePropertyChange = (property: string, value: string | number | boolean) => {
     updateElement(selectedElement.id, { [property]: value });
   };
 
@@ -180,7 +180,7 @@ export default function PropertyPanel() {
     </div>
   );
 
-  const renderTextProperties = (element: any) => (
+  const renderTextProperties = (element: TextElement) => (
     <div className="space-y-4">
       <div>
         <Label htmlFor="content">내용</Label>
@@ -249,7 +249,7 @@ export default function PropertyPanel() {
     </div>
   );
 
-  const renderImageProperties = (element: any) => (
+  const renderImageProperties = (element: ImageElement) => (
     <div className="space-y-4">
       <div>
         <Label htmlFor="alt">대체 텍스트</Label>
@@ -281,7 +281,7 @@ export default function PropertyPanel() {
     </div>
   );
 
-  const renderButtonProperties = (element: any) => (
+  const renderButtonProperties = (element: ButtonElement) => (
     <div className="space-y-4">
       <div>
         <Label htmlFor="text">텍스트</Label>
@@ -346,7 +346,7 @@ export default function PropertyPanel() {
     addChildElement(selectedElement.id, newElement);
   };
 
-  const renderContainerProperties = (element: any) => (
+  const renderContainerProperties = (element: ContainerElement) => (
     <div className="space-y-4">
       <div>
         <Label htmlFor="backgroundColor">배경색</Label>

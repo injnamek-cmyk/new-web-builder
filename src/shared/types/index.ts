@@ -107,5 +107,5 @@ export interface DragData {
 
 // 속성 패널에서 사용할 속성 타입
 export interface ElementProperties {
-  [key: string]: any;
+  [key: string]: string | number | boolean | object;
 }

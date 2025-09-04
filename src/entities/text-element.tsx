@@ -3,7 +3,7 @@
 import React from "react";
 import { TextElement, Element } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
-import { cn, getValidPaddingValue } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import DraggableElement from "@/features/draggable-element";
 import ImageElementComponent from "@/entities/image-element";
 import ButtonElementComponent from "@/entities/button-element";

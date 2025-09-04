@@ -16,7 +16,7 @@ function LayoutContent() {
       const isInputFocused =
         document.activeElement?.tagName === "INPUT" ||
         document.activeElement?.tagName === "TEXTAREA" ||
-        document.activeElement?.contentEditable === "true";
+        (document.activeElement as HTMLElement)?.contentEditable === "true";
 
       if (isInputFocused) {
         return; // 입력 필드에 포커스가 있으면 키보드 이벤트 무시

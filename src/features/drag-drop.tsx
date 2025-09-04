@@ -4,13 +4,10 @@ import React from "react";
 import {
   DndContext,
   DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { Element } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
 
 interface DragDropProviderProps {
@@ -21,7 +18,6 @@ export default function DragDropProvider({ children }: DragDropProviderProps) {
   const {
     canvas,
     moveElement,
-    moveChildElement,
     setDragging,
     snapToGrid,
     setGridConfig,
@@ -34,7 +30,7 @@ export default function DragDropProvider({ children }: DragDropProviderProps) {
     })
   );
 
-  const handleDragStart = (event: DragStartEvent) => {
+  const handleDragStart = () => {
     setDragging(true);
     // 드래그 시작 시 그리드 표시
     setGridConfig({ showGrid: true });

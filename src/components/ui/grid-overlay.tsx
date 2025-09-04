@@ -16,7 +16,7 @@ export default function GridOverlay({
 }: GridOverlayProps) {
   if (!grid.showGrid) return null;
 
-  const { columns, rows, cellSize } = grid;
+  const { cellSize } = grid;
 
   // 그리드 라인을 그리는 SVG 패턴 생성
   const gridPattern = `

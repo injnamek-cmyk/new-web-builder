@@ -23,7 +23,7 @@ const elementTypes: {
   icon: React.ReactNode;
 }[] = [
   { type: "text", label: "텍스트", icon: <Type className="w-4 h-4" /> },
-  { type: "image", label: "이미지", icon: <Image className="w-4 h-4" /> },
+  { type: "image", label: "이미지", icon: <Image className="w-4 h-4" aria-label="이미지 아이콘" /> },
   { type: "button", label: "버튼", icon: <Square className="w-4 h-4" /> },
   {
     type: "container",

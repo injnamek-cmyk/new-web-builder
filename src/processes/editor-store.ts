@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Element, Canvas, EditorState, GridConfig } from "@/shared/types";
+import { Element, Canvas, EditorState, GridConfig, ElementType } from "@/shared/types";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 
 interface EditorStore extends EditorState {
@@ -249,8 +249,8 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     // 선택된 요소들의 경계 박스 계산
     const minX = Math.min(...selectedElements.map((el) => el.x));
     const minY = Math.min(...selectedElements.map((el) => el.y));
-    const maxX = Math.max(...selectedElements.map((el) => el.x + el.width));
-    const maxY = Math.max(...selectedElements.map((el) => el.y + el.height));
+    const maxX = Math.max(...selectedElements.map((el) => el.x + (typeof el.width === 'number' ? el.width : 100)));
+    const maxY = Math.max(...selectedElements.map((el) => el.y + (typeof el.height === 'number' ? el.height : 100)));
 
     const containerWidth = maxX - minX;
     const containerHeight = maxY - minY;
@@ -477,13 +477,18 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     }
 
     // 자식 요소의 위치를 부모 요소 내부로 조정
+    const parentWidth = typeof parentElement.width === 'number' ? parentElement.width : 100;
+    const parentHeight = typeof parentElement.height === 'number' ? parentElement.height : 100;
+    const elementWidth = typeof element.width === 'number' ? element.width : 100;
+    const elementHeight = typeof element.height === 'number' ? element.height : 100;
+    
     const childElement = {
       ...element,
       parentId,
-      x: Math.max(0, Math.min(element.x, parentElement.width - element.width)),
+      x: Math.max(0, Math.min(element.x, parentWidth - elementWidth)),
       y: Math.max(
         0,
-        Math.min(element.y, parentElement.height - element.height)
+        Math.min(element.y, parentHeight - elementHeight)
       ),
     };
 
@@ -525,20 +530,26 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
     // 자동 크기 조정이 비활성화된 경우 기본 크기 반환
     if (!element.autoSize) {
-      return { width: element.width, height: element.height };
+      return { 
+        width: typeof element.width === 'number' ? element.width : 100, 
+        height: typeof element.height === 'number' ? element.height : 100 
+      };
     }
 
     const childElements = get().getChildElements(elementId);
 
     if (childElements.length === 0) {
-      return { width: element.width, height: element.height };
+      return { 
+        width: typeof element.width === 'number' ? element.width : 100, 
+        height: typeof element.height === 'number' ? element.height : 100 
+      };
     }
 
     // 자식 요소들의 경계 박스 계산
     const minX = Math.min(...childElements.map((el) => el.x));
     const minY = Math.min(...childElements.map((el) => el.y));
-    const maxX = Math.max(...childElements.map((el) => el.x + el.width));
-    const maxY = Math.max(...childElements.map((el) => el.y + el.height));
+    const maxX = Math.max(...childElements.map((el) => el.x + (typeof el.width === 'number' ? el.width : 100)));
+    const maxY = Math.max(...childElements.map((el) => el.y + (typeof el.height === 'number' ? el.height : 100)));
 
     const contentWidth = maxX - minX;
     const contentHeight = maxY - minY;
