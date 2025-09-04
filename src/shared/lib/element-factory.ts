@@ -74,15 +74,15 @@ export function createElement(
       return {
         ...baseElement,
         type: "container",
-        width: 300,
-        height: 200,
+        width: 280,
+        height: 180,
         backgroundColor: "#f8f9fa",
         borderRadius: 8,
         padding: {
-          top: 16,
-          right: 16,
-          bottom: 16,
-          left: 16,
+          top: 20,
+          right: 20,
+          bottom: 20,
+          left: 20,
         },
         children: [],
       } as ContainerElement;
