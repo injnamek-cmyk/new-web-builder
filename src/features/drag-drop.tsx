@@ -15,8 +15,14 @@ interface DragDropProviderProps {
 }
 
 export default function DragDropProvider({ children }: DragDropProviderProps) {
-  const { canvas, moveElement, setDragging, snapToGrid, setGridConfig } =
-    useEditorStore();
+  const {
+    canvas,
+    moveElement,
+    setDragging,
+    snapToGrid,
+    setGridConfig,
+    canvasZoom,
+  } = useEditorStore();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -38,8 +44,12 @@ export default function DragDropProvider({ children }: DragDropProviderProps) {
       const element = canvas.elements.find((el) => el.id === active.id);
 
       if (element) {
-        const newX = element.x + delta.x;
-        const newY = element.y + delta.y;
+        // 스케일 팩터를 고려하여 델타 값을 조정
+        const scaledDeltaX = delta.x / canvasZoom;
+        const scaledDeltaY = delta.y / canvasZoom;
+
+        const newX = element.x + scaledDeltaX;
+        const newY = element.y + scaledDeltaY;
 
         // 자식 요소인지 확인
         if (element.parentId) {

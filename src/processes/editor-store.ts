@@ -9,6 +9,17 @@ import {
 import { createElement, generateId } from "@/shared/lib/element-factory";
 
 interface EditorStore extends EditorState {
+  // UI 상태
+  leftPanelVisible: boolean;
+  rightPanelVisible: boolean;
+  canvasZoom: number;
+
+  // UI 조작
+  toggleLeftPanel: () => void;
+  toggleRightPanel: () => void;
+  setCanvasZoom: (zoom: number) => void;
+  resetCanvasZoom: () => void;
+
   // 캔버스 조작
   addElement: (element: Element) => void;
   updateElement: (id: string, updates: Partial<Element>) => void;
@@ -65,8 +76,8 @@ interface EditorStore extends EditorState {
 const initialCanvas: Canvas = {
   elements: [],
   selectedElementIds: [],
-  width: 1200,
-  height: 800,
+  width: 1920,
+  height: 1080,
 };
 
 const initialGrid: GridConfig = {
@@ -86,6 +97,9 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   isDragging: false,
   isResizing: false,
   grid: initialGrid,
+  leftPanelVisible: true,
+  rightPanelVisible: true,
+  canvasZoom: 1,
 
   addElement: (element) => {
     set((state) => ({
@@ -588,5 +602,26 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   moveChildElement: () => {
     // 자식 요소는 움직이지 못하도록 비활성화
     return;
+  },
+
+  // UI 조작 함수들
+  toggleLeftPanel: () => {
+    set((state) => ({
+      leftPanelVisible: !state.leftPanelVisible,
+    }));
+  },
+
+  toggleRightPanel: () => {
+    set((state) => ({
+      rightPanelVisible: !state.rightPanelVisible,
+    }));
+  },
+
+  setCanvasZoom: (zoom) => {
+    set({ canvasZoom: Math.max(0.1, Math.min(3, zoom)) });
+  },
+
+  resetCanvasZoom: () => {
+    set({ canvasZoom: 1 });
   },
 }));

@@ -61,9 +61,11 @@ export default function PropertyPanel() {
   // 다중 선택된 경우 속성 패널 비활성화
   if (canvas.selectedElementIds.length === 0) {
     return (
-      <Card className="p-4">
-        <h3 className="text-sm font-medium text-gray-700 mb-4">속성</h3>
-        <p className="text-sm text-gray-500">
+      <Card className="p-2 lg:p-4">
+        <h3 className="text-xs lg:text-sm font-medium text-gray-700 mb-2 lg:mb-4">
+          속성
+        </h3>
+        <p className="text-xs lg:text-sm text-gray-500">
           요소를 선택하여 속성을 편집하세요.
         </p>
       </Card>
@@ -73,9 +75,11 @@ export default function PropertyPanel() {
   // 다중 선택된 경우 속성 패널 비활성화
   if (canvas.selectedElementIds.length > 1) {
     return (
-      <Card className="p-4">
-        <h3 className="text-sm font-medium text-gray-700 mb-4">속성</h3>
-        <p className="text-sm text-gray-500">
+      <Card className="p-2 lg:p-4">
+        <h3 className="text-xs lg:text-sm font-medium text-gray-700 mb-2 lg:mb-4">
+          속성
+        </h3>
+        <p className="text-xs lg:text-sm text-gray-500">
           다중 선택된 상태입니다. 속성을 편집하려면 하나의 요소만 선택하세요.
         </p>
         <div className="mt-2 text-xs text-gray-400">
@@ -92,9 +96,13 @@ export default function PropertyPanel() {
 
   if (!selectedElement) {
     return (
-      <Card className="p-4">
-        <h3 className="text-sm font-medium text-gray-700 mb-4">속성</h3>
-        <p className="text-sm text-gray-500">선택된 요소를 찾을 수 없습니다.</p>
+      <Card className="p-2 lg:p-4">
+        <h3 className="text-xs lg:text-sm font-medium text-gray-700 mb-2 lg:mb-4">
+          속성
+        </h3>
+        <p className="text-xs lg:text-sm text-gray-500">
+          선택된 요소를 찾을 수 없습니다.
+        </p>
       </Card>
     );
   }
@@ -141,12 +149,16 @@ export default function PropertyPanel() {
   };
 
   const renderSpacingControls = (element: Element) => (
-    <div className="space-y-4">
+    <div className="space-y-2 lg:space-y-4">
       <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-2">패딩</h4>
-        <div className="grid grid-cols-2 gap-2">
+        <h4 className="text-xs lg:text-sm font-medium text-gray-700 mb-1 lg:mb-2">
+          패딩
+        </h4>
+        <div className="grid grid-cols-2 gap-1 lg:gap-2">
           <div>
-            <Label htmlFor="padding-top">위</Label>
+            <Label htmlFor="padding-top" className="text-xs">
+              위
+            </Label>
             <Input
               id="padding-top"
               type="number"
@@ -154,10 +166,13 @@ export default function PropertyPanel() {
               onChange={(e) =>
                 handleSpacingChange("padding", "top", e.target.value)
               }
+              className="text-xs"
             />
           </div>
           <div>
-            <Label htmlFor="padding-right">오른쪽</Label>
+            <Label htmlFor="padding-right" className="text-xs">
+              오른쪽
+            </Label>
             <Input
               id="padding-right"
               type="number"
@@ -165,10 +180,13 @@ export default function PropertyPanel() {
               onChange={(e) =>
                 handleSpacingChange("padding", "right", e.target.value)
               }
+              className="text-xs"
             />
           </div>
           <div>
-            <Label htmlFor="padding-bottom">아래</Label>
+            <Label htmlFor="padding-bottom" className="text-xs">
+              아래
+            </Label>
             <Input
               id="padding-bottom"
               type="number"
@@ -176,10 +194,13 @@ export default function PropertyPanel() {
               onChange={(e) =>
                 handleSpacingChange("padding", "bottom", e.target.value)
               }
+              className="text-xs"
             />
           </div>
           <div>
-            <Label htmlFor="padding-left">왼쪽</Label>
+            <Label htmlFor="padding-left" className="text-xs">
+              왼쪽
+            </Label>
             <Input
               id="padding-left"
               type="number"
@@ -187,6 +208,7 @@ export default function PropertyPanel() {
               onChange={(e) =>
                 handleSpacingChange("padding", "left", e.target.value)
               }
+              className="text-xs"
             />
           </div>
         </div>
@@ -195,19 +217,24 @@ export default function PropertyPanel() {
   );
 
   const renderTextProperties = (element: TextElement) => (
-    <div className="space-y-4">
+    <div className="space-y-2 lg:space-y-4">
       <div>
-        <Label htmlFor="content">내용</Label>
+        <Label htmlFor="content" className="text-xs">
+          내용
+        </Label>
         <Input
           id="content"
           value={element.content}
           onChange={(e) => handlePropertyChange("content", e.target.value)}
+          className="text-xs"
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-1 lg:gap-2">
         <div>
-          <Label htmlFor="fontSize">글자 크기</Label>
+          <Label htmlFor="fontSize" className="text-xs">
+            글자 크기
+          </Label>
           <Input
             id="fontSize"
             type="number"
@@ -215,26 +242,32 @@ export default function PropertyPanel() {
             onChange={(e) =>
               handlePropertyChange("fontSize", parseInt(e.target.value))
             }
+            className="text-xs"
           />
         </div>
         <div>
-          <Label htmlFor="color">색상</Label>
+          <Label htmlFor="color" className="text-xs">
+            색상
+          </Label>
           <Input
             id="color"
             type="color"
             value={element.color}
             onChange={(e) => handlePropertyChange("color", e.target.value)}
+            className="text-xs"
           />
         </div>
       </div>
 
       <div>
-        <Label htmlFor="textAlign">정렬</Label>
+        <Label htmlFor="textAlign" className="text-xs">
+          정렬
+        </Label>
         <Select
           value={element.textAlign}
           onValueChange={(value) => handlePropertyChange("textAlign", value)}
         >
-          <SelectTrigger>
+          <SelectTrigger className="text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -246,12 +279,14 @@ export default function PropertyPanel() {
       </div>
 
       <div>
-        <Label htmlFor="fontWeight">글자 굵기</Label>
+        <Label htmlFor="fontWeight" className="text-xs">
+          글자 굵기
+        </Label>
         <Select
           value={element.fontWeight}
           onValueChange={(value) => handlePropertyChange("fontWeight", value)}
         >
-          <SelectTrigger>
+          <SelectTrigger className="text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -395,41 +430,52 @@ export default function PropertyPanel() {
   );
 
   const renderCommonProperties = (element: Element) => (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-2">
+    <div className="space-y-2 lg:space-y-4">
+      <div className="grid grid-cols-2 gap-1 lg:gap-2">
         <div>
-          <Label htmlFor="x">X 위치</Label>
+          <Label htmlFor="x" className="text-xs">
+            X 위치
+          </Label>
           <Input
             id="x"
             type="number"
             value={element.x}
             onChange={handleXChange}
+            className="text-xs"
           />
         </div>
         <div>
-          <Label htmlFor="y">Y 위치</Label>
+          <Label htmlFor="y" className="text-xs">
+            Y 위치
+          </Label>
           <Input
             id="y"
             type="number"
             value={element.y}
             onChange={handleYChange}
+            className="text-xs"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-1 lg:gap-2">
         <div>
-          <Label htmlFor="width">너비</Label>
+          <Label htmlFor="width" className="text-xs">
+            너비
+          </Label>
           <Input
             id="width"
             type="text"
             placeholder="auto 또는 숫자"
             value={element.width === "auto" ? "auto" : element.width.toString()}
             onChange={handleWidthChange}
+            className="text-xs"
           />
         </div>
         <div>
-          <Label htmlFor="height">높이</Label>
+          <Label htmlFor="height" className="text-xs">
+            높이
+          </Label>
           <Input
             id="height"
             type="text"
@@ -438,40 +484,44 @@ export default function PropertyPanel() {
               element.height === "auto" ? "auto" : element.height.toString()
             }
             onChange={handleHeightChange}
+            className="text-xs"
           />
         </div>
       </div>
 
       <div>
-        <Label htmlFor="zIndex">Z 순서</Label>
+        <Label htmlFor="zIndex" className="text-xs">
+          Z 순서
+        </Label>
         <Input
           id="zIndex"
           type="number"
           value={element.zIndex}
           onChange={handleZIndexChange}
+          className="text-xs"
         />
       </div>
 
       {/* 자식 요소 추가 기능 - 모든 요소에서 사용 가능 */}
       {canHaveChildren(element.type) && (
         <div>
-          <Label>자식 요소 추가</Label>
-          <div className="flex gap-2 mt-2">
+          <Label className="text-xs">자식 요소 추가</Label>
+          <div className="flex gap-1 lg:gap-2 mt-1 lg:mt-2 flex-wrap">
             <button
               onClick={() => handleAddChildElement("text")}
-              className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               텍스트
             </button>
             <button
               onClick={() => handleAddChildElement("image")}
-              className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+              className="px-2 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
             >
               이미지
             </button>
             <button
               onClick={() => handleAddChildElement("button")}
-              className="px-3 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600"
+              className="px-2 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600"
             >
               버튼
             </button>
@@ -497,18 +547,18 @@ export default function PropertyPanel() {
   };
 
   return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-medium text-gray-700">속성</h3>
+    <Card className="p-2 lg:p-4">
+      <div className="flex items-center justify-between mb-2 lg:mb-4">
+        <h3 className="text-xs lg:text-sm font-medium text-gray-700">속성</h3>
         <button
           onClick={handleDelete}
-          className="text-red-500 hover:text-red-700 text-sm"
+          className="text-red-500 hover:text-red-700 text-xs lg:text-sm"
         >
           삭제
         </button>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-3 lg:space-y-6">
         {renderSpecificProperties()}
         {renderSpacingControls(selectedElement)}
         {renderCommonProperties(selectedElement)}

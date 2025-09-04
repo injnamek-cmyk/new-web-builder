@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Element } from "@/shared/types";
 import { cn } from "@/lib/utils";
+import { useEditorStore } from "@/processes/editor-store";
 
 interface DraggableElementProps {
   element: Element;
@@ -15,6 +16,7 @@ export default function DraggableElement({
   children,
 }: DraggableElementProps) {
   const [isDisabled, setIsDisabled] = useState(!!element.parentId);
+  const { canvasZoom } = useEditorStore();
 
   // parentId가 변경될 때 isDisabled 상태 업데이트
   useEffect(() => {
@@ -31,7 +33,9 @@ export default function DraggableElement({
 
   const style = transform
     ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        transform: `translate3d(${transform.x / canvasZoom}px, ${
+          transform.y / canvasZoom
+        }px, 0)`,
       }
     : undefined;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useCallback } from "react";
 import { useEditorStore } from "@/processes/editor-store";
 import { Element } from "@/shared/types";
 import DraggableElement from "@/features/draggable-element";
@@ -20,7 +20,28 @@ export default function Canvas() {
     moveSelectedElements,
     deleteSelectedElements,
     grid,
+    canvasZoom,
+    setCanvasZoom,
   } = useEditorStore();
+
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  // 스크롤 줌 핸들러
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      // Ctrl/Cmd 키와 함께 휠을 돌릴 때만 줌
+      if (!e.ctrlKey && !e.metaKey) return;
+
+      e.preventDefault();
+
+      // 줌 방향 결정 (휠 위로 = 줌인, 아래로 = 줌아웃)
+      const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+      const newZoom = Math.max(0.1, Math.min(3, canvasZoom * zoomFactor));
+
+      setCanvasZoom(newZoom);
+    },
+    [canvasZoom, setCanvasZoom]
+  );
 
   // 키보드 이벤트 핸들러
   useEffect(() => {
@@ -60,6 +81,15 @@ export default function Canvas() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [canvas.selectedElementIds, deleteSelectedElements, moveSelectedElements]);
+
+  // 스크롤 줌 이벤트 리스너
+  useEffect(() => {
+    const canvasElement = canvasRef.current;
+    if (!canvasElement) return;
+
+    canvasElement.addEventListener("wheel", handleWheel, { passive: false });
+    return () => canvasElement.removeEventListener("wheel", handleWheel);
+  }, [handleWheel]);
 
   const renderElement = (element: Element) => {
     const isElementSelected = isSelected(element.id);
@@ -134,39 +164,48 @@ export default function Canvas() {
   };
 
   return (
-    <div className="flex-1 bg-gray-50 relative overflow-auto">
+    <div ref={canvasRef} className="flex-1 bg-gray-50 relative overflow-auto">
       {/* 선택된 요소 정보 표시 */}
       {canvas.selectedElementIds.length > 0 && (
-        <div className="absolute top-4 left-4 z-10 bg-blue-500 text-white px-3 py-2 rounded-md text-sm font-medium">
+        <div className="absolute top-2 left-2 lg:top-4 lg:left-4 z-10 bg-blue-500 text-white px-2 py-1 lg:px-3 lg:py-2 rounded-md text-xs lg:text-sm font-medium">
           <div className="font-bold">
             {canvas.selectedElementIds.length}개 요소 선택됨
           </div>
-          <div className="text-xs mt-1 opacity-90">
+          <div className="text-xs mt-1 opacity-90 hidden lg:block">
             화살표 키: 이동 | Shift+화살표: 빠른 이동 | Delete 키: 삭제
           </div>
         </div>
       )}
 
       <div
-        className="relative bg-white shadow-lg mx-auto my-8"
+        className="relative bg-white shadow-lg mx-auto my-2 lg:my-8"
         style={{
-          width: canvas.width,
-          height: canvas.height,
-          minWidth: canvas.width,
-          minHeight: canvas.height,
+          width: canvas.width * canvasZoom,
+          height: canvas.height * canvasZoom,
+          minWidth: canvas.width * canvasZoom,
+          minHeight: canvas.height * canvasZoom,
           display: "block", // 항상 block으로 유지
           position: "relative", // 절대 위치 요소들의 기준점
         }}
         onClick={() => clearSelection()}
       >
-        <GridOverlay
-          grid={grid}
-          canvasWidth={canvas.width}
-          canvasHeight={canvas.height}
-        />
-        {canvas.elements
-          .filter((element) => !element.parentId)
-          .map(renderElement)}
+        <div
+          style={{
+            transform: `scale(${canvasZoom})`,
+            transformOrigin: "top left",
+            width: canvas.width,
+            height: canvas.height,
+          }}
+        >
+          <GridOverlay
+            grid={grid}
+            canvasWidth={canvas.width}
+            canvasHeight={canvas.height}
+          />
+          {canvas.elements
+            .filter((element) => !element.parentId)
+            .map(renderElement)}
+        </div>
       </div>
     </div>
   );
