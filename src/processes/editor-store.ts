@@ -220,12 +220,8 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   groupSelectedElements: () => {
-    console.log("=== 그룹화 시작 ===");
     const state = get();
     const selectedIds = state.canvas.selectedElementIds;
-
-    console.log("선택된 요소 ID들:", selectedIds);
-    console.log("현재 모든 요소들:", state.canvas.elements);
 
     if (selectedIds.length < 2) {
       console.warn("그룹화하려면 최소 2개 이상의 요소를 선택해야 합니다.");
@@ -237,8 +233,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       (element) =>
         selectedIds.includes(element.id) && element.type !== "container"
     );
-
-    console.log("필터링된 선택된 요소들 (컨테이너 제외):", selectedElements);
 
     if (selectedElements.length < 2) {
       console.warn(
@@ -274,11 +268,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     // 선택된 요소들을 컨테이너의 자식으로 만들기
     const updatedElements = state.canvas.elements.map((element) => {
       if (selectedIds.includes(element.id)) {
-        console.log(`요소 ${element.id}를 컨테이너의 자식으로 변환:`, {
-          기존위치: { x: element.x, y: element.y },
-          새위치: { x: element.x - minX, y: element.y - minY },
-          parentId: containerElement.id,
-        });
         return {
           ...element,
           parentId: containerElement.id,
@@ -289,13 +278,9 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       return element;
     });
 
-    console.log("변환된 요소들:", updatedElements);
-    console.log("새로 생성된 컨테이너:", containerElement);
-
     set((state) => {
       // 선택된 요소들은 이미 updatedElements에 포함되어 있으므로 추가로 추가하지 않음
       const newElements = [...updatedElements, containerElement];
-      console.log("최종 요소 목록 (그룹화 후):", newElements);
 
       return {
         canvas: {
@@ -309,15 +294,10 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   ungroupElement: (containerId) => {
-    console.log("=== 그룹 해제 시작 ===");
-    console.log("컨테이너 ID:", containerId);
-
     const state = get();
     const containerElement = state.canvas.elements.find(
       (el) => el.id === containerId && el.type === "container"
     );
-
-    console.log("컨테이너 요소:", containerElement);
 
     if (!containerElement) {
       console.warn("컨테이너를 찾을 수 없습니다.");
@@ -329,9 +309,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       (el) => el.parentId === containerId
     );
 
-    console.log("자식 요소들:", childElements);
-    console.log("자식 요소 개수:", childElements.length);
-
     if (childElements.length === 0) {
       console.warn("그룹화할 요소가 없습니다.");
       return;
@@ -339,13 +316,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
     // 자식 요소들을 컨테이너 밖으로 이동 (절대 좌표로 변환)
     const ungroupedElements = childElements.map((element) => {
-      console.log(`요소 ${element.id} 변환 전:`, {
-        x: element.x,
-        y: element.y,
-        parentId: element.parentId,
-        type: element.type,
-      });
-
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { parentId, ...elementWithoutParentId } = element;
       const newElement = {
@@ -354,17 +324,8 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         y: element.y + containerElement.y,
       };
 
-      console.log(`요소 ${element.id} 변환 후:`, {
-        x: newElement.x,
-        y: newElement.y,
-        parentId: newElement.parentId,
-        type: newElement.type,
-      });
-
       return newElement;
     });
-
-    console.log("변환된 요소들:", ungroupedElements);
 
     // 컨테이너 제거하고 자식 요소들을 원래 위치로 복원
     set((state) => {
@@ -379,16 +340,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         ...ungroupedElements,
       ];
 
-      console.log(
-        "컨테이너와 자식 요소 제거 후:",
-        elementsWithoutContainerAndChildren
-      );
-      console.log("최종 요소 목록:", newElements);
-      console.log(
-        "선택된 요소 ID들:",
-        ungroupedElements.map((el) => el.id)
-      );
-
       return {
         canvas: {
           ...state.canvas,
@@ -398,7 +349,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       };
     });
 
-    console.log("=== 그룹 해제 완료 ===");
     get().saveToHistory();
   },
 

@@ -16,20 +16,10 @@ export default function DraggableElement({
 }: DraggableElementProps) {
   const [isDisabled, setIsDisabled] = useState(!!element.parentId);
 
-  console.log(`DraggableElement ${element.id}:`, {
-    parentId: element.parentId,
-    isDisabled,
-    type: element.type,
-  });
-
   // parentId가 변경될 때 isDisabled 상태 업데이트
   useEffect(() => {
     const newDisabled = !!element.parentId;
-    console.log(`DraggableElement ${element.id} parentId 변경 감지:`, {
-      이전: isDisabled,
-      현재: newDisabled,
-      parentId: element.parentId,
-    });
+
     setIsDisabled(newDisabled);
   }, [element.parentId, isDisabled]);
 
