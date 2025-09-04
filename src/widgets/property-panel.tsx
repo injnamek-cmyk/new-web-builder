@@ -20,17 +20,43 @@ export default function PropertyPanel() {
   const { canvas, updateElement, deleteElement, addChildElement } =
     useEditorStore();
 
-  const selectedElement = canvas.elements.find(
-    (el) => el.id === canvas.selectedElementId
-  );
-
-  if (!selectedElement) {
+  // 다중 선택된 경우 속성 패널 비활성화
+  if (canvas.selectedElementIds.length === 0) {
     return (
       <Card className="p-4">
         <h3 className="text-sm font-medium text-gray-700 mb-4">속성</h3>
         <p className="text-sm text-gray-500">
           요소를 선택하여 속성을 편집하세요.
         </p>
+      </Card>
+    );
+  }
+
+  // 다중 선택된 경우 속성 패널 비활성화
+  if (canvas.selectedElementIds.length > 1) {
+    return (
+      <Card className="p-4">
+        <h3 className="text-sm font-medium text-gray-700 mb-4">속성</h3>
+        <p className="text-sm text-gray-500">
+          다중 선택된 상태입니다. 속성을 편집하려면 하나의 요소만 선택하세요.
+        </p>
+        <div className="mt-2 text-xs text-gray-400">
+          {canvas.selectedElementIds.length}개 요소가 선택됨
+        </div>
+      </Card>
+    );
+  }
+
+  // 단일 선택된 경우에만 속성 패널 활성화
+  const selectedElement = canvas.elements.find(
+    (el) => el.id === canvas.selectedElementIds[0]
+  );
+
+  if (!selectedElement) {
+    return (
+      <Card className="p-4">
+        <h3 className="text-sm font-medium text-gray-700 mb-4">속성</h3>
+        <p className="text-sm text-gray-500">선택된 요소를 찾을 수 없습니다.</p>
       </Card>
     );
   }
