@@ -33,9 +33,13 @@ export default function ImageElementComponent({
 
   // 실제 요소의 최종 크기 계산 (패딩 포함)
   const actualWidth =
-    element.width + element.padding.left + element.padding.right;
+    element.width === "auto"
+      ? "auto"
+      : element.width + element.padding.left + element.padding.right;
   const actualHeight =
-    element.height + element.padding.top + element.padding.bottom;
+    element.height === "auto"
+      ? "auto"
+      : element.height + element.padding.top + element.padding.bottom;
 
   return (
     <div
@@ -53,6 +57,9 @@ export default function ImageElementComponent({
         paddingRight: element.padding.right,
         paddingBottom: element.padding.bottom,
         paddingLeft: element.padding.left,
+        display: "inline-block",
+        minWidth: element.width === "auto" ? "fit-content" : undefined,
+        minHeight: element.height === "auto" ? "fit-content" : undefined,
       }}
       onClick={onSelect}
     >
@@ -60,16 +67,29 @@ export default function ImageElementComponent({
         <Image
           src={element.src}
           alt={element.alt}
-          className="w-full h-full"
+          className={cn(
+            element.width === "auto" ? "w-auto" : "w-full",
+            element.height === "auto" ? "h-auto" : "h-full"
+          )}
           style={{
             objectFit: element.objectFit,
+            minWidth: element.width === "auto" ? "fit-content" : undefined,
+            minHeight: element.height === "auto" ? "fit-content" : undefined,
           }}
-          width={element.width}
-          height={element.height}
+          width={element.width === "auto" ? undefined : element.width}
+          height={element.height === "auto" ? undefined : element.height}
         />
       ) : (
         <div
-          className="w-full h-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50"
+          className={cn(
+            "border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50",
+            element.width === "auto" ? "w-auto" : "w-full",
+            element.height === "auto" ? "h-auto" : "h-full"
+          )}
+          style={{
+            minWidth: element.width === "auto" ? "fit-content" : undefined,
+            minHeight: element.height === "auto" ? "fit-content" : undefined,
+          }}
           onClick={() => fileInputRef.current?.click()}
         >
           <div className="text-center text-gray-500">

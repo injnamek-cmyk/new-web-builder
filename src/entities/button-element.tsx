@@ -1,9 +1,13 @@
 "use client";
 
 import React from "react";
-import { ButtonElement } from "@/shared/types";
+import { ButtonElement, Element } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
 import { cn } from "@/lib/utils";
+import DraggableElement from "@/features/draggable-element";
+import TextElementComponent from "@/entities/text-element";
+import ImageElementComponent from "@/entities/image-element";
+import ContainerElementComponent from "@/entities/container-element";
 
 interface ButtonElementProps {
   element: ButtonElement;
@@ -16,17 +20,78 @@ export default function ButtonElementComponent({
   isSelected,
   onSelect,
 }: ButtonElementProps) {
-  const { updateElement } = useEditorStore();
+  const { updateElement, getChildElements, selectElement } = useEditorStore();
+
+  // 자식 요소들 가져오기
+  const childElements = getChildElements(element.id);
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     updateElement(element.id, { text: e.target.value });
   };
 
+  // 자식 요소 렌더링 함수
+  const renderChildElement = (childElement: Element) => {
+    const isChildSelected = false; // 자식 요소는 별도로 선택되지 않음
+    const onChildSelect = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      selectElement(childElement.id);
+    };
+
+    switch (childElement.type) {
+      case "text":
+        return (
+          <DraggableElement key={childElement.id} element={childElement}>
+            <TextElementComponent
+              element={childElement}
+              isSelected={isChildSelected}
+              onSelect={onChildSelect}
+            />
+          </DraggableElement>
+        );
+      case "image":
+        return (
+          <DraggableElement key={childElement.id} element={childElement}>
+            <ImageElementComponent
+              element={childElement}
+              isSelected={isChildSelected}
+              onSelect={onChildSelect}
+            />
+          </DraggableElement>
+        );
+      case "button":
+        return (
+          <DraggableElement key={childElement.id} element={childElement}>
+            <ButtonElementComponent
+              element={childElement}
+              isSelected={isChildSelected}
+              onSelect={onChildSelect}
+            />
+          </DraggableElement>
+        );
+      case "container":
+        return (
+          <DraggableElement key={childElement.id} element={childElement}>
+            <ContainerElementComponent
+              element={childElement}
+              isSelected={isChildSelected}
+              onSelect={onChildSelect}
+            />
+          </DraggableElement>
+        );
+      default:
+        return null;
+    }
+  };
+
   // 실제 요소의 최종 크기 계산 (패딩 포함)
   const actualWidth =
-    element.width + element.padding.left + element.padding.right;
+    element.width === "auto"
+      ? "auto"
+      : element.width + element.padding.left + element.padding.right;
   const actualHeight =
-    element.height + element.padding.top + element.padding.bottom;
+    element.height === "auto"
+      ? "auto"
+      : element.height + element.padding.top + element.padding.bottom;
 
   const buttonStyle = {
     backgroundColor: element.backgroundColor,
@@ -36,12 +101,14 @@ export default function ButtonElementComponent({
     paddingRight: element.padding.right,
     paddingBottom: element.padding.bottom,
     paddingLeft: element.padding.left,
-    width: "100%",
-    height: "100%",
+    width: element.width === "auto" ? "auto" : "100%",
+    height: element.height === "auto" ? "auto" : "100%",
     border: "none",
     cursor: "pointer",
     fontSize: "16px",
     fontWeight: "500",
+    minWidth: element.width === "auto" ? "fit-content" : undefined,
+    minHeight: element.height === "auto" ? "fit-content" : undefined,
   };
 
   return (
@@ -56,6 +123,10 @@ export default function ButtonElementComponent({
         width: actualWidth,
         height: actualHeight,
         zIndex: element.zIndex,
+        position: "relative",
+        display: "inline-block",
+        minWidth: element.width === "auto" ? "fit-content" : undefined,
+        minHeight: element.height === "auto" ? "fit-content" : undefined,
       }}
       onClick={onSelect}
     >
@@ -64,7 +135,11 @@ export default function ButtonElementComponent({
           type="text"
           value={element.text}
           onChange={handleTextChange}
-          className="w-full h-full text-center border-none outline-none"
+          className={cn(
+            "text-center border-none outline-none",
+            element.width === "auto" ? "w-auto" : "w-full",
+            element.height === "auto" ? "h-auto" : "h-full"
+          )}
           style={buttonStyle}
           autoFocus
         />
@@ -81,6 +156,7 @@ export default function ButtonElementComponent({
           {element.text || "버튼"}
         </button>
       )}
+      {childElements.map(renderChildElement)}
     </div>
   );
 }

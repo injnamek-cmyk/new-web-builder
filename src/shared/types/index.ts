@@ -11,16 +11,22 @@ export interface SpacingStyle {
   };
 }
 
+// 크기 타입 정의
+export type SizeValue = number | "auto";
+
 // 기본 요소 인터페이스
 export interface BaseElement extends SpacingStyle {
   id: string;
   type: ElementType;
   x: number;
   y: number;
-  width: number;
-  height: number;
+  width: SizeValue;
+  height: SizeValue;
   zIndex: number;
   parentId?: string; // 부모 요소 ID (중첩 요소를 위해)
+  children?: string[]; // 자식 요소 ID 배열
+  gap?: number; // 자식 요소 간 간격
+  autoSize?: boolean; // 자동 크기 조정 여부
 }
 
 // 텍스트 요소

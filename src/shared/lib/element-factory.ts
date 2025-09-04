@@ -25,6 +25,9 @@ export function createElement(
       bottom: 0,
       left: 0,
     },
+    children: [],
+    gap: 0,
+    autoSize: true,
   };
 
   switch (type) {
@@ -32,8 +35,8 @@ export function createElement(
       return {
         ...baseElement,
         type: "text",
-        width: 200,
-        height: 50,
+        width: "auto",
+        height: "auto",
         content: "새 텍스트",
         fontSize: 16,
         fontFamily: "Arial, sans-serif",
@@ -46,8 +49,8 @@ export function createElement(
       return {
         ...baseElement,
         type: "image",
-        width: 200,
-        height: 150,
+        width: "auto",
+        height: "auto",
         src: "",
         alt: "이미지",
         objectFit: "cover",
@@ -57,8 +60,8 @@ export function createElement(
       return {
         ...baseElement,
         type: "button",
-        width: 120,
-        height: 40,
+        width: "auto",
+        height: "auto",
         text: "버튼",
         backgroundColor: "#3b82f6",
         textColor: "#ffffff",
@@ -75,8 +78,8 @@ export function createElement(
       return {
         ...baseElement,
         type: "container",
-        width: 280,
-        height: 180,
+        width: "auto",
+        height: "auto",
         backgroundColor: "#f8f9fa",
         borderRadius: 8,
         padding: {

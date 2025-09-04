@@ -27,6 +27,11 @@ interface EditorStore extends EditorState {
   addChildElement: (parentId: string, element: Element) => void;
   getChildElements: (parentId: string) => Element[];
   moveChildElement: (elementId: string, x: number, y: number) => void;
+  canHaveChildren: (elementType: ElementType) => boolean;
+  calculateElementSize: (elementId: string) => {
+    width: number;
+    height: number;
+  };
 
   // 드래그 앤 드롭
   moveElement: (id: string, x: number, y: number) => void;
@@ -460,8 +465,14 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     const parentElement = get().canvas.elements.find(
       (el) => el.id === parentId
     );
-    if (!parentElement || parentElement.type !== "container") {
-      console.error("Parent element not found or not a container");
+    if (!parentElement) {
+      console.error("Parent element not found");
+      return;
+    }
+
+    // 자식 요소를 가질 수 있는지 확인
+    if (!get().canHaveChildren(parentElement.type)) {
+      console.error("This element type cannot have children");
       return;
     }
 
@@ -476,18 +487,68 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       ),
     };
 
-    set((state) => ({
-      canvas: {
-        ...state.canvas,
-        elements: [...state.canvas.elements, childElement],
-        selectedElementIds: [childElement.id],
-      },
-    }));
+    set((state) => {
+      // 부모 요소에 자식 ID 추가
+      const updatedElements = state.canvas.elements.map((el) => {
+        if (el.id === parentId) {
+          return {
+            ...el,
+            children: [...(el.children || []), childElement.id],
+          };
+        }
+        return el;
+      });
+
+      return {
+        canvas: {
+          ...state.canvas,
+          elements: [...updatedElements, childElement],
+          selectedElementIds: [childElement.id],
+        },
+      };
+    });
     get().saveToHistory();
   },
 
   getChildElements: (parentId) => {
     return get().canvas.elements.filter((el) => el.parentId === parentId);
+  },
+
+  canHaveChildren: (elementType) => {
+    // 이미지 요소는 자식을 가질 수 없음
+    return elementType !== "image";
+  },
+
+  calculateElementSize: (elementId) => {
+    const element = get().canvas.elements.find((el) => el.id === elementId);
+    if (!element) return { width: 0, height: 0 };
+
+    // 자동 크기 조정이 비활성화된 경우 기본 크기 반환
+    if (!element.autoSize) {
+      return { width: element.width, height: element.height };
+    }
+
+    const childElements = get().getChildElements(elementId);
+
+    if (childElements.length === 0) {
+      return { width: element.width, height: element.height };
+    }
+
+    // 자식 요소들의 경계 박스 계산
+    const minX = Math.min(...childElements.map((el) => el.x));
+    const minY = Math.min(...childElements.map((el) => el.y));
+    const maxX = Math.max(...childElements.map((el) => el.x + el.width));
+    const maxY = Math.max(...childElements.map((el) => el.y + el.height));
+
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+    const gap = element.gap || 0;
+
+    return {
+      width: contentWidth + element.padding.left + element.padding.right + gap,
+      height:
+        contentHeight + element.padding.top + element.padding.bottom + gap,
+    };
   },
 
   moveChildElement: () => {

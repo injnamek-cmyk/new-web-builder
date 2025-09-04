@@ -27,9 +27,13 @@ export default function ContainerElementComponent({
 
   // 실제 요소의 최종 크기 계산 (패딩 포함)
   const actualWidth =
-    element.width + element.padding.left + element.padding.right;
+    element.width === "auto"
+      ? "auto"
+      : element.width + element.padding.left + element.padding.right;
   const actualHeight =
-    element.height + element.padding.top + element.padding.bottom;
+    element.height === "auto"
+      ? "auto"
+      : element.height + element.padding.top + element.padding.bottom;
 
   const containerStyle = {
     backgroundColor:
@@ -41,11 +45,13 @@ export default function ContainerElementComponent({
     paddingRight: element.padding.right,
     paddingBottom: element.padding.bottom,
     paddingLeft: element.padding.left,
-    width: "100%",
-    height: "100%",
+    width: element.width === "auto" ? "auto" : "100%",
+    height: element.height === "auto" ? "auto" : "100%",
     position: "relative" as const,
     border:
       element.backgroundColor === "transparent" ? "none" : "1px solid #d1d5db",
+    minWidth: element.width === "auto" ? "fit-content" : undefined,
+    minHeight: element.height === "auto" ? "fit-content" : undefined,
   };
 
   // 자식 요소 렌더링 함수
@@ -104,6 +110,9 @@ export default function ContainerElementComponent({
         width: actualWidth,
         height: actualHeight,
         zIndex: element.zIndex,
+        display: "inline-block",
+        minWidth: element.width === "auto" ? "fit-content" : undefined,
+        minHeight: element.height === "auto" ? "fit-content" : undefined,
       }}
       onClick={onSelect}
     >
