@@ -11,7 +11,8 @@ export function createElement(
   type: ElementType,
   id: string,
   x: number = 100,
-  y: number = 100
+  y: number = 100,
+  options?: Partial<Element>
 ): Element {
   const baseElement = {
     id,
@@ -84,6 +85,7 @@ export function createElement(
           bottom: 20,
           left: 20,
         },
+        ...options,
       } as ContainerElement;
 
     default:

@@ -43,19 +43,31 @@ export default function DragDropProvider({ children }: DragDropProviderProps) {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, delta } = event;
 
+    console.log("=== 드래그 종료 ===");
+    console.log("드래그된 요소 ID:", active.id);
+    console.log("델타:", delta);
+
     if (delta) {
       const element = canvas.elements.find((el) => el.id === active.id);
+      console.log("찾은 요소:", element);
+
       if (element) {
         const newX = element.x + delta.x;
         const newY = element.y + delta.y;
 
+        console.log("새 위치:", { newX, newY });
+        console.log("요소의 parentId:", element.parentId);
+
         // 자식 요소인지 확인
         if (element.parentId) {
+          console.log("자식 요소이므로 드래그 비활성화");
           // 자식 요소는 움직이지 못하도록 비활성화
           return;
         } else {
+          console.log("최상위 요소이므로 이동 처리");
           // 최상위 요소는 그리드에 스냅
           const snappedPosition = snapToGrid(newX, newY);
+          console.log("스냅된 위치:", snappedPosition);
           moveElement(element.id, snappedPosition.x, snappedPosition.y);
         }
       }

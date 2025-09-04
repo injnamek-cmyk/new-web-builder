@@ -6,7 +6,15 @@ import { Card } from "@/components/ui/card";
 import { useEditorStore } from "@/processes/editor-store";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import { ElementType } from "@/shared/types";
-import { Type, Image, Square, Container, Grid3X3 } from "lucide-react";
+import {
+  Type,
+  Image,
+  Square,
+  Container,
+  Grid3X3,
+  Group,
+  Ungroup,
+} from "lucide-react";
 
 const elementTypes: {
   type: ElementType;
@@ -33,12 +41,42 @@ export default function Toolbar() {
     clearCanvas,
     toggleGrid,
     grid,
+    groupSelectedElements,
+    ungroupElement,
+    canvas,
   } = useEditorStore();
 
   const handleAddElement = (type: ElementType) => {
     const element = createElement(type, generateId());
     addElement(element);
   };
+
+  const handleGroupElements = () => {
+    if (canvas.selectedElementIds.length >= 2) {
+      groupSelectedElements();
+    } else {
+      alert("그룹화하려면 최소 2개 이상의 요소를 선택해야 합니다.");
+    }
+  };
+
+  const handleUngroupElement = () => {
+    const selectedElement = canvas.elements.find(
+      (el) => el.id === canvas.selectedElementIds[0]
+    );
+
+    if (selectedElement && selectedElement.type === "container") {
+      ungroupElement(selectedElement.id);
+    } else {
+      alert("그룹을 해제하려면 컨테이너 요소를 선택해야 합니다.");
+    }
+  };
+
+  const isGroupable = canvas.selectedElementIds.length >= 2;
+  const isUngroupable =
+    canvas.selectedElementIds.length === 1 &&
+    canvas.elements.find(
+      (el) => el.id === canvas.selectedElementIds[0] && el.type === "container"
+    );
 
   return (
     <Card className="p-4 space-y-4">
@@ -68,6 +106,28 @@ export default function Toolbar() {
           </Button>
           <Button variant="outline" size="sm" onClick={redo}>
             다시 실행
+          </Button>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleGroupElements}
+            disabled={!isGroupable}
+            className="flex items-center gap-2"
+          >
+            <Group className="w-4 h-4" />
+            그룹화
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleUngroupElement}
+            disabled={!isUngroupable}
+            className="flex items-center gap-2"
+          >
+            <Ungroup className="w-4 h-4" />
+            그룹 해제
           </Button>
         </div>
       </div>

@@ -32,7 +32,10 @@ export default function ContainerElementComponent({
     element.height + element.padding.top + element.padding.bottom;
 
   const containerStyle = {
-    backgroundColor: element.backgroundColor,
+    backgroundColor:
+      element.backgroundColor === "transparent"
+        ? "transparent"
+        : element.backgroundColor,
     borderRadius: element.borderRadius,
     paddingTop: element.padding.top,
     paddingRight: element.padding.right,
@@ -41,6 +44,8 @@ export default function ContainerElementComponent({
     width: "100%",
     height: "100%",
     position: "relative" as const,
+    border:
+      element.backgroundColor === "transparent" ? "none" : "1px solid #d1d5db",
   };
 
   // 자식 요소 렌더링 함수
@@ -102,12 +107,13 @@ export default function ContainerElementComponent({
       }}
       onClick={onSelect}
     >
-      <div style={containerStyle} className="border border-gray-300">
-        {childElements.length === 0 && (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-            컨테이너
-          </div>
-        )}
+      <div style={containerStyle}>
+        {childElements.length === 0 &&
+          element.backgroundColor !== "transparent" && (
+            <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+              컨테이너
+            </div>
+          )}
         {childElements.map(renderChildElement)}
       </div>
     </div>

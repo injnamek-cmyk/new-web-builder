@@ -78,7 +78,10 @@ export default function Canvas() {
     switch (element.type) {
       case "text":
         return (
-          <DraggableElement key={element.id} element={element}>
+          <DraggableElement
+            key={`${element.id}-${element.parentId || "root"}`}
+            element={element}
+          >
             <TextElementComponent
               element={element}
               isSelected={isElementSelected}
@@ -88,7 +91,10 @@ export default function Canvas() {
         );
       case "image":
         return (
-          <DraggableElement key={element.id} element={element}>
+          <DraggableElement
+            key={`${element.id}-${element.parentId || "root"}`}
+            element={element}
+          >
             <ImageElementComponent
               element={element}
               isSelected={isElementSelected}
@@ -98,7 +104,10 @@ export default function Canvas() {
         );
       case "button":
         return (
-          <DraggableElement key={element.id} element={element}>
+          <DraggableElement
+            key={`${element.id}-${element.parentId || "root"}`}
+            element={element}
+          >
             <ButtonElementComponent
               element={element}
               isSelected={isElementSelected}
@@ -108,7 +117,10 @@ export default function Canvas() {
         );
       case "container":
         return (
-          <DraggableElement key={element.id} element={element}>
+          <DraggableElement
+            key={`${element.id}-${element.parentId || "root"}`}
+            element={element}
+          >
             <ContainerElementComponent
               element={element}
               isSelected={isElementSelected}
