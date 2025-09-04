@@ -12,13 +12,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEditorStore } from "@/processes/editor-store";
-import { Element, TextElement, ImageElement, ButtonElement, ContainerElement } from "@/shared/types";
+import {
+  Element,
+  TextElement,
+  ImageElement,
+  ButtonElement,
+  ContainerElement,
+} from "@/shared/types";
 import { getValidPaddingValue } from "@/lib/utils";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 
 export default function PropertyPanel() {
-  const { canvas, updateElement, deleteElement, addChildElement } =
-    useEditorStore();
+  const {
+    canvas,
+    updateElement,
+    deleteElement,
+    addChildElement,
+    canHaveChildren,
+  } = useEditorStore();
 
   // 타입 자동 추론을 위한 핸들러 함수
   const createAutoTypeHandler = (property: string, elementId: string) => {
@@ -102,7 +113,10 @@ export default function PropertyPanel() {
   );
 
   // 일반 속성 변경 핸들러
-  const handlePropertyChange = (property: string, value: string | number | boolean) => {
+  const handlePropertyChange = (
+    property: string,
+    value: string | number | boolean
+  ) => {
     updateElement(selectedElement.id, { [property]: value });
   };
 
@@ -340,7 +354,13 @@ export default function PropertyPanel() {
   );
 
   const handleAddChildElement = (elementType: "text" | "image" | "button") => {
-    if (!selectedElement || selectedElement.type !== "container") return;
+    if (!selectedElement) return;
+
+    // 자식 요소를 가질 수 있는지 확인
+    if (!canHaveChildren(selectedElement.type)) {
+      alert("이 요소는 자식 요소를 가질 수 없습니다.");
+      return;
+    }
 
     const newElement = createElement(elementType, generateId(), 20, 20);
     addChildElement(selectedElement.id, newElement);
@@ -370,30 +390,6 @@ export default function PropertyPanel() {
             handlePropertyChange("borderRadius", parseInt(e.target.value))
           }
         />
-      </div>
-
-      <div>
-        <Label>자식 요소 추가</Label>
-        <div className="flex gap-2 mt-2">
-          <button
-            onClick={() => handleAddChildElement("text")}
-            className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            텍스트
-          </button>
-          <button
-            onClick={() => handleAddChildElement("image")}
-            className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
-          >
-            이미지
-          </button>
-          <button
-            onClick={() => handleAddChildElement("button")}
-            className="px-3 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600"
-          >
-            버튼
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -455,6 +451,33 @@ export default function PropertyPanel() {
           onChange={handleZIndexChange}
         />
       </div>
+
+      {/* 자식 요소 추가 기능 - 모든 요소에서 사용 가능 */}
+      {canHaveChildren(element.type) && (
+        <div>
+          <Label>자식 요소 추가</Label>
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={() => handleAddChildElement("text")}
+              className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              텍스트
+            </button>
+            <button
+              onClick={() => handleAddChildElement("image")}
+              className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              이미지
+            </button>
+            <button
+              onClick={() => handleAddChildElement("button")}
+              className="px-3 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600"
+            >
+              버튼
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 

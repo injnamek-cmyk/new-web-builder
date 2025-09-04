@@ -15,13 +15,8 @@ interface DragDropProviderProps {
 }
 
 export default function DragDropProvider({ children }: DragDropProviderProps) {
-  const {
-    canvas,
-    moveElement,
-    setDragging,
-    snapToGrid,
-    setGridConfig,
-  } = useEditorStore();
+  const { canvas, moveElement, setDragging, snapToGrid, setGridConfig } =
+    useEditorStore();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {

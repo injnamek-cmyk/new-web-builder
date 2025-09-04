@@ -14,7 +14,6 @@ import {
   Grid3X3,
   Group,
   Ungroup,
-  Plus,
 } from "lucide-react";
 
 const elementTypes: {
@@ -23,7 +22,11 @@ const elementTypes: {
   icon: React.ReactNode;
 }[] = [
   { type: "text", label: "텍스트", icon: <Type className="w-4 h-4" /> },
-  { type: "image", label: "이미지", icon: <Image className="w-4 h-4" aria-label="이미지 아이콘" /> },
+  {
+    type: "image",
+    label: "이미지",
+    icon: <Image className="w-4 h-4" aria-label="이미지 아이콘" />,
+  },
   { type: "button", label: "버튼", icon: <Square className="w-4 h-4" /> },
   {
     type: "container",
@@ -35,7 +38,6 @@ const elementTypes: {
 export default function Toolbar() {
   const {
     addElement,
-    addChildElement,
     undo,
     redo,
     saveToLocalStorage,
@@ -46,31 +48,11 @@ export default function Toolbar() {
     groupSelectedElements,
     ungroupElement,
     canvas,
-    canHaveChildren,
   } = useEditorStore();
 
   const handleAddElement = (type: ElementType) => {
     const element = createElement(type, generateId());
     addElement(element);
-  };
-
-  const handleAddChildElement = (type: ElementType) => {
-    const selectedElement = canvas.elements.find(
-      (el) => el.id === canvas.selectedElementIds[0]
-    );
-
-    if (!selectedElement) {
-      alert("자식 요소를 추가하려면 부모 요소를 선택해야 합니다.");
-      return;
-    }
-
-    if (!canHaveChildren(selectedElement.type)) {
-      alert("선택된 요소는 자식 요소를 가질 수 없습니다.");
-      return;
-    }
-
-    const childElement = createElement(type, generateId());
-    addChildElement(selectedElement.id, childElement);
   };
 
   const handleGroupElements = () => {
@@ -99,11 +81,6 @@ export default function Toolbar() {
     canvas.elements.find(
       (el) => el.id === canvas.selectedElementIds[0] && el.type === "container"
     );
-  const isChildAddable =
-    canvas.selectedElementIds.length === 1 &&
-    canvas.elements.find(
-      (el) => el.id === canvas.selectedElementIds[0] && canHaveChildren(el.type)
-    );
 
   return (
     <Card className="p-4 space-y-4">
@@ -123,29 +100,6 @@ export default function Toolbar() {
             </Button>
           ))}
         </div>
-
-        {isChildAddable && (
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-gray-600">
-              자식 요소 추가
-            </h4>
-            <div className="grid grid-cols-2 gap-2">
-              {elementTypes.map(({ type, label, icon }) => (
-                <Button
-                  key={`child-${type}`}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleAddChildElement(type)}
-                  className="flex items-center gap-2 text-xs"
-                >
-                  <Plus className="w-3 h-3" />
-                  {icon}
-                  {label}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
 
       <div className="space-y-2">
