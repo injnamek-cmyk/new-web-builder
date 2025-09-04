@@ -8,6 +8,11 @@ interface EditorStore extends EditorState {
   deleteElement: (id: string) => void;
   selectElement: (id: string | null) => void;
 
+  // 중첩 요소 관리
+  addChildElement: (parentId: string, element: Element) => void;
+  getChildElements: (parentId: string) => Element[];
+  moveChildElement: (elementId: string, x: number, y: number) => void;
+
   // 드래그 앤 드롭
   moveElement: (id: string, x: number, y: number) => void;
   setDragging: (isDragging: boolean) => void;
@@ -213,5 +218,45 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       x: Math.round(x / cellSize) * cellSize,
       y: Math.round(y / cellSize) * cellSize,
     };
+  },
+
+  // 중첩 요소 관리 함수들
+  addChildElement: (parentId, element) => {
+    const parentElement = get().canvas.elements.find(
+      (el) => el.id === parentId
+    );
+    if (!parentElement || parentElement.type !== "container") {
+      console.error("Parent element not found or not a container");
+      return;
+    }
+
+    // 자식 요소의 위치를 부모 요소 내부로 조정
+    const childElement = {
+      ...element,
+      parentId,
+      x: Math.max(0, Math.min(element.x, parentElement.width - element.width)),
+      y: Math.max(
+        0,
+        Math.min(element.y, parentElement.height - element.height)
+      ),
+    };
+
+    set((state) => ({
+      canvas: {
+        ...state.canvas,
+        elements: [...state.canvas.elements, childElement],
+        selectedElementId: childElement.id,
+      },
+    }));
+    get().saveToHistory();
+  },
+
+  getChildElements: (parentId) => {
+    return get().canvas.elements.filter((el) => el.parentId === parentId);
+  },
+
+  moveChildElement: (_elementId, _x, _y) => {
+    // 자식 요소는 움직이지 못하도록 비활성화
+    return;
   },
 }));

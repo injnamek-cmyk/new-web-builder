@@ -14,9 +14,11 @@ import {
 import { useEditorStore } from "@/processes/editor-store";
 import { Element } from "@/shared/types";
 import { cn } from "@/lib/utils";
+import { createElement, generateId } from "@/shared/lib/element-factory";
 
 export default function PropertyPanel() {
-  const { canvas, updateElement, deleteElement } = useEditorStore();
+  const { canvas, updateElement, deleteElement, addChildElement } =
+    useEditorStore();
 
   const selectedElement = canvas.elements.find(
     (el) => el.id === canvas.selectedElementId
@@ -285,6 +287,13 @@ export default function PropertyPanel() {
     </div>
   );
 
+  const handleAddChildElement = (elementType: "text" | "image" | "button") => {
+    if (!selectedElement || selectedElement.type !== "container") return;
+
+    const newElement = createElement(elementType, generateId(), 20, 20);
+    addChildElement(selectedElement.id, newElement);
+  };
+
   const renderContainerProperties = (element: any) => (
     <div className="space-y-4">
       <div>
@@ -309,6 +318,30 @@ export default function PropertyPanel() {
             handlePropertyChange("borderRadius", parseInt(e.target.value))
           }
         />
+      </div>
+
+      <div>
+        <Label>자식 요소 추가</Label>
+        <div className="flex gap-2 mt-2">
+          <button
+            onClick={() => handleAddChildElement("text")}
+            className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            텍스트
+          </button>
+          <button
+            onClick={() => handleAddChildElement("image")}
+            className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            이미지
+          </button>
+          <button
+            onClick={() => handleAddChildElement("button")}
+            className="px-3 py-1 text-xs bg-purple-500 text-white rounded hover:bg-purple-600"
+          >
+            버튼
+          </button>
+        </div>
       </div>
     </div>
   );

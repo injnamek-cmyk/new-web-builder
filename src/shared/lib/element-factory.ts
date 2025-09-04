@@ -84,7 +84,6 @@ export function createElement(
           bottom: 20,
           left: 20,
         },
-        children: [],
       } as ContainerElement;
 
     default:

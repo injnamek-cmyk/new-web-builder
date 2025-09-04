@@ -85,7 +85,9 @@ export default function Canvas() {
           canvasWidth={canvas.width}
           canvasHeight={canvas.height}
         />
-        {canvas.elements.map(renderElement)}
+        {canvas.elements
+          .filter((element) => !element.parentId)
+          .map(renderElement)}
       </div>
     </div>
   );

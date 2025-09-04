@@ -1,8 +1,13 @@
 "use client";
 
 import React from "react";
-import { ContainerElement } from "@/shared/types";
+import { ContainerElement, Element } from "@/shared/types";
 import { cn } from "@/lib/utils";
+import { useEditorStore } from "@/processes/editor-store";
+import DraggableElement from "@/features/draggable-element";
+import TextElementComponent from "@/entities/text-element";
+import ImageElementComponent from "@/entities/image-element";
+import ButtonElementComponent from "@/entities/button-element";
 
 interface ContainerElementProps {
   element: ContainerElement;
@@ -15,6 +20,11 @@ export default function ContainerElementComponent({
   isSelected,
   onSelect,
 }: ContainerElementProps) {
+  const { getChildElements, selectElement } = useEditorStore();
+
+  // 자식 요소들 가져오기
+  const childElements = getChildElements(element.id);
+
   // 실제 요소의 최종 크기 계산 (패딩 포함)
   const actualWidth =
     element.width + element.padding.left + element.padding.right;
@@ -33,6 +43,50 @@ export default function ContainerElementComponent({
     position: "relative" as const,
   };
 
+  // 자식 요소 렌더링 함수
+  const renderChildElement = (childElement: Element) => {
+    const isChildSelected = false; // 자식 요소는 별도로 선택되지 않음
+    const onChildSelect = (e: React.MouseEvent) => {
+      e.stopPropagation();
+      selectElement(childElement.id);
+    };
+
+    switch (childElement.type) {
+      case "text":
+        return (
+          <DraggableElement key={childElement.id} element={childElement}>
+            <TextElementComponent
+              element={childElement}
+              isSelected={isChildSelected}
+              onSelect={onChildSelect}
+            />
+          </DraggableElement>
+        );
+      case "image":
+        return (
+          <DraggableElement key={childElement.id} element={childElement}>
+            <ImageElementComponent
+              element={childElement}
+              isSelected={isChildSelected}
+              onSelect={onChildSelect}
+            />
+          </DraggableElement>
+        );
+      case "button":
+        return (
+          <DraggableElement key={childElement.id} element={childElement}>
+            <ButtonElementComponent
+              element={childElement}
+              isSelected={isChildSelected}
+              onSelect={onChildSelect}
+            />
+          </DraggableElement>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -49,11 +103,12 @@ export default function ContainerElementComponent({
       onClick={onSelect}
     >
       <div style={containerStyle} className="border border-gray-300">
-        {element.children.length === 0 && (
+        {childElements.length === 0 && (
           <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
             컨테이너
           </div>
         )}
+        {childElements.map(renderChildElement)}
       </div>
     </div>
   );

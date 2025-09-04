@@ -18,8 +18,14 @@ interface DragDropProviderProps {
 }
 
 export default function DragDropProvider({ children }: DragDropProviderProps) {
-  const { canvas, moveElement, setDragging, snapToGrid, setGridConfig } =
-    useEditorStore();
+  const {
+    canvas,
+    moveElement,
+    moveChildElement,
+    setDragging,
+    snapToGrid,
+    setGridConfig,
+  } = useEditorStore();
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -43,9 +49,15 @@ export default function DragDropProvider({ children }: DragDropProviderProps) {
         const newX = element.x + delta.x;
         const newY = element.y + delta.y;
 
-        // 그리드에 스냅
-        const snappedPosition = snapToGrid(newX, newY);
-        moveElement(element.id, snappedPosition.x, snappedPosition.y);
+        // 자식 요소인지 확인
+        if (element.parentId) {
+          // 자식 요소는 움직이지 못하도록 비활성화
+          return;
+        } else {
+          // 최상위 요소는 그리드에 스냅
+          const snappedPosition = snapToGrid(newX, newY);
+          moveElement(element.id, snappedPosition.x, snappedPosition.y);
+        }
       }
     }
 

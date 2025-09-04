@@ -20,6 +20,7 @@ export interface BaseElement extends SpacingStyle {
   width: number;
   height: number;
   zIndex: number;
+  parentId?: string; // 부모 요소 ID (중첩 요소를 위해)
 }
 
 // 텍스트 요소
@@ -56,7 +57,6 @@ export interface ContainerElement extends BaseElement {
   type: "container";
   backgroundColor: string;
   borderRadius: number;
-  children: string[]; // 자식 요소 ID들
 }
 
 // 모든 요소 타입의 유니온

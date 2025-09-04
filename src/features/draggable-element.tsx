@@ -17,6 +17,7 @@ export default function DraggableElement({
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: element.id,
+      disabled: !!element.parentId, // 자식 요소는 드래그 비활성화
     });
 
   const style = transform
@@ -29,7 +30,7 @@ export default function DraggableElement({
     <div
       ref={setNodeRef}
       style={style}
-      {...listeners}
+      {...(element.parentId ? {} : listeners)} // 자식 요소는 listeners 비활성화
       {...attributes}
       className={cn(isDragging && "opacity-50 z-9999")}
     >
