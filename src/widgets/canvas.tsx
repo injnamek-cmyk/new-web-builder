@@ -75,13 +75,8 @@ export default function Canvas() {
           height: canvas.height,
           minWidth: canvas.width,
           minHeight: canvas.height,
-          display: grid.showGrid ? "grid" : "block",
-          gridTemplateColumns: grid.showGrid
-            ? `repeat(${grid.columns}, 1fr)`
-            : "none",
-          gridTemplateRows: grid.showGrid
-            ? `repeat(${grid.rows}, minmax(${grid.cellSize}px, auto))`
-            : "none",
+          display: "block", // 항상 block으로 유지
+          position: "relative", // 절대 위치 요소들의 기준점
         }}
         onClick={() => selectElement(null)}
       >

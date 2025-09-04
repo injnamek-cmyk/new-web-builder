@@ -42,7 +42,7 @@ const initialGrid: GridConfig = {
   showGrid: false,
   columns: 24,
   rows: 20,
-  cellSize: 20,
+  cellSize: 50, // 1200px / 24 = 50px
   snapToGrid: true,
 };
 

@@ -61,9 +61,6 @@ export default function DragDropProvider({ children }: DragDropProviderProps) {
       onDragEnd={handleDragEnd}
     >
       {children}
-      <DragOverlay>
-        <div className="opacity-50">{/* 드래그 중인 요소의 미리보기 */}</div>
-      </DragOverlay>
     </DndContext>
   );
 }

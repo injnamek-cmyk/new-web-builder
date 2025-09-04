@@ -2,7 +2,6 @@
 
 import React from "react";
 import { ContainerElement } from "@/shared/types";
-import { useEditorStore } from "@/processes/editor-store";
 import { cn } from "@/lib/utils";
 
 interface ContainerElementProps {
@@ -16,12 +15,6 @@ export default function ContainerElementComponent({
   isSelected,
   onSelect,
 }: ContainerElementProps) {
-  const { updateElement } = useEditorStore();
-
-  const handleStyleChange = (property: keyof ContainerElement, value: any) => {
-    updateElement(element.id, { [property]: value });
-  };
-
   // 실제 요소의 최종 크기 계산 (패딩 포함)
   const actualWidth =
     element.width + element.padding.left + element.padding.right;
