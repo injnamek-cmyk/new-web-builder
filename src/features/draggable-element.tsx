@@ -3,6 +3,7 @@
 import React from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Element } from "@/shared/types";
+import { cn } from "@/lib/utils";
 
 interface DraggableElementProps {
   element: Element;
@@ -30,7 +31,7 @@ export default function DraggableElement({
       style={style}
       {...listeners}
       {...attributes}
-      className={`${isDragging ? "opacity-50" : ""}`}
+      className={cn(isDragging && "opacity-50 z-9999")}
     >
       {children}
     </div>
