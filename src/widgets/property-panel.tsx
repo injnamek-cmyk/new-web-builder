@@ -44,7 +44,7 @@ export default function PropertyPanel() {
   };
 
   const handleSpacingChange = (
-    property: "padding" | "margin",
+    property: "padding",
     side: "top" | "right" | "bottom" | "left",
     value: number
   ) => {
@@ -115,72 +115,6 @@ export default function PropertyPanel() {
               onChange={(e) =>
                 handleSpacingChange(
                   "padding",
-                  "left",
-                  parseInt(e.target.value) || 0
-                )
-              }
-            />
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <h4 className="text-sm font-medium text-gray-700 mb-2">마진</h4>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label htmlFor="margin-top">위</Label>
-            <Input
-              id="margin-top"
-              type="number"
-              value={element.margin.top}
-              onChange={(e) =>
-                handleSpacingChange(
-                  "margin",
-                  "top",
-                  parseInt(e.target.value) || 0
-                )
-              }
-            />
-          </div>
-          <div>
-            <Label htmlFor="margin-right">오른쪽</Label>
-            <Input
-              id="margin-right"
-              type="number"
-              value={element.margin.right}
-              onChange={(e) =>
-                handleSpacingChange(
-                  "margin",
-                  "right",
-                  parseInt(e.target.value) || 0
-                )
-              }
-            />
-          </div>
-          <div>
-            <Label htmlFor="margin-bottom">아래</Label>
-            <Input
-              id="margin-bottom"
-              type="number"
-              value={element.margin.bottom}
-              onChange={(e) =>
-                handleSpacingChange(
-                  "margin",
-                  "bottom",
-                  parseInt(e.target.value) || 0
-                )
-              }
-            />
-          </div>
-          <div>
-            <Label htmlFor="margin-left">왼쪽</Label>
-            <Input
-              id="margin-left"
-              type="number"
-              value={element.margin.left}
-              onChange={(e) =>
-                handleSpacingChange(
-                  "margin",
                   "left",
                   parseInt(e.target.value) || 0
                 )

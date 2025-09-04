@@ -9,12 +9,6 @@ export interface SpacingStyle {
     bottom: number;
     left: number;
   };
-  margin: {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  };
 }
 
 // 기본 요소 인터페이스

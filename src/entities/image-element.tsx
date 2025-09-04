@@ -31,6 +31,12 @@ export default function ImageElementComponent({
     }
   };
 
+  // 실제 요소의 최종 크기 계산 (패딩 포함)
+  const actualWidth =
+    element.width + element.padding.left + element.padding.right;
+  const actualHeight =
+    element.height + element.padding.top + element.padding.bottom;
+
   return (
     <div
       className={cn(
@@ -40,17 +46,13 @@ export default function ImageElementComponent({
       style={{
         left: element.x,
         top: element.y,
-        width: element.width,
-        height: element.height,
+        width: actualWidth,
+        height: actualHeight,
         zIndex: element.zIndex,
         paddingTop: element.padding.top,
         paddingRight: element.padding.right,
         paddingBottom: element.padding.bottom,
         paddingLeft: element.padding.left,
-        marginTop: element.margin.top,
-        marginRight: element.margin.right,
-        marginBottom: element.margin.bottom,
-        marginLeft: element.margin.left,
       }}
       onClick={onSelect}
     >
