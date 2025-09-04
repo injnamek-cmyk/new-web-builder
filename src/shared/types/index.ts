@@ -69,7 +69,7 @@ export type Element =
 // 캔버스 상태
 export interface Canvas {
   elements: Element[];
-  selectedElementId: string | null;
+  selectedElementIds: string[];
   width: number;
   height: number;
 }

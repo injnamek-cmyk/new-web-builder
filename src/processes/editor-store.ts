@@ -8,6 +8,18 @@ interface EditorStore extends EditorState {
   deleteElement: (id: string) => void;
   selectElement: (id: string | null) => void;
 
+  // 다중 선택 관리
+  addToSelection: (id: string) => void;
+  removeFromSelection: (id: string) => void;
+  toggleSelection: (id: string) => void;
+  clearSelection: () => void;
+  selectMultiple: (ids: string[]) => void;
+  isSelected: (id: string) => boolean;
+
+  // 다중 요소 조작
+  moveSelectedElements: (deltaX: number, deltaY: number) => void;
+  deleteSelectedElements: () => void;
+
   // 중첩 요소 관리
   addChildElement: (parentId: string, element: Element) => void;
   getChildElements: (parentId: string) => Element[];
@@ -38,7 +50,7 @@ interface EditorStore extends EditorState {
 
 const initialCanvas: Canvas = {
   elements: [],
-  selectedElementId: null,
+  selectedElementIds: [],
   width: 1200,
   height: 800,
 };
@@ -66,7 +78,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       canvas: {
         ...state.canvas,
         elements: [...state.canvas.elements, element],
-        selectedElementId: element.id,
+        selectedElementIds: [element.id],
       },
     }));
     get().saveToHistory();
@@ -88,10 +100,9 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       canvas: {
         ...state.canvas,
         elements: state.canvas.elements.filter((element) => element.id !== id),
-        selectedElementId:
-          state.canvas.selectedElementId === id
-            ? null
-            : state.canvas.selectedElementId,
+        selectedElementIds: state.canvas.selectedElementIds.filter(
+          (selectedId) => selectedId !== id
+        ),
       },
     }));
     get().saveToHistory();
@@ -101,7 +112,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     set((state) => ({
       canvas: {
         ...state.canvas,
-        selectedElementId: id,
+        selectedElementIds: id ? [id] : [],
       },
     }));
   },
@@ -115,6 +126,94 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         ),
       },
     }));
+  },
+
+  // 다중 선택 관리 함수들
+  addToSelection: (id) => {
+    set((state) => ({
+      canvas: {
+        ...state.canvas,
+        selectedElementIds: state.canvas.selectedElementIds.includes(id)
+          ? state.canvas.selectedElementIds
+          : [...state.canvas.selectedElementIds, id],
+      },
+    }));
+  },
+
+  removeFromSelection: (id) => {
+    set((state) => ({
+      canvas: {
+        ...state.canvas,
+        selectedElementIds: state.canvas.selectedElementIds.filter(
+          (selectedId) => selectedId !== id
+        ),
+      },
+    }));
+  },
+
+  toggleSelection: (id) => {
+    set((state) => {
+      const isSelected = state.canvas.selectedElementIds.includes(id);
+      return {
+        canvas: {
+          ...state.canvas,
+          selectedElementIds: isSelected
+            ? state.canvas.selectedElementIds.filter(
+                (selectedId) => selectedId !== id
+              )
+            : [...state.canvas.selectedElementIds, id],
+        },
+      };
+    });
+  },
+
+  clearSelection: () => {
+    set((state) => ({
+      canvas: {
+        ...state.canvas,
+        selectedElementIds: [],
+      },
+    }));
+  },
+
+  selectMultiple: (ids) => {
+    set((state) => ({
+      canvas: {
+        ...state.canvas,
+        selectedElementIds: ids,
+      },
+    }));
+  },
+
+  isSelected: (id) => {
+    return get().canvas.selectedElementIds.includes(id);
+  },
+
+  // 다중 요소 조작 함수들
+  moveSelectedElements: (deltaX, deltaY) => {
+    set((state) => ({
+      canvas: {
+        ...state.canvas,
+        elements: state.canvas.elements.map((element) =>
+          state.canvas.selectedElementIds.includes(element.id)
+            ? { ...element, x: element.x + deltaX, y: element.y + deltaY }
+            : element
+        ),
+      },
+    }));
+  },
+
+  deleteSelectedElements: () => {
+    set((state) => ({
+      canvas: {
+        ...state.canvas,
+        elements: state.canvas.elements.filter(
+          (element) => !state.canvas.selectedElementIds.includes(element.id)
+        ),
+        selectedElementIds: [],
+      },
+    }));
+    get().saveToHistory();
   },
 
   setDragging: (isDragging) => {
@@ -173,7 +272,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         set({
           canvas: {
             ...canvas,
-            selectedElementId: null,
+            selectedElementIds: [],
           },
         });
         get().saveToHistory();
@@ -245,7 +344,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       canvas: {
         ...state.canvas,
         elements: [...state.canvas.elements, childElement],
-        selectedElementId: childElement.id,
+        selectedElementIds: [childElement.id],
       },
     }));
     get().saveToHistory();
