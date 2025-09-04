@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useEditorStore } from "@/processes/editor-store";
+import { Element } from "@/shared/types";
 import DraggableElement from "@/features/draggable-element";
 import TextElementComponent from "@/entities/text-element";
 import ImageElementComponent from "@/entities/image-element";
@@ -11,9 +12,14 @@ import ContainerElementComponent from "@/entities/container-element";
 export default function Canvas() {
   const { canvas, selectElement } = useEditorStore();
 
-  const renderElement = (element: any) => {
+  const renderElement = (element: Element) => {
     const isSelected = canvas.selectedElementId === element.id;
-    const onSelect = () => selectElement(element.id);
+    const onSelect = (e: React.MouseEvent) => {
+      e.stopPropagation(); // 이벤트 버블링 방지
+      selectElement(element.id);
+    };
+    console.log(canvas.selectedElementId);
+    console.log("isSelected", isSelected);
 
     switch (element.type) {
       case "text":

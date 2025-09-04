@@ -7,7 +7,7 @@ import { useEditorStore } from "@/processes/editor-store";
 interface TextElementProps {
   element: TextElement;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (e: React.MouseEvent) => void;
 }
 
 export default function TextElementComponent({

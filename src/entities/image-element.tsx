@@ -7,7 +7,7 @@ import { useEditorStore } from "@/processes/editor-store";
 interface ImageElementProps {
   element: ImageElement;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (e: React.MouseEvent) => void;
 }
 
 export default function ImageElementComponent({

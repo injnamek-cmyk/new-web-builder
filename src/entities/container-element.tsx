@@ -7,7 +7,7 @@ import { useEditorStore } from "@/processes/editor-store";
 interface ContainerElementProps {
   element: ContainerElement;
   isSelected: boolean;
-  onSelect: () => void;
+  onSelect: (e: React.MouseEvent) => void;
 }
 
 export default function ContainerElementComponent({
