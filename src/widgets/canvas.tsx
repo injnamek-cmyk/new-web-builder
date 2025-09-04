@@ -186,6 +186,8 @@ export default function Canvas() {
           minHeight: canvas.height * canvasZoom,
           display: "block", // 항상 block으로 유지
           position: "relative", // 절대 위치 요소들의 기준점
+          marginLeft: "max(20px, calc(50vw - 50%))", // 좌측 패딩
+          marginRight: "max(20px, calc(50vw - 50%))", // 우측 패딩
         }}
         onClick={() => clearSelection()}
       >

@@ -39,6 +39,11 @@ export default function ImageElementComponent({
     left: getValidPaddingValue(element.padding.left),
   };
 
+  // 드래그 오버레이를 위한 원본 크기 (패딩 제외)
+  const originalWidth = element.width === "auto" ? 100 : element.width;
+  const originalHeight = element.height === "auto" ? 100 : element.height;
+
+  // 실제 표시 크기 (패딩 포함)
   const actualWidth =
     element.width === "auto"
       ? "auto"
@@ -57,8 +62,8 @@ export default function ImageElementComponent({
       style={{
         left: element.x,
         top: element.y,
-        width: actualWidth,
-        height: actualHeight,
+        width: originalWidth,
+        height: originalHeight,
         zIndex: element.zIndex,
         paddingTop: safePadding.top,
         paddingRight: safePadding.right,
