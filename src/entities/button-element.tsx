@@ -64,7 +64,7 @@ export default function ButtonElementComponent({
       ) : (
         <button
           style={buttonStyle}
-          onClick={(e) => {
+          onDoubleClick={(e) => {
             e.stopPropagation();
             if (element.href) {
               window.open(element.href, "_blank");

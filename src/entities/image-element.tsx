@@ -3,6 +3,7 @@
 import React, { useRef } from "react";
 import { ImageElement } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
+import Image from "next/image";
 
 interface ImageElementProps {
   element: ImageElement;
@@ -48,13 +49,15 @@ export default function ImageElementComponent({
       onClick={onSelect}
     >
       {element.src ? (
-        <img
+        <Image
           src={element.src}
           alt={element.alt}
           className="w-full h-full"
           style={{
             objectFit: element.objectFit,
           }}
+          width={element.width}
+          height={element.height}
         />
       ) : (
         <div

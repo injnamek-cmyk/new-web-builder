@@ -15,11 +15,19 @@ export default function Canvas() {
   const renderElement = (element: Element) => {
     const isSelected = canvas.selectedElementId === element.id;
     const onSelect = (e: React.MouseEvent) => {
+      console.log("onSelect called for element:", element.id);
       e.stopPropagation(); // 이벤트 버블링 방지
       selectElement(element.id);
+      console.log("selectElement called with:", element.id);
     };
-    console.log(canvas.selectedElementId);
-    console.log("isSelected", isSelected);
+    console.log(
+      "Element:",
+      element.id,
+      "Selected ID:",
+      canvas.selectedElementId,
+      "isSelected:",
+      isSelected
+    );
 
     switch (element.type) {
       case "text":
