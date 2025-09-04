@@ -3,7 +3,7 @@
 import React from "react";
 import { TextElement, Element } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
-import { cn } from "@/lib/utils";
+import { cn, getValidPaddingValue } from "@/lib/utils";
 import DraggableElement from "@/features/draggable-element";
 import ImageElementComponent from "@/entities/image-element";
 import ButtonElementComponent from "@/entities/button-element";
@@ -131,8 +131,8 @@ export default function TextElementComponent({
             color: element.color,
             textAlign: element.textAlign,
             fontWeight: element.fontWeight,
-            minWidth: element.width === "auto" ? "fit-content" : undefined,
-            minHeight: element.height === "auto" ? "fit-content" : undefined,
+            minWidth: element.width === "auto" ? "fit-content" : 20,
+            minHeight: element.height === "auto" ? "fit-content" : 20,
           }}
           autoFocus
         />
@@ -148,8 +148,8 @@ export default function TextElementComponent({
             color: element.color,
             textAlign: element.textAlign,
             fontWeight: element.fontWeight,
-            minWidth: element.width === "auto" ? "fit-content" : undefined,
-            minHeight: element.height === "auto" ? "fit-content" : undefined,
+            minWidth: element.width === "auto" ? "fit-content" : 20,
+            minHeight: element.height === "auto" ? "fit-content" : 20,
           }}
         >
           {element.content || "텍스트를 입력하세요"}

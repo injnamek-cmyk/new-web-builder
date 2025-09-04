@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -13,12 +13,39 @@ import {
 } from "@/components/ui/select";
 import { useEditorStore } from "@/processes/editor-store";
 import { Element } from "@/shared/types";
-import { cn } from "@/lib/utils";
+import { cn, getValidPaddingValue } from "@/lib/utils";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 
 export default function PropertyPanel() {
   const { canvas, updateElement, deleteElement, addChildElement } =
     useEditorStore();
+
+  // 타입 자동 추론을 위한 핸들러 함수
+  const createAutoTypeHandler = (property: string, elementId: string) => {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      const input = e.target;
+      const value = input.value;
+      const inputType = input.type;
+
+      let processedValue: any = value;
+
+      // input type에 따라 자동으로 값 변환
+      if (inputType === "number") {
+        processedValue = value === "" ? 0 : parseFloat(value);
+        if (isNaN(processedValue)) processedValue = 0;
+      } else if (inputType === "text") {
+        // text input에서 "auto" 처리
+        if (value === "auto") {
+          processedValue = "auto";
+        } else {
+          const numValue = parseFloat(value);
+          processedValue = isNaN(numValue) ? value : numValue;
+        }
+      }
+
+      updateElement(elementId, { [property]: processedValue });
+    };
+  };
 
   // 다중 선택된 경우 속성 패널 비활성화
   if (canvas.selectedElementIds.length === 0) {
@@ -61,6 +88,20 @@ export default function PropertyPanel() {
     );
   }
 
+  // 자동 타입 추론 핸들러들
+  const handleXChange = createAutoTypeHandler("x", selectedElement.id);
+  const handleYChange = createAutoTypeHandler("y", selectedElement.id);
+  const handleWidthChange = createAutoTypeHandler("width", selectedElement.id);
+  const handleHeightChange = createAutoTypeHandler(
+    "height",
+    selectedElement.id
+  );
+  const handleZIndexChange = createAutoTypeHandler(
+    "zIndex",
+    selectedElement.id
+  );
+
+  // 일반 속성 변경 핸들러
   const handlePropertyChange = (property: string, value: any) => {
     updateElement(selectedElement.id, { [property]: value });
   };
@@ -74,12 +115,13 @@ export default function PropertyPanel() {
   const handleSpacingChange = (
     property: "padding",
     side: "top" | "right" | "bottom" | "left",
-    value: number
+    value: string | number
   ) => {
+    const safeValue = getValidPaddingValue(value);
     updateElement(selectedElement.id, {
       [property]: {
         ...selectedElement[property],
-        [side]: value,
+        [side]: safeValue,
       },
     });
   };
@@ -96,11 +138,7 @@ export default function PropertyPanel() {
               type="number"
               value={element.padding.top}
               onChange={(e) =>
-                handleSpacingChange(
-                  "padding",
-                  "top",
-                  parseInt(e.target.value) || 0
-                )
+                handleSpacingChange("padding", "top", e.target.value)
               }
             />
           </div>
@@ -111,11 +149,7 @@ export default function PropertyPanel() {
               type="number"
               value={element.padding.right}
               onChange={(e) =>
-                handleSpacingChange(
-                  "padding",
-                  "right",
-                  parseInt(e.target.value) || 0
-                )
+                handleSpacingChange("padding", "right", e.target.value)
               }
             />
           </div>
@@ -126,11 +160,7 @@ export default function PropertyPanel() {
               type="number"
               value={element.padding.bottom}
               onChange={(e) =>
-                handleSpacingChange(
-                  "padding",
-                  "bottom",
-                  parseInt(e.target.value) || 0
-                )
+                handleSpacingChange("padding", "bottom", e.target.value)
               }
             />
           </div>
@@ -141,11 +171,7 @@ export default function PropertyPanel() {
               type="number"
               value={element.padding.left}
               onChange={(e) =>
-                handleSpacingChange(
-                  "padding",
-                  "left",
-                  parseInt(e.target.value) || 0
-                )
+                handleSpacingChange("padding", "left", e.target.value)
               }
             />
           </div>
@@ -381,9 +407,7 @@ export default function PropertyPanel() {
             id="x"
             type="number"
             value={element.x}
-            onChange={(e) =>
-              handlePropertyChange("x", parseInt(e.target.value))
-            }
+            onChange={handleXChange}
           />
         </div>
         <div>
@@ -392,9 +416,7 @@ export default function PropertyPanel() {
             id="y"
             type="number"
             value={element.y}
-            onChange={(e) =>
-              handlePropertyChange("y", parseInt(e.target.value))
-            }
+            onChange={handleYChange}
           />
         </div>
       </div>
@@ -404,22 +426,22 @@ export default function PropertyPanel() {
           <Label htmlFor="width">너비</Label>
           <Input
             id="width"
-            type="number"
-            value={element.width}
-            onChange={(e) =>
-              handlePropertyChange("width", parseInt(e.target.value))
-            }
+            type="text"
+            placeholder="auto 또는 숫자"
+            value={element.width === "auto" ? "auto" : element.width.toString()}
+            onChange={handleWidthChange}
           />
         </div>
         <div>
           <Label htmlFor="height">높이</Label>
           <Input
             id="height"
-            type="number"
-            value={element.height}
-            onChange={(e) =>
-              handlePropertyChange("height", parseInt(e.target.value))
+            type="text"
+            placeholder="auto 또는 숫자"
+            value={
+              element.height === "auto" ? "auto" : element.height.toString()
             }
+            onChange={handleHeightChange}
           />
         </div>
       </div>
@@ -430,9 +452,7 @@ export default function PropertyPanel() {
           id="zIndex"
           type="number"
           value={element.zIndex}
-          onChange={(e) =>
-            handlePropertyChange("zIndex", parseInt(e.target.value))
-          }
+          onChange={handleZIndexChange}
         />
       </div>
     </div>

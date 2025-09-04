@@ -3,7 +3,7 @@
 import React from "react";
 import { ButtonElement, Element } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
-import { cn } from "@/lib/utils";
+import { cn, getValidPaddingValue } from "@/lib/utils";
 import DraggableElement from "@/features/draggable-element";
 import TextElementComponent from "@/entities/text-element";
 import ImageElementComponent from "@/entities/image-element";
@@ -84,31 +84,38 @@ export default function ButtonElementComponent({
   };
 
   // 실제 요소의 최종 크기 계산 (패딩 포함)
+  const safePadding = {
+    top: getValidPaddingValue(element.padding.top),
+    right: getValidPaddingValue(element.padding.right),
+    bottom: getValidPaddingValue(element.padding.bottom),
+    left: getValidPaddingValue(element.padding.left),
+  };
+
   const actualWidth =
     element.width === "auto"
       ? "auto"
-      : element.width + element.padding.left + element.padding.right;
+      : Math.max(element.width + safePadding.left + safePadding.right, 20);
   const actualHeight =
     element.height === "auto"
       ? "auto"
-      : element.height + element.padding.top + element.padding.bottom;
+      : Math.max(element.height + safePadding.top + safePadding.bottom, 20);
 
   const buttonStyle = {
     backgroundColor: element.backgroundColor,
     color: element.textColor,
     borderRadius: element.borderRadius,
-    paddingTop: element.padding.top,
-    paddingRight: element.padding.right,
-    paddingBottom: element.padding.bottom,
-    paddingLeft: element.padding.left,
+    paddingTop: safePadding.top,
+    paddingRight: safePadding.right,
+    paddingBottom: safePadding.bottom,
+    paddingLeft: safePadding.left,
     width: element.width === "auto" ? "auto" : "100%",
     height: element.height === "auto" ? "auto" : "100%",
     border: "none",
     cursor: "pointer",
     fontSize: "16px",
     fontWeight: "500",
-    minWidth: element.width === "auto" ? "fit-content" : undefined,
-    minHeight: element.height === "auto" ? "fit-content" : undefined,
+    minWidth: element.width === "auto" ? "fit-content" : 20,
+    minHeight: element.height === "auto" ? "fit-content" : 20,
   };
 
   return (
@@ -125,8 +132,8 @@ export default function ButtonElementComponent({
         zIndex: element.zIndex,
         position: "relative",
         display: "inline-block",
-        minWidth: element.width === "auto" ? "fit-content" : undefined,
-        minHeight: element.height === "auto" ? "fit-content" : undefined,
+        minWidth: element.width === "auto" ? "fit-content" : 20,
+        minHeight: element.height === "auto" ? "fit-content" : 20,
       }}
       onClick={onSelect}
     >

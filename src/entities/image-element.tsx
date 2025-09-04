@@ -3,7 +3,7 @@
 import React, { useRef } from "react";
 import { ImageElement } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
-import { cn } from "@/lib/utils";
+import { cn, getValidPaddingValue } from "@/lib/utils";
 import Image from "next/image";
 
 interface ImageElementProps {
@@ -32,14 +32,21 @@ export default function ImageElementComponent({
   };
 
   // 실제 요소의 최종 크기 계산 (패딩 포함)
+  const safePadding = {
+    top: getValidPaddingValue(element.padding.top),
+    right: getValidPaddingValue(element.padding.right),
+    bottom: getValidPaddingValue(element.padding.bottom),
+    left: getValidPaddingValue(element.padding.left),
+  };
+
   const actualWidth =
     element.width === "auto"
       ? "auto"
-      : element.width + element.padding.left + element.padding.right;
+      : Math.max(element.width + safePadding.left + safePadding.right, 20);
   const actualHeight =
     element.height === "auto"
       ? "auto"
-      : element.height + element.padding.top + element.padding.bottom;
+      : Math.max(element.height + safePadding.top + safePadding.bottom, 20);
 
   return (
     <div
@@ -53,13 +60,13 @@ export default function ImageElementComponent({
         width: actualWidth,
         height: actualHeight,
         zIndex: element.zIndex,
-        paddingTop: element.padding.top,
-        paddingRight: element.padding.right,
-        paddingBottom: element.padding.bottom,
-        paddingLeft: element.padding.left,
+        paddingTop: safePadding.top,
+        paddingRight: safePadding.right,
+        paddingBottom: safePadding.bottom,
+        paddingLeft: safePadding.left,
         display: "inline-block",
-        minWidth: element.width === "auto" ? "fit-content" : undefined,
-        minHeight: element.height === "auto" ? "fit-content" : undefined,
+        minWidth: element.width === "auto" ? "fit-content" : 20,
+        minHeight: element.height === "auto" ? "fit-content" : 20,
       }}
       onClick={onSelect}
     >

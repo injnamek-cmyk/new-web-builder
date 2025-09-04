@@ -25,8 +25,8 @@ export default function Canvas() {
   // 키보드 이벤트 핸들러
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Delete 키로 선택된 요소들 삭제
-      if (e.key === "Delete" || e.key === "Backspace") {
+      // Delete 키로 선택된 요소들 삭제 (백스페이스 키는 제외)
+      if (e.key === "Delete") {
         if (canvas.selectedElementIds.length > 0) {
           deleteSelectedElements();
         }
@@ -142,7 +142,7 @@ export default function Canvas() {
             {canvas.selectedElementIds.length}개 요소 선택됨
           </div>
           <div className="text-xs mt-1 opacity-90">
-            화살표 키: 이동 | Shift+화살표: 빠른 이동 | Delete: 삭제
+            화살표 키: 이동 | Shift+화살표: 빠른 이동 | Delete 키: 삭제
           </div>
         </div>
       )}

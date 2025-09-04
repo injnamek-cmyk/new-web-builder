@@ -8,26 +8,35 @@ import PropertyPanel from "./property-panel";
 import { useEditorStore } from "@/processes/editor-store";
 
 function LayoutContent() {
-  const { toggleGrid } = useEditorStore();
+  const { toggleGrid, deleteSelectedElements, canvas } = useEditorStore();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // 입력 필드에 포커스가 있지 않을 때만 실행
+      const isInputFocused =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        document.activeElement?.contentEditable === "true";
+
+      if (isInputFocused) {
+        return; // 입력 필드에 포커스가 있으면 키보드 이벤트 무시
+      }
+
       // G키로 그리드 토글
       if (event.key === "g" || event.key === "G") {
-        // 입력 필드에 포커스가 있지 않을 때만 실행
-        if (
-          document.activeElement?.tagName !== "INPUT" &&
-          document.activeElement?.tagName !== "TEXTAREA"
-        ) {
-          event.preventDefault();
-          toggleGrid();
-        }
+        event.preventDefault();
+        toggleGrid();
+      }
+
+      // 백스페이스 키로 선택된 요소 삭제 방지
+      if (event.key === "Backspace" || event.key === "Delete") {
+        event.preventDefault();
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [toggleGrid]);
+  }, [toggleGrid, deleteSelectedElements, canvas.selectedElementIds]);
 
   return (
     <div className="h-screen flex bg-gray-100">

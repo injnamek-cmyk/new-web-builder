@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ContainerElement, Element } from "@/shared/types";
-import { cn } from "@/lib/utils";
+import { cn, getValidPaddingValue } from "@/lib/utils";
 import { useEditorStore } from "@/processes/editor-store";
 import DraggableElement from "@/features/draggable-element";
 import TextElementComponent from "@/entities/text-element";
@@ -26,14 +26,21 @@ export default function ContainerElementComponent({
   const childElements = getChildElements(element.id);
 
   // 실제 요소의 최종 크기 계산 (패딩 포함)
+  const safePadding = {
+    top: getValidPaddingValue(element.padding.top),
+    right: getValidPaddingValue(element.padding.right),
+    bottom: getValidPaddingValue(element.padding.bottom),
+    left: getValidPaddingValue(element.padding.left),
+  };
+
   const actualWidth =
     element.width === "auto"
       ? "auto"
-      : element.width + element.padding.left + element.padding.right;
+      : Math.max(element.width + safePadding.left + safePadding.right, 20);
   const actualHeight =
     element.height === "auto"
       ? "auto"
-      : element.height + element.padding.top + element.padding.bottom;
+      : Math.max(element.height + safePadding.top + safePadding.bottom, 20);
 
   const containerStyle = {
     backgroundColor:
@@ -41,17 +48,17 @@ export default function ContainerElementComponent({
         ? "transparent"
         : element.backgroundColor,
     borderRadius: element.borderRadius,
-    paddingTop: element.padding.top,
-    paddingRight: element.padding.right,
-    paddingBottom: element.padding.bottom,
-    paddingLeft: element.padding.left,
+    paddingTop: safePadding.top,
+    paddingRight: safePadding.right,
+    paddingBottom: safePadding.bottom,
+    paddingLeft: safePadding.left,
     width: element.width === "auto" ? "auto" : "100%",
     height: element.height === "auto" ? "auto" : "100%",
     position: "relative" as const,
     border:
       element.backgroundColor === "transparent" ? "none" : "1px solid #d1d5db",
-    minWidth: element.width === "auto" ? "fit-content" : undefined,
-    minHeight: element.height === "auto" ? "fit-content" : undefined,
+    minWidth: element.width === "auto" ? "fit-content" : 20,
+    minHeight: element.height === "auto" ? "fit-content" : 20,
   };
 
   // 자식 요소 렌더링 함수
