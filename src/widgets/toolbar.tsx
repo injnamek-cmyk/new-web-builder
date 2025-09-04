@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 import { useEditorStore } from "@/processes/editor-store";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import { ElementType } from "@/shared/types";
-import { Type, Image, Square, Container } from "lucide-react";
+import { Type, Image, Square, Container, Grid3X3 } from "lucide-react";
 
 const elementTypes: {
   type: ElementType;
@@ -31,6 +31,8 @@ export default function Toolbar() {
     saveToLocalStorage,
     loadFromLocalStorage,
     clearCanvas,
+    toggleGrid,
+    grid,
   } = useEditorStore();
 
   const handleAddElement = (type: ElementType) => {
@@ -66,6 +68,21 @@ export default function Toolbar() {
           </Button>
           <Button variant="outline" size="sm" onClick={redo}>
             다시 실행
+          </Button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <h3 className="text-sm font-medium text-gray-700">보기</h3>
+        <div className="flex gap-2">
+          <Button
+            variant={grid.showGrid ? "default" : "outline"}
+            size="sm"
+            onClick={toggleGrid}
+            className="flex items-center gap-2"
+          >
+            <Grid3X3 className="w-4 h-4" />
+            그리드 {grid.showGrid ? "끄기" : "켜기"} (G)
           </Button>
         </div>
       </div>

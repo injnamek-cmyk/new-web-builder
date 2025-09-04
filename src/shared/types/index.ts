@@ -74,6 +74,15 @@ export interface Canvas {
   height: number;
 }
 
+// 그리드 설정
+export interface GridConfig {
+  showGrid: boolean;
+  columns: number;
+  rows: number;
+  cellSize: number;
+  snapToGrid: boolean;
+}
+
 // 편집기 상태
 export interface EditorState {
   canvas: Canvas;
@@ -81,6 +90,7 @@ export interface EditorState {
   historyIndex: number;
   isDragging: boolean;
   isResizing: boolean;
+  grid: GridConfig;
 }
 
 // 드래그 앤 드롭 관련 타입

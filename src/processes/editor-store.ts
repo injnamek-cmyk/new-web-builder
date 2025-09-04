@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Element, Canvas, EditorState } from "@/shared/types";
+import { Element, Canvas, EditorState, GridConfig } from "@/shared/types";
 
 interface EditorStore extends EditorState {
   // 캔버스 조작
@@ -24,6 +24,11 @@ interface EditorStore extends EditorState {
 
   // 캔버스 초기화
   clearCanvas: () => void;
+
+  // 그리드 관리
+  toggleGrid: () => void;
+  setGridConfig: (config: Partial<GridConfig>) => void;
+  snapToGrid: (x: number, y: number) => { x: number; y: number };
 }
 
 const initialCanvas: Canvas = {
@@ -31,6 +36,14 @@ const initialCanvas: Canvas = {
   selectedElementId: null,
   width: 1200,
   height: 800,
+};
+
+const initialGrid: GridConfig = {
+  showGrid: false,
+  columns: 24,
+  rows: 20,
+  cellSize: 20,
+  snapToGrid: true,
 };
 
 const initialHistory: Canvas[] = [initialCanvas];
@@ -41,18 +54,16 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   historyIndex: 0,
   isDragging: false,
   isResizing: false,
+  grid: initialGrid,
 
   addElement: (element) => {
-    set((state) => {
-      const newCanvas = {
+    set((state) => ({
+      canvas: {
         ...state.canvas,
         elements: [...state.canvas.elements, element],
-      };
-      return {
-        canvas: newCanvas,
         selectedElementId: element.id,
-      };
-    });
+      },
+    }));
     get().saveToHistory();
   },
 
@@ -61,7 +72,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       canvas: {
         ...state.canvas,
         elements: state.canvas.elements.map((element) =>
-          element.id === id ? { ...element, ...updates } : element
+          element.id === id ? ({ ...element, ...updates } as Element) : element
         ),
       },
     }));
@@ -154,7 +165,12 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     if (saved) {
       try {
         const canvas = JSON.parse(saved);
-        set({ canvas, selectedElementId: null });
+        set({
+          canvas: {
+            ...canvas,
+            selectedElementId: null,
+          },
+        });
         get().saveToHistory();
       } catch (error) {
         console.error("Failed to load from localStorage:", error);
@@ -168,5 +184,34 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       history: initialHistory,
       historyIndex: 0,
     });
+  },
+
+  toggleGrid: () => {
+    set((state) => ({
+      grid: {
+        ...state.grid,
+        showGrid: !state.grid.showGrid,
+      },
+    }));
+  },
+
+  setGridConfig: (config) => {
+    set((state) => ({
+      grid: {
+        ...state.grid,
+        ...config,
+      },
+    }));
+  },
+
+  snapToGrid: (x, y) => {
+    const { grid } = get();
+    if (!grid.snapToGrid) return { x, y };
+
+    const cellSize = grid.cellSize;
+    return {
+      x: Math.round(x / cellSize) * cellSize,
+      y: Math.round(y / cellSize) * cellSize,
+    };
   },
 }));

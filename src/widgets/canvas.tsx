@@ -8,9 +8,10 @@ import TextElementComponent from "@/entities/text-element";
 import ImageElementComponent from "@/entities/image-element";
 import ButtonElementComponent from "@/entities/button-element";
 import ContainerElementComponent from "@/entities/container-element";
+import GridOverlay from "@/components/ui/grid-overlay";
 
 export default function Canvas() {
-  const { canvas, selectElement } = useEditorStore();
+  const { canvas, selectElement, grid } = useEditorStore();
 
   const renderElement = (element: Element) => {
     const isSelected = canvas.selectedElementId === element.id;
@@ -74,9 +75,21 @@ export default function Canvas() {
           height: canvas.height,
           minWidth: canvas.width,
           minHeight: canvas.height,
+          display: grid.showGrid ? "grid" : "block",
+          gridTemplateColumns: grid.showGrid
+            ? `repeat(${grid.columns}, 1fr)`
+            : "none",
+          gridTemplateRows: grid.showGrid
+            ? `repeat(${grid.rows}, minmax(${grid.cellSize}px, auto))`
+            : "none",
         }}
         onClick={() => selectElement(null)}
       >
+        <GridOverlay
+          grid={grid}
+          canvasWidth={canvas.width}
+          canvasHeight={canvas.height}
+        />
         {canvas.elements.map(renderElement)}
       </div>
     </div>
