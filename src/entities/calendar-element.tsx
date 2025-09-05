@@ -129,60 +129,7 @@ export default function CalendarElementComponent({
       }}
       onClick={onSelect}
     >
-      {isSelected ? (
-        <div className="space-y-2">
-          <div className="text-sm text-gray-600">캘린더 설정</div>
-          <div className="space-y-2">
-            <div>
-              <label className="text-xs">모드:</label>
-              <select
-                value={element.mode || "single"}
-                onChange={(e) =>
-                  updateElement(element.id, {
-                    mode: e.target.value as "single" | "range" | "multiple",
-                  })
-                }
-                className="w-full px-2 py-1 text-sm border rounded"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <option value="single">단일 선택</option>
-                <option value="range">범위 선택</option>
-                <option value="multiple">다중 선택</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="showOutsideDays"
-                checked={element.showOutsideDays || false}
-                onChange={(e) =>
-                  updateElement(element.id, {
-                    showOutsideDays: e.target.checked,
-                  })
-                }
-                onClick={(e) => e.stopPropagation()}
-              />
-              <label htmlFor="showOutsideDays" className="text-xs">
-                외부 날짜 표시
-              </label>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="disabled"
-                checked={element.disabled || false}
-                onChange={(e) =>
-                  updateElement(element.id, { disabled: e.target.checked })
-                }
-                onClick={(e) => e.stopPropagation()}
-              />
-              <label htmlFor="disabled" className="text-xs">
-                비활성화
-              </label>
-            </div>
-          </div>
-        </div>
-      ) : element.mode === "range" ? (
+      {element.mode === "range" ? (
         <Calendar
           mode="range"
           selected={
