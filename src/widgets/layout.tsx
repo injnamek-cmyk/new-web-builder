@@ -15,16 +15,16 @@ import {
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import { ElementType } from "@/shared/types";
 import {
-  PanelRight,
   ZoomIn,
   ZoomOut,
-  RotateCcw,
   Plus,
   Type,
   Image,
   Square,
   Container,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Calendar,
 } from "lucide-react";
 
@@ -107,7 +107,7 @@ function LayoutContent() {
   }, [toggleRightPanel, resetCanvasZoom]);
 
   return (
-    <div className="h-screen flex flex-col lg:flex-row bg-gray-100">
+    <div className="h-screen flex flex-col lg:flex-row bg-gray-100 relative">
       {/* 상단 +Add 버튼 (모바일/태블릿) */}
       <div className="lg:hidden bg-white border-b border-gray-200 p-4">
         <div className="flex items-center justify-center">
@@ -140,34 +140,6 @@ function LayoutContent() {
 
       {/* 중앙 캔버스 영역 */}
       <div className="flex-1 flex flex-col min-w-0 relative">
-        {/* 줌 컨트롤 (데스크톱) */}
-        <div className="hidden lg:flex absolute top-4 right-4 z-20 bg-white rounded-lg shadow-lg p-2 gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCanvasZoom(canvasZoom - 0.1)}
-            disabled={canvasZoom <= 0.1}
-          >
-            <ZoomOut className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={resetCanvasZoom}
-            className="min-w-[60px]"
-          >
-            {Math.round(canvasZoom * 100)}%
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCanvasZoom(canvasZoom + 0.1)}
-            disabled={canvasZoom >= 3}
-          >
-            <ZoomIn className="w-4 h-4" />
-          </Button>
-        </div>
-
         {/* +Add 드롭다운 버튼 (데스크톱) */}
         <div className="hidden lg:flex absolute top-6 left-6 z-20">
           <DropdownMenu>
@@ -201,18 +173,6 @@ function LayoutContent() {
           </DropdownMenu>
         </div>
 
-        {/* 패널 토글 버튼들 (데스크톱) */}
-        <div className="hidden lg:flex absolute top-6 right-6 z-20 gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleRightPanel}
-            className="bg-white/90 backdrop-blur-sm shadow-lg hover:bg-white transition-all duration-200"
-          >
-            <PanelRight className="w-4 h-4" />
-          </Button>
-        </div>
-
         <Canvas />
       </div>
 
@@ -221,13 +181,59 @@ function LayoutContent() {
         <PropertyPanel />
       </div>
 
-      {/* 오른쪽 속성 패널 (데스크톱) */}
+      {/* 줌 컨트롤 (데스크톱) - 하단 가운데로 이동 */}
+      <div className="hidden lg:flex absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50 bg-white rounded-lg shadow-lg p-2 gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setCanvasZoom(canvasZoom - 0.1)}
+          disabled={canvasZoom <= 0.1}
+        >
+          <ZoomOut className="w-4 h-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={resetCanvasZoom}
+          className="min-w-[60px]"
+        >
+          {Math.round(canvasZoom * 100)}%
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setCanvasZoom(canvasZoom + 0.1)}
+          disabled={canvasZoom >= 3}
+        >
+          <ZoomIn className="w-4 h-4" />
+        </Button>
+      </div>
+
+      {/* 오른쪽 속성 패널 (데스크톱) - 오버레이로 변경 */}
       <div
-        className={`hidden lg:block bg-white border-l border-gray-200 p-4 overflow-y-auto transition-all duration-300 ${
-          rightPanelVisible ? "w-80" : "w-0 p-0"
+        className={`hidden lg:block absolute top-0 right-0 h-full bg-white border-l border-gray-200 transition-all duration-300 z-40 ${
+          rightPanelVisible ? "w-80" : "w-12"
         }`}
       >
-        {rightPanelVisible && <PropertyPanel />}
+        {/* 속성 패널 토글 버튼 */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={toggleRightPanel}
+          className="absolute -left-4 top-4 z-50 bg-white border-2 border-gray-200 shadow-lg hover:bg-gray-50 transition-all duration-200"
+        >
+          {rightPanelVisible ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
+        </Button>
+
+        {rightPanelVisible && (
+          <div className="p-4 h-full overflow-y-auto">
+            <PropertyPanel />
+          </div>
+        )}
       </div>
     </div>
   );

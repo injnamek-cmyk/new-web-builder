@@ -198,7 +198,10 @@ export default function Canvas() {
   };
 
   return (
-    <div ref={canvasRef} className="flex-1 bg-gray-50 relative overflow-auto">
+    <div
+      ref={canvasRef}
+      className="flex-1 bg-gray-50 relative overflow-auto hide-scrollbar"
+    >
       {/* 선택된 요소 정보 표시 */}
       {canvas.selectedElementIds.length > 0 && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-3 text-sm font-medium text-gray-700">

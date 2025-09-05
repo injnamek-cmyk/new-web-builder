@@ -120,3 +120,35 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* 스크롤바 스타일 - 호버 시에만 표시 */
+.hide-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.hide-scrollbar:hover {
+  scrollbar-color: #d1d5db transparent;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.hide-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hide-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.hide-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+}
+
+.hide-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
