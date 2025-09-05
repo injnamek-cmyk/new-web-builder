@@ -4,6 +4,7 @@ import React from "react";
 import { ButtonElement, Element } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
 import { cn, getValidPaddingValue } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import DraggableElement from "@/features/draggable-element";
 import TextElementComponent from "@/entities/text-element";
 import ImageElementComponent from "@/entities/image-element";
@@ -100,20 +101,10 @@ export default function ButtonElementComponent({
       ? "auto"
       : Math.max(element.height + safePadding.top + safePadding.bottom, 20);
 
+  // shadcn Button 컴포넌트에 전달할 스타일
   const buttonStyle = {
-    backgroundColor: element.backgroundColor,
-    color: element.textColor,
-    borderRadius: element.borderRadius,
-    paddingTop: safePadding.top,
-    paddingRight: safePadding.right,
-    paddingBottom: safePadding.bottom,
-    paddingLeft: safePadding.left,
     width: element.width === "auto" ? "auto" : "100%",
     height: element.height === "auto" ? "auto" : "100%",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "16px",
-    fontWeight: "500",
     minWidth: element.width === "auto" ? "fit-content" : 20,
     minHeight: element.height === "auto" ? "fit-content" : 20,
   };
@@ -151,7 +142,7 @@ export default function ButtonElementComponent({
           autoFocus
         />
       ) : (
-        <button
+        <Button
           style={buttonStyle}
           onDoubleClick={(e) => {
             e.stopPropagation();
@@ -159,9 +150,10 @@ export default function ButtonElementComponent({
               window.open(element.href, "_blank");
             }
           }}
+          className="w-full h-full"
         >
           {element.text || "버튼"}
-        </button>
+        </Button>
       )}
       {childElements.map(renderChildElement)}
     </div>

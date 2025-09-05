@@ -8,6 +8,8 @@ import TextElementComponent from "@/entities/text-element";
 import ImageElementComponent from "@/entities/image-element";
 import ButtonElementComponent from "@/entities/button-element";
 import ContainerElementComponent from "@/entities/container-element";
+import AccordionElementComponent from "@/entities/accordion-element";
+import CalendarElementComponent from "@/entities/calendar-element";
 import GridOverlay from "@/components/ui/grid-overlay";
 
 export default function Canvas() {
@@ -152,6 +154,32 @@ export default function Canvas() {
             element={element}
           >
             <ContainerElementComponent
+              element={element}
+              isSelected={isElementSelected}
+              onSelect={onSelect}
+            />
+          </DraggableElement>
+        );
+      case "accordion":
+        return (
+          <DraggableElement
+            key={`${element.id}-${element.parentId || "root"}`}
+            element={element}
+          >
+            <AccordionElementComponent
+              element={element}
+              isSelected={isElementSelected}
+              onSelect={onSelect}
+            />
+          </DraggableElement>
+        );
+      case "calendar":
+        return (
+          <DraggableElement
+            key={`${element.id}-${element.parentId || "root"}`}
+            element={element}
+          >
+            <CalendarElementComponent
               element={element}
               isSelected={isElementSelected}
               onSelect={onSelect}

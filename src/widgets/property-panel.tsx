@@ -18,6 +18,8 @@ import {
   ImageElement,
   ButtonElement,
   ContainerElement,
+  AccordionElement,
+  CalendarElement,
 } from "@/shared/types";
 import { getValidPaddingValue } from "@/lib/utils";
 import { createElement, generateId } from "@/shared/lib/element-factory";
@@ -531,6 +533,101 @@ export default function PropertyPanel() {
     </div>
   );
 
+  const renderAccordionProperties = (element: AccordionElement) => (
+    <div className="space-y-2 lg:space-y-4">
+      <div>
+        <Label className="text-xs">아코디언 설정</Label>
+        <div className="space-y-2 mt-1 lg:mt-2">
+          <div>
+            <Label className="text-xs">변형</Label>
+            <Select
+              value={element.variant || "default"}
+              onValueChange={(value) =>
+                updateElement(element.id, { variant: value as any })
+              }
+            >
+              <SelectTrigger className="h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">기본</SelectItem>
+                <SelectItem value="outline">아웃라인</SelectItem>
+                <SelectItem value="ghost">고스트</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="collapsible"
+              checked={element.collapsible || false}
+              onChange={(e) =>
+                updateElement(element.id, { collapsible: e.target.checked })
+              }
+            />
+            <Label htmlFor="collapsible" className="text-xs">
+              접을 수 있음
+            </Label>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderCalendarProperties = (element: CalendarElement) => (
+    <div className="space-y-2 lg:space-y-4">
+      <div>
+        <Label className="text-xs">캘린더 설정</Label>
+        <div className="space-y-2 mt-1 lg:mt-2">
+          <div>
+            <Label className="text-xs">모드</Label>
+            <Select
+              value={element.mode || "single"}
+              onValueChange={(value) =>
+                updateElement(element.id, { mode: value as any })
+              }
+            >
+              <SelectTrigger className="h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="single">단일 선택</SelectItem>
+                <SelectItem value="range">범위 선택</SelectItem>
+                <SelectItem value="multiple">다중 선택</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="showOutsideDays"
+              checked={element.showOutsideDays || false}
+              onChange={(e) =>
+                updateElement(element.id, { showOutsideDays: e.target.checked })
+              }
+            />
+            <Label htmlFor="showOutsideDays" className="text-xs">
+              외부 날짜 표시
+            </Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="disabled"
+              checked={element.disabled || false}
+              onChange={(e) =>
+                updateElement(element.id, { disabled: e.target.checked })
+              }
+            />
+            <Label htmlFor="disabled" className="text-xs">
+              비활성화
+            </Label>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderSpecificProperties = () => {
     switch (selectedElement.type) {
       case "text":
@@ -541,6 +638,10 @@ export default function PropertyPanel() {
         return renderButtonProperties(selectedElement);
       case "container":
         return renderContainerProperties(selectedElement);
+      case "accordion":
+        return renderAccordionProperties(selectedElement);
+      case "calendar":
+        return renderCalendarProperties(selectedElement);
       default:
         return null;
     }

@@ -1,5 +1,11 @@
 // 기본 요소 타입
-export type ElementType = "text" | "image" | "button" | "container";
+export type ElementType =
+  | "text"
+  | "image"
+  | "button"
+  | "container"
+  | "accordion"
+  | "calendar";
 
 // 스타일 속성 인터페이스
 export interface SpacingStyle {
@@ -65,12 +71,36 @@ export interface ContainerElement extends BaseElement {
   borderRadius: number;
 }
 
+// 아코디언 요소
+export interface AccordionElement extends BaseElement {
+  type: "accordion";
+  items: {
+    id: string;
+    title: string;
+    content: string;
+  }[];
+  variant?: "default" | "outline" | "ghost";
+  collapsible?: boolean;
+}
+
+// 캘린더 요소
+export interface CalendarElement extends BaseElement {
+  type: "calendar";
+  mode?: "single" | "range" | "multiple";
+  selectedDate?: Date;
+  selectedDates?: Date[];
+  showOutsideDays?: boolean;
+  disabled?: boolean;
+}
+
 // 모든 요소 타입의 유니온
 export type Element =
   | TextElement
   | ImageElement
   | ButtonElement
-  | ContainerElement;
+  | ContainerElement
+  | AccordionElement
+  | CalendarElement;
 
 // 캔버스 상태
 export interface Canvas {

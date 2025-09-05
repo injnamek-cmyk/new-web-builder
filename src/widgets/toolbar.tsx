@@ -19,6 +19,8 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
+  ChevronDown,
+  Calendar,
 } from "lucide-react";
 
 const elementTypes: {
@@ -37,6 +39,16 @@ const elementTypes: {
     type: "container",
     label: "컨테이너",
     icon: <Container className="w-4 h-4" />,
+  },
+  {
+    type: "accordion",
+    label: "아코디언",
+    icon: <ChevronDown className="w-4 h-4" />,
+  },
+  {
+    type: "calendar",
+    label: "캘린더",
+    icon: <Calendar className="w-4 h-4" />,
   },
 ];
 

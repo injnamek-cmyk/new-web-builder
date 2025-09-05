@@ -4,6 +4,7 @@ import React from "react";
 import { ContainerElement, Element } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
 import { useEditorStore } from "@/processes/editor-store";
+import { Card } from "@/components/ui/card";
 import DraggableElement from "@/features/draggable-element";
 import TextElementComponent from "@/entities/text-element";
 import ImageElementComponent from "@/entities/image-element";
@@ -47,21 +48,11 @@ export default function ContainerElementComponent({
       ? "auto"
       : Math.max(element.height + safePadding.top + safePadding.bottom, 20);
 
+  // shadcn Card 컴포넌트에 전달할 스타일
   const containerStyle = {
-    backgroundColor:
-      element.backgroundColor === "transparent"
-        ? "transparent"
-        : element.backgroundColor,
-    borderRadius: element.borderRadius,
-    paddingTop: safePadding.top,
-    paddingRight: safePadding.right,
-    paddingBottom: safePadding.bottom,
-    paddingLeft: safePadding.left,
     width: element.width === "auto" ? "auto" : "100%",
     height: element.height === "auto" ? "auto" : "100%",
     position: "relative" as const,
-    border:
-      element.backgroundColor === "transparent" ? "none" : "1px solid #d1d5db",
     minWidth: element.width === "auto" ? "fit-content" : 20,
     minHeight: element.height === "auto" ? "fit-content" : 20,
   };
@@ -128,15 +119,14 @@ export default function ContainerElementComponent({
       }}
       onClick={onSelect}
     >
-      <div style={containerStyle}>
-        {childElements.length === 0 &&
-          element.backgroundColor !== "transparent" && (
-            <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
-              컨테이너
-            </div>
-          )}
+      <Card style={containerStyle} className="w-full h-full">
+        {childElements.length === 0 && (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
+            컨테이너
+          </div>
+        )}
         {childElements.map(renderChildElement)}
-      </div>
+      </Card>
     </div>
   );
 }
