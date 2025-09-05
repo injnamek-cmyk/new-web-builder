@@ -21,14 +21,10 @@ export default function ButtonElementComponent({
   isSelected,
   onSelect,
 }: ButtonElementProps) {
-  const { updateElement, getChildElements, selectElement } = useEditorStore();
+  const { getChildElements, selectElement } = useEditorStore();
 
   // 자식 요소들 가져오기
   const childElements = getChildElements(element.id);
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateElement(element.id, { text: e.target.value });
-  };
 
   // 자식 요소 렌더링 함수
   const renderChildElement = (childElement: Element) => {
@@ -128,33 +124,18 @@ export default function ButtonElementComponent({
       }}
       onClick={onSelect}
     >
-      {isSelected ? (
-        <input
-          type="text"
-          value={element.text}
-          onChange={handleTextChange}
-          className={cn(
-            "text-center border-none outline-none",
-            element.width === "auto" ? "w-auto" : "w-full",
-            element.height === "auto" ? "h-auto" : "h-full"
-          )}
-          style={buttonStyle}
-          autoFocus
-        />
-      ) : (
-        <Button
-          style={buttonStyle}
-          onDoubleClick={(e) => {
-            e.stopPropagation();
-            if (element.href) {
-              window.open(element.href, "_blank");
-            }
-          }}
-          className="w-full h-full"
-        >
-          {element.text || "버튼"}
-        </Button>
-      )}
+      <Button
+        style={buttonStyle}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          if (element.href) {
+            window.open(element.href, "_blank");
+          }
+        }}
+        className="w-full h-full"
+      >
+        {element.text || "버튼"}
+      </Button>
       {childElements.map(renderChildElement)}
     </div>
   );

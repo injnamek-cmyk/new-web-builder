@@ -543,7 +543,9 @@ export default function PropertyPanel() {
             <Select
               value={element.variant || "default"}
               onValueChange={(value) =>
-                updateElement(element.id, { variant: value as any })
+                updateElement(element.id, {
+                  variant: value as "default" | "outline" | "ghost",
+                })
               }
             >
               <SelectTrigger className="h-8">
@@ -584,7 +586,9 @@ export default function PropertyPanel() {
             <Select
               value={element.mode || "single"}
               onValueChange={(value) =>
-                updateElement(element.id, { mode: value as any })
+                updateElement(element.id, {
+                  mode: value as "single" | "range" | "multiple",
+                })
               }
             >
               <SelectTrigger className="h-8">

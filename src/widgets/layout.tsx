@@ -3,31 +3,74 @@
 import React, { useEffect } from "react";
 import DragDropProvider from "@/features/drag-drop";
 import Canvas from "./canvas";
-import Toolbar from "./toolbar";
 import PropertyPanel from "./property-panel";
 import { useEditorStore } from "@/processes/editor-store";
 import { Button } from "@/components/ui/button";
 import {
-  PanelLeft,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { createElement, generateId } from "@/shared/lib/element-factory";
+import { ElementType } from "@/shared/types";
+import {
   PanelRight,
   ZoomIn,
   ZoomOut,
   RotateCcw,
+  Plus,
+  Type,
+  Image,
+  Square,
+  Container,
+  ChevronDown,
+  Calendar,
 } from "lucide-react";
+
+const elementTypes: {
+  type: ElementType;
+  label: string;
+  icon: React.ReactNode;
+}[] = [
+  { type: "text", label: "텍스트", icon: <Type className="w-4 h-4" /> },
+  {
+    type: "image",
+    label: "이미지",
+    icon: <Image className="w-4 h-4" aria-label="이미지 아이콘" />,
+  },
+  { type: "button", label: "버튼", icon: <Square className="w-4 h-4" /> },
+  {
+    type: "container",
+    label: "컨테이너",
+    icon: <Container className="w-4 h-4" />,
+  },
+  {
+    type: "accordion",
+    label: "아코디언",
+    icon: <ChevronDown className="w-4 h-4" />,
+  },
+  {
+    type: "calendar",
+    label: "캘린더",
+    icon: <Calendar className="w-4 h-4" />,
+  },
+];
 
 function LayoutContent() {
   const {
-    toggleGrid,
-    deleteSelectedElements,
-    canvas,
-    leftPanelVisible,
+    addElement,
     rightPanelVisible,
-    toggleLeftPanel,
     toggleRightPanel,
     canvasZoom,
     setCanvasZoom,
     resetCanvasZoom,
   } = useEditorStore();
+
+  const handleAddElement = (type: ElementType) => {
+    const element = createElement(type, generateId());
+    addElement(element);
+  };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -39,18 +82,6 @@ function LayoutContent() {
 
       if (isInputFocused) {
         return; // 입력 필드에 포커스가 있으면 키보드 이벤트 무시
-      }
-
-      // G키로 그리드 토글
-      if (event.key === "g" || event.key === "G") {
-        event.preventDefault();
-        toggleGrid();
-      }
-
-      // Ctrl+1로 왼쪽 패널 토글
-      if (event.ctrlKey && event.key === "1") {
-        event.preventDefault();
-        toggleLeftPanel();
       }
 
       // Ctrl+2로 오른쪽 패널 토글
@@ -73,29 +104,38 @@ function LayoutContent() {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [
-    toggleGrid,
-    deleteSelectedElements,
-    canvas.selectedElementIds,
-    toggleLeftPanel,
-    toggleRightPanel,
-    resetCanvasZoom,
-  ]);
+  }, [toggleRightPanel, resetCanvasZoom]);
 
   return (
     <div className="h-screen flex flex-col lg:flex-row bg-gray-100">
-      {/* 상단 툴바 (모바일/태블릿) */}
-      <div className="lg:hidden bg-white border-b border-gray-200 p-4 overflow-x-auto">
-        <Toolbar />
-      </div>
-
-      {/* 왼쪽 툴바 (데스크톱) */}
-      <div
-        className={`hidden lg:block bg-white border-r border-gray-200 p-4 overflow-y-auto transition-all duration-300 ${
-          leftPanelVisible ? "w-64" : "w-0 p-0"
-        }`}
-      >
-        {leftPanelVisible && <Toolbar />}
+      {/* 상단 +Add 버튼 (모바일/태블릿) */}
+      <div className="lg:hidden bg-white border-b border-gray-200 p-4">
+        <div className="flex items-center justify-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="default"
+                size="sm"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg rounded-full px-6 py-3 font-medium transition-all duration-200 transform hover:scale-105"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                +Add Element
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-56">
+              {elementTypes.map(({ type, label, icon }) => (
+                <DropdownMenuItem
+                  key={type}
+                  onClick={() => handleAddElement(type)}
+                  className="flex items-center gap-3 cursor-pointer py-3 px-4 hover:bg-gray-50 transition-colors"
+                >
+                  {icon}
+                  <span className="font-medium">{label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* 중앙 캔버스 영역 */}
@@ -128,21 +168,46 @@ function LayoutContent() {
           </Button>
         </div>
 
+        {/* +Add 드롭다운 버튼 (데스크톱) */}
+        <div className="hidden lg:flex absolute top-6 left-6 z-20">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="default"
+                size="lg"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-xl rounded-full px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
+              >
+                <Plus className="w-6 h-6 mr-3" />
+                +Add Element
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="start"
+              className="w-64 mt-2 shadow-2xl border-0 rounded-xl"
+            >
+              {elementTypes.map(({ type, label, icon }) => (
+                <DropdownMenuItem
+                  key={type}
+                  onClick={() => handleAddElement(type)}
+                  className="flex items-center gap-4 cursor-pointer py-4 px-5 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 first:rounded-t-xl last:rounded-b-xl"
+                >
+                  <div className="p-2 rounded-lg bg-gray-100 group-hover:bg-blue-100 transition-colors">
+                    {icon}
+                  </div>
+                  <span className="font-medium text-gray-700">{label}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         {/* 패널 토글 버튼들 (데스크톱) */}
-        <div className="hidden lg:flex absolute top-4 left-4 z-20 gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleLeftPanel}
-            className="bg-white shadow-lg"
-          >
-            <PanelLeft className="w-4 h-4" />
-          </Button>
+        <div className="hidden lg:flex absolute top-6 right-6 z-20 gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={toggleRightPanel}
-            className="bg-white shadow-lg"
+            className="bg-white/90 backdrop-blur-sm shadow-lg hover:bg-white transition-all duration-200"
           >
             <PanelRight className="w-4 h-4" />
           </Button>

@@ -20,14 +20,10 @@ export default function TextElementComponent({
   isSelected,
   onSelect,
 }: TextElementProps) {
-  const { updateElement, getChildElements, selectElement } = useEditorStore();
+  const { getChildElements, selectElement } = useEditorStore();
 
   // 자식 요소들 가져오기
   const childElements = getChildElements(element.id);
-
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    updateElement(element.id, { content: e.target.value });
-  };
 
   // 자식 요소 렌더링 함수
   const renderChildElement = (childElement: Element) => {
@@ -116,45 +112,23 @@ export default function TextElementComponent({
       }}
       onClick={onSelect}
     >
-      {isSelected ? (
-        <textarea
-          value={element.content}
-          onChange={handleContentChange}
-          className={cn(
-            "resize-none border-none outline-none bg-transparent",
-            element.width === "auto" ? "w-auto" : "w-full",
-            element.height === "auto" ? "h-auto" : "h-full"
-          )}
-          style={{
-            fontSize: element.fontSize,
-            fontFamily: element.fontFamily,
-            color: element.color,
-            textAlign: element.textAlign,
-            fontWeight: element.fontWeight,
-            minWidth: element.width === "auto" ? "fit-content" : 20,
-            minHeight: element.height === "auto" ? "fit-content" : 20,
-          }}
-          autoFocus
-        />
-      ) : (
-        <div
-          className={cn(
-            element.width === "auto" ? "w-auto" : "w-full",
-            element.height === "auto" ? "h-auto" : "h-full"
-          )}
-          style={{
-            fontSize: element.fontSize,
-            fontFamily: element.fontFamily,
-            color: element.color,
-            textAlign: element.textAlign,
-            fontWeight: element.fontWeight,
-            minWidth: element.width === "auto" ? "fit-content" : 20,
-            minHeight: element.height === "auto" ? "fit-content" : 20,
-          }}
-        >
-          {element.content || "텍스트를 입력하세요"}
-        </div>
-      )}
+      <div
+        className={cn(
+          element.width === "auto" ? "w-auto" : "w-full",
+          element.height === "auto" ? "h-auto" : "h-full"
+        )}
+        style={{
+          fontSize: element.fontSize,
+          fontFamily: element.fontFamily,
+          color: element.color,
+          textAlign: element.textAlign,
+          fontWeight: element.fontWeight,
+          minWidth: element.width === "auto" ? "fit-content" : 20,
+          minHeight: element.height === "auto" ? "fit-content" : 20,
+        }}
+      >
+        {element.content || "텍스트를 입력하세요"}
+      </div>
       {childElements.map(renderChildElement)}
     </div>
   );

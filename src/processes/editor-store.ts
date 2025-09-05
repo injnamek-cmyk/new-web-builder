@@ -37,8 +37,6 @@ interface EditorStore extends EditorState {
   // 다중 요소 조작
   moveSelectedElements: (deltaX: number, deltaY: number) => void;
   deleteSelectedElements: () => void;
-  groupSelectedElements: () => void;
-  ungroupElement: (containerId: string) => void;
 
   // 중첩 요소 관리
   addChildElement: (parentId: string, element: Element) => void;
@@ -57,15 +55,6 @@ interface EditorStore extends EditorState {
 
   // 히스토리 관리
   saveToHistory: () => void;
-  undo: () => void;
-  redo: () => void;
-
-  // 로컬 저장소
-  saveToLocalStorage: () => void;
-  loadFromLocalStorage: () => void;
-
-  // 캔버스 초기화
-  clearCanvas: () => void;
 
   // 그리드 관리
   toggleGrid: () => void;
@@ -244,147 +233,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     get().saveToHistory();
   },
 
-  groupSelectedElements: () => {
-    const state = get();
-    const selectedIds = state.canvas.selectedElementIds;
-
-    if (selectedIds.length < 2) {
-      console.warn("그룹화하려면 최소 2개 이상의 요소를 선택해야 합니다.");
-      return;
-    }
-
-    // 선택된 요소들 가져오기 (컨테이너 제외)
-    const selectedElements = state.canvas.elements.filter(
-      (element) =>
-        selectedIds.includes(element.id) && element.type !== "container"
-    );
-
-    if (selectedElements.length < 2) {
-      console.warn(
-        "그룹화하려면 최소 2개 이상의 일반 요소를 선택해야 합니다. (컨테이너 제외)"
-      );
-      return;
-    }
-
-    // 선택된 요소들의 경계 박스 계산
-    const minX = Math.min(...selectedElements.map((el) => el.x));
-    const minY = Math.min(...selectedElements.map((el) => el.y));
-    const maxX = Math.max(
-      ...selectedElements.map(
-        (el) => el.x + (typeof el.width === "number" ? el.width : 100)
-      )
-    );
-    const maxY = Math.max(
-      ...selectedElements.map(
-        (el) => el.y + (typeof el.height === "number" ? el.height : 100)
-      )
-    );
-
-    const containerWidth = maxX - minX;
-    const containerHeight = maxY - minY;
-
-    // 컨테이너 생성 (투명한 배경)
-    const containerElement = createElement(
-      "container",
-      generateId(),
-      minX,
-      minY,
-      {
-        width: containerWidth,
-        height: containerHeight,
-        backgroundColor: "transparent",
-        borderRadius: 0,
-        padding: { top: 0, right: 0, bottom: 0, left: 0 },
-      }
-    );
-
-    // 선택된 요소들을 컨테이너의 자식으로 만들기
-    const updatedElements = state.canvas.elements.map((element) => {
-      if (selectedIds.includes(element.id)) {
-        return {
-          ...element,
-          parentId: containerElement.id,
-          x: element.x - minX, // 컨테이너 내부 좌표로 조정
-          y: element.y - minY,
-        };
-      }
-      return element;
-    });
-
-    set((state) => {
-      // 선택된 요소들은 이미 updatedElements에 포함되어 있으므로 추가로 추가하지 않음
-      const newElements = [...updatedElements, containerElement];
-
-      return {
-        canvas: {
-          ...state.canvas,
-          elements: newElements,
-          selectedElementIds: [containerElement.id],
-        },
-      };
-    });
-    get().saveToHistory();
-  },
-
-  ungroupElement: (containerId) => {
-    const state = get();
-    const containerElement = state.canvas.elements.find(
-      (el) => el.id === containerId && el.type === "container"
-    );
-
-    if (!containerElement) {
-      console.warn("컨테이너를 찾을 수 없습니다.");
-      return;
-    }
-
-    // 컨테이너의 자식 요소들 가져오기
-    const childElements = state.canvas.elements.filter(
-      (el) => el.parentId === containerId
-    );
-
-    if (childElements.length === 0) {
-      console.warn("그룹화할 요소가 없습니다.");
-      return;
-    }
-
-    // 자식 요소들을 컨테이너 밖으로 이동 (절대 좌표로 변환)
-    const ungroupedElements = childElements.map((element) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { parentId, ...elementWithoutParentId } = element;
-      const newElement = {
-        ...elementWithoutParentId,
-        x: element.x + containerElement.x,
-        y: element.y + containerElement.y,
-      };
-
-      return newElement;
-    });
-
-    // 컨테이너 제거하고 자식 요소들을 원래 위치로 복원
-    set((state) => {
-      // 기존 요소들에서 컨테이너와 자식 요소들을 제거
-      const elementsWithoutContainerAndChildren = state.canvas.elements.filter(
-        (el) => el.id !== containerId && el.parentId !== containerId
-      );
-
-      // 새로운 요소 목록 생성
-      const newElements = [
-        ...elementsWithoutContainerAndChildren,
-        ...ungroupedElements,
-      ];
-
-      return {
-        canvas: {
-          ...state.canvas,
-          elements: newElements,
-          selectedElementIds: ungroupedElements.map((el) => el.id),
-        },
-      };
-    });
-
-    get().saveToHistory();
-  },
-
   setDragging: (isDragging) => {
     set({ isDragging });
   },
@@ -401,61 +249,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
         history: newHistory,
         historyIndex: newHistory.length - 1,
       };
-    });
-  },
-
-  undo: () => {
-    set((state) => {
-      if (state.historyIndex > 0) {
-        return {
-          canvas: state.history[state.historyIndex - 1],
-          historyIndex: state.historyIndex - 1,
-        };
-      }
-      return state;
-    });
-  },
-
-  redo: () => {
-    set((state) => {
-      if (state.historyIndex < state.history.length - 1) {
-        return {
-          canvas: state.history[state.historyIndex + 1],
-          historyIndex: state.historyIndex + 1,
-        };
-      }
-      return state;
-    });
-  },
-
-  saveToLocalStorage: () => {
-    const state = get();
-    localStorage.setItem("web-builder-canvas", JSON.stringify(state.canvas));
-  },
-
-  loadFromLocalStorage: () => {
-    const saved = localStorage.getItem("web-builder-canvas");
-    if (saved) {
-      try {
-        const canvas = JSON.parse(saved);
-        set({
-          canvas: {
-            ...canvas,
-            selectedElementIds: [],
-          },
-        });
-        get().saveToHistory();
-      } catch (error) {
-        console.error("Failed to load from localStorage:", error);
-      }
-    }
-  },
-
-  clearCanvas: () => {
-    set({
-      canvas: initialCanvas,
-      history: initialHistory,
-      historyIndex: 0,
     });
   },
 

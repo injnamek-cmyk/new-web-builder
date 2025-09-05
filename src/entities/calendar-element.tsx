@@ -32,10 +32,6 @@ export default function CalendarElementComponent({
     updateElement(element.id, { selectedDate: date });
   };
 
-  const handleDatesSelect = (dates: Date[] | undefined) => {
-    updateElement(element.id, { selectedDates: dates });
-  };
-
   // 자식 요소 렌더링 함수
   const renderChildElement = (childElement: Element) => {
     const isChildSelected = false;
@@ -142,7 +138,9 @@ export default function CalendarElementComponent({
               <select
                 value={element.mode || "single"}
                 onChange={(e) =>
-                  updateElement(element.id, { mode: e.target.value as any })
+                  updateElement(element.id, {
+                    mode: e.target.value as "single" | "range" | "multiple",
+                  })
                 }
                 className="w-full px-2 py-1 text-sm border rounded"
                 onClick={(e) => e.stopPropagation()}
@@ -184,9 +182,39 @@ export default function CalendarElementComponent({
             </div>
           </div>
         </div>
+      ) : element.mode === "range" ? (
+        <Calendar
+          mode="range"
+          selected={
+            element.selectedDates
+              ? { from: element.selectedDates[0], to: element.selectedDates[1] }
+              : undefined
+          }
+          onSelect={(range) => {
+            if (range?.from && range?.to) {
+              updateElement(element.id, {
+                selectedDates: [range.from, range.to],
+              });
+            }
+          }}
+          showOutsideDays={element.showOutsideDays}
+          disabled={element.disabled}
+          className="rounded-md border"
+        />
+      ) : element.mode === "multiple" ? (
+        <Calendar
+          mode="multiple"
+          selected={element.selectedDates}
+          onSelect={(dates) =>
+            updateElement(element.id, { selectedDates: dates })
+          }
+          showOutsideDays={element.showOutsideDays}
+          disabled={element.disabled}
+          className="rounded-md border"
+        />
       ) : (
         <Calendar
-          mode={element.mode || "single"}
+          mode="single"
           selected={element.selectedDate}
           onSelect={handleDateSelect}
           showOutsideDays={element.showOutsideDays}
