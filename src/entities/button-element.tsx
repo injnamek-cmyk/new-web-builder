@@ -39,6 +39,9 @@ export default function ButtonElementComponent({
     height: element.height === "auto" ? "auto" : "100%",
     minWidth: element.width === "auto" ? "fit-content" : 20,
     minHeight: element.height === "auto" ? "fit-content" : 20,
+    backgroundColor: element.backgroundColor,
+    color: element.textColor,
+    borderRadius: `${element.borderRadius}px`,
   };
 
   return (
