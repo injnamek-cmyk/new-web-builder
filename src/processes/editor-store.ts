@@ -264,6 +264,8 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     if (!grid.snapToGrid) return { x, y };
 
     const cellSize = grid.cellSize;
+
+    // 요소의 왼쪽 위 모서리를 기준으로 그리드에 스냅
     return {
       x: Math.round(x / cellSize) * cellSize,
       y: Math.round(y / cellSize) * cellSize,

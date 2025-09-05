@@ -60,8 +60,8 @@ export default function Canvas() {
         return; // 입력 필드에 포커스가 있으면 키보드 이벤트 무시
       }
 
-      // G 키로 그리드 토글
-      if (e.key === "g" || e.key === "G") {
+      // G 키 또는 Cmd+G로 그리드 토글
+      if (e.key === "g" || e.key === "G" || (e.metaKey && e.key === "g")) {
         e.preventDefault();
         toggleGrid();
         return;

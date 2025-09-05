@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -20,9 +20,15 @@ export default function DragDropProvider({ children }: DragDropProviderProps) {
     moveElement,
     setDragging,
     snapToGrid,
-    setGridConfig,
     canvasZoom,
+    grid,
+    setGridConfig,
   } = useEditorStore();
+
+  // 드래그 시작 전 그리드 상태를 저장
+  const [originalGridState, setOriginalGridState] = useState<boolean | null>(
+    null
+  );
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -33,8 +39,12 @@ export default function DragDropProvider({ children }: DragDropProviderProps) {
 
   const handleDragStart = () => {
     setDragging(true);
-    // 드래그 시작 시 그리드 표시
-    setGridConfig({ showGrid: true });
+    // 드래그 시작 전 그리드 상태 저장
+    setOriginalGridState(grid.showGrid);
+    // 그리드가 숨겨진 상태에서만 드래그 시 그리드 표시
+    if (!grid.showGrid) {
+      setGridConfig({ showGrid: true });
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -51,22 +61,19 @@ export default function DragDropProvider({ children }: DragDropProviderProps) {
         const newX = element.x + scaledDeltaX;
         const newY = element.y + scaledDeltaY;
 
-        // 자식 요소인지 확인
-        if (element.parentId) {
-          // 자식 요소는 움직이지 못하도록 비활성화
-          return;
-        } else {
-          // 최상위 요소는 그리드에 스냅
-          const snappedPosition = snapToGrid(newX, newY);
-
-          moveElement(element.id, snappedPosition.x, snappedPosition.y);
-        }
+        // 그리드에 스냅
+        const snappedPosition = snapToGrid(newX, newY);
+        moveElement(element.id, snappedPosition.x, snappedPosition.y);
       }
     }
 
     setDragging(false);
-    // 드래그 종료 시 그리드 숨김 (사용자가 수동으로 켠 경우는 유지)
-    // TODO: 사용자 설정에 따라 자동으로 그리드를 끄거나 켜는 로직 추가
+
+    // 원래 그리드 상태로 복원 (원래 숨겨져 있었다면 다시 숨김)
+    if (originalGridState === false) {
+      setGridConfig({ showGrid: false });
+    }
+    setOriginalGridState(null);
   };
 
   return (

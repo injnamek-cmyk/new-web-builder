@@ -53,8 +53,7 @@ export default function ButtonElementComponent({
         width: actualWidth,
         height: actualHeight,
         zIndex: element.zIndex,
-        position: "relative",
-        display: "inline-block",
+        position: "absolute",
         minWidth: element.width === "auto" ? "fit-content" : 20,
         minHeight: element.height === "auto" ? "fit-content" : 20,
       }}

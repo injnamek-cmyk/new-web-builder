@@ -47,8 +47,7 @@ export default function AccordionElementComponent({
         paddingRight: element.padding.right,
         paddingBottom: element.padding.bottom,
         paddingLeft: element.padding.left,
-        position: "relative",
-        display: "inline-block",
+        position: "absolute",
         minWidth: element.width === "auto" ? "fit-content" : undefined,
         minHeight: element.height === "auto" ? "fit-content" : undefined,
       }}
