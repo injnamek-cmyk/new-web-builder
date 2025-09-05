@@ -1,14 +1,9 @@
 "use client";
 
 import React from "react";
-import { ButtonElement, Element } from "@/shared/types";
-import { useEditorStore } from "@/processes/editor-store";
+import { ButtonElement } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import DraggableElement from "@/features/draggable-element";
-import TextElementComponent from "@/entities/text-element";
-import ImageElementComponent from "@/entities/image-element";
-import ContainerElementComponent from "@/entities/container-element";
 
 interface ButtonElementProps {
   element: ButtonElement;
@@ -21,65 +16,6 @@ export default function ButtonElementComponent({
   isSelected,
   onSelect,
 }: ButtonElementProps) {
-  const { getChildElements, selectElement } = useEditorStore();
-
-  // 자식 요소들 가져오기
-  const childElements = getChildElements(element.id);
-
-  // 자식 요소 렌더링 함수
-  const renderChildElement = (childElement: Element) => {
-    const isChildSelected = false; // 자식 요소는 별도로 선택되지 않음
-    const onChildSelect = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      selectElement(childElement.id);
-    };
-
-    switch (childElement.type) {
-      case "text":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <TextElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "image":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ImageElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "button":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ButtonElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "container":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ContainerElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      default:
-        return null;
-    }
-  };
-
   // 실제 요소의 최종 크기 계산 (패딩 포함)
   const safePadding = {
     top: getValidPaddingValue(element.padding.top),
@@ -136,7 +72,6 @@ export default function ButtonElementComponent({
       >
         {element.text || "버튼"}
       </Button>
-      {childElements.map(renderChildElement)}
     </div>
   );
 }

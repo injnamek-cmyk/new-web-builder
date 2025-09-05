@@ -1,14 +1,9 @@
 "use client";
 
 import React from "react";
-import { ContainerElement, Element } from "@/shared/types";
+import { ContainerElement } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
-import { useEditorStore } from "@/processes/editor-store";
 import { Card } from "@/components/ui/card";
-import DraggableElement from "@/features/draggable-element";
-import TextElementComponent from "@/entities/text-element";
-import ImageElementComponent from "@/entities/image-element";
-import ButtonElementComponent from "@/entities/button-element";
 
 interface ContainerElementProps {
   element: ContainerElement;
@@ -21,11 +16,6 @@ export default function ContainerElementComponent({
   isSelected,
   onSelect,
 }: ContainerElementProps) {
-  const { getChildElements, selectElement } = useEditorStore();
-
-  // 자식 요소들 가져오기
-  const childElements = getChildElements(element.id);
-
   // 실제 요소의 최종 크기 계산 (패딩 포함)
   const safePadding = {
     top: getValidPaddingValue(element.padding.top),
@@ -57,50 +47,6 @@ export default function ContainerElementComponent({
     minHeight: element.height === "auto" ? "fit-content" : 20,
   };
 
-  // 자식 요소 렌더링 함수
-  const renderChildElement = (childElement: Element) => {
-    const isChildSelected = false; // 자식 요소는 별도로 선택되지 않음
-    const onChildSelect = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      selectElement(childElement.id);
-    };
-
-    switch (childElement.type) {
-      case "text":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <TextElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "image":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ImageElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "button":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ButtonElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      default:
-        return null;
-    }
-  };
-
   return (
     <div
       className={cn(
@@ -120,12 +66,9 @@ export default function ContainerElementComponent({
       onClick={onSelect}
     >
       <Card style={containerStyle} className="w-full h-full">
-        {childElements.length === 0 && (
-          <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
-            컨테이너
-          </div>
-        )}
-        {childElements.map(renderChildElement)}
+        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
+          컨테이너
+        </div>
       </Card>
     </div>
   );

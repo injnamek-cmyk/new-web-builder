@@ -22,6 +22,8 @@ export default function Canvas() {
     moveSelectedElements,
     deleteSelectedElements,
     grid,
+    toggleGrid,
+    isDragging,
     canvasZoom,
     setCanvasZoom,
   } = useEditorStore();
@@ -48,6 +50,23 @@ export default function Canvas() {
   // 키보드 이벤트 핸들러
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // 입력 필드에 포커스가 있지 않을 때만 실행
+      const isInputFocused =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA" ||
+        (document.activeElement as HTMLElement)?.contentEditable === "true";
+
+      if (isInputFocused) {
+        return; // 입력 필드에 포커스가 있으면 키보드 이벤트 무시
+      }
+
+      // G 키로 그리드 토글
+      if (e.key === "g" || e.key === "G") {
+        e.preventDefault();
+        toggleGrid();
+        return;
+      }
+
       // Delete 키로 선택된 요소들 삭제 (백스페이스 키는 제외)
       if (e.key === "Delete") {
         if (canvas.selectedElementIds.length > 0) {
@@ -82,7 +101,12 @@ export default function Canvas() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [canvas.selectedElementIds, deleteSelectedElements, moveSelectedElements]);
+  }, [
+    canvas.selectedElementIds,
+    deleteSelectedElements,
+    moveSelectedElements,
+    toggleGrid,
+  ]);
 
   // 스크롤 줌 이벤트 리스너
   useEffect(() => {
@@ -110,10 +134,7 @@ export default function Canvas() {
     switch (element.type) {
       case "text":
         return (
-          <DraggableElement
-            key={`${element.id}-${element.parentId || "root"}`}
-            element={element}
-          >
+          <DraggableElement key={element.id} element={element}>
             <TextElementComponent
               element={element}
               isSelected={isElementSelected}
@@ -123,10 +144,7 @@ export default function Canvas() {
         );
       case "image":
         return (
-          <DraggableElement
-            key={`${element.id}-${element.parentId || "root"}`}
-            element={element}
-          >
+          <DraggableElement key={element.id} element={element}>
             <ImageElementComponent
               element={element}
               isSelected={isElementSelected}
@@ -136,10 +154,7 @@ export default function Canvas() {
         );
       case "button":
         return (
-          <DraggableElement
-            key={`${element.id}-${element.parentId || "root"}`}
-            element={element}
-          >
+          <DraggableElement key={element.id} element={element}>
             <ButtonElementComponent
               element={element}
               isSelected={isElementSelected}
@@ -149,10 +164,7 @@ export default function Canvas() {
         );
       case "container":
         return (
-          <DraggableElement
-            key={`${element.id}-${element.parentId || "root"}`}
-            element={element}
-          >
+          <DraggableElement key={element.id} element={element}>
             <ContainerElementComponent
               element={element}
               isSelected={isElementSelected}
@@ -162,10 +174,7 @@ export default function Canvas() {
         );
       case "accordion":
         return (
-          <DraggableElement
-            key={`${element.id}-${element.parentId || "root"}`}
-            element={element}
-          >
+          <DraggableElement key={element.id} element={element}>
             <AccordionElementComponent
               element={element}
               isSelected={isElementSelected}
@@ -175,10 +184,7 @@ export default function Canvas() {
         );
       case "calendar":
         return (
-          <DraggableElement
-            key={`${element.id}-${element.parentId || "root"}`}
-            element={element}
-          >
+          <DraggableElement key={element.id} element={element}>
             <CalendarElementComponent
               element={element}
               isSelected={isElementSelected}
@@ -195,11 +201,14 @@ export default function Canvas() {
     <div ref={canvasRef} className="flex-1 bg-gray-50 relative overflow-auto">
       {/* 선택된 요소 정보 표시 */}
       {canvas.selectedElementIds.length > 0 && (
-        <div className="absolute top-2 left-2 lg:top-4 lg:left-4 z-10 bg-blue-500 text-white px-2 py-1 lg:px-3 lg:py-2 rounded-md text-xs lg:text-sm font-medium">
-          <div className="font-bold">
-            {canvas.selectedElementIds.length}개 요소 선택됨
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-3 text-sm font-medium text-gray-700">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <span className="font-semibold">
+              {canvas.selectedElementIds.length}개 요소 선택됨
+            </span>
           </div>
-          <div className="text-xs mt-1 opacity-90 hidden lg:block">
+          <div className="text-xs text-gray-500 mt-1 hidden lg:block">
             화살표 키: 이동 | Shift+화살표: 빠른 이동 | Delete 키: 삭제
           </div>
         </div>
@@ -231,10 +240,9 @@ export default function Canvas() {
             grid={grid}
             canvasWidth={canvas.width}
             canvasHeight={canvas.height}
+            isDragging={isDragging}
           />
-          {canvas.elements
-            .filter((element) => !element.parentId)
-            .map(renderElement)}
+          {canvas.elements.map(renderElement)}
         </div>
       </div>
     </div>

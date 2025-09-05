@@ -6,7 +6,6 @@ import {
   GridConfig,
   ElementType,
 } from "@/shared/types";
-import { createElement, generateId } from "@/shared/lib/element-factory";
 
 interface EditorStore extends EditorState {
   // UI 상태
@@ -37,16 +36,6 @@ interface EditorStore extends EditorState {
   // 다중 요소 조작
   moveSelectedElements: (deltaX: number, deltaY: number) => void;
   deleteSelectedElements: () => void;
-
-  // 중첩 요소 관리
-  addChildElement: (parentId: string, element: Element) => void;
-  getChildElements: (parentId: string) => Element[];
-  moveChildElement: (elementId: string, x: number, y: number) => void;
-  canHaveChildren: (elementType: ElementType) => boolean;
-  calculateElementSize: (elementId: string) => {
-    width: number;
-    height: number;
-  };
 
   // 드래그 앤 드롭
   moveElement: (id: string, x: number, y: number) => void;
@@ -279,122 +268,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       x: Math.round(x / cellSize) * cellSize,
       y: Math.round(y / cellSize) * cellSize,
     };
-  },
-
-  // 중첩 요소 관리 함수들
-  addChildElement: (parentId, element) => {
-    const parentElement = get().canvas.elements.find(
-      (el) => el.id === parentId
-    );
-    if (!parentElement) {
-      console.error("Parent element not found");
-      return;
-    }
-
-    // 자식 요소를 가질 수 있는지 확인
-    if (!get().canHaveChildren(parentElement.type)) {
-      console.error("This element type cannot have children");
-      return;
-    }
-
-    // 자식 요소의 위치를 부모 요소 내부로 조정
-    const parentWidth =
-      typeof parentElement.width === "number" ? parentElement.width : 100;
-    const parentHeight =
-      typeof parentElement.height === "number" ? parentElement.height : 100;
-    const elementWidth =
-      typeof element.width === "number" ? element.width : 100;
-    const elementHeight =
-      typeof element.height === "number" ? element.height : 100;
-
-    const childElement = {
-      ...element,
-      parentId,
-      x: Math.max(0, Math.min(element.x, parentWidth - elementWidth)),
-      y: Math.max(0, Math.min(element.y, parentHeight - elementHeight)),
-    };
-
-    set((state) => {
-      // 부모 요소에 자식 ID 추가
-      const updatedElements = state.canvas.elements.map((el) => {
-        if (el.id === parentId) {
-          return {
-            ...el,
-            children: [...(el.children || []), childElement.id],
-          };
-        }
-        return el;
-      });
-
-      return {
-        canvas: {
-          ...state.canvas,
-          elements: [...updatedElements, childElement],
-          selectedElementIds: [parentId], // 부모 요소를 계속 선택 상태로 유지
-        },
-      };
-    });
-    get().saveToHistory();
-  },
-
-  getChildElements: (parentId) => {
-    return get().canvas.elements.filter((el) => el.parentId === parentId);
-  },
-
-  canHaveChildren: (elementType) => {
-    // 이미지 요소는 자식을 가질 수 없음
-    return elementType !== "image";
-  },
-
-  calculateElementSize: (elementId) => {
-    const element = get().canvas.elements.find((el) => el.id === elementId);
-    if (!element) return { width: 0, height: 0 };
-
-    // 자동 크기 조정이 비활성화된 경우 기본 크기 반환
-    if (!element.autoSize) {
-      return {
-        width: typeof element.width === "number" ? element.width : 100,
-        height: typeof element.height === "number" ? element.height : 100,
-      };
-    }
-
-    const childElements = get().getChildElements(elementId);
-
-    if (childElements.length === 0) {
-      return {
-        width: typeof element.width === "number" ? element.width : 100,
-        height: typeof element.height === "number" ? element.height : 100,
-      };
-    }
-
-    // 자식 요소들의 경계 박스 계산
-    const minX = Math.min(...childElements.map((el) => el.x));
-    const minY = Math.min(...childElements.map((el) => el.y));
-    const maxX = Math.max(
-      ...childElements.map(
-        (el) => el.x + (typeof el.width === "number" ? el.width : 100)
-      )
-    );
-    const maxY = Math.max(
-      ...childElements.map(
-        (el) => el.y + (typeof el.height === "number" ? el.height : 100)
-      )
-    );
-
-    const contentWidth = maxX - minX;
-    const contentHeight = maxY - minY;
-    const gap = element.gap || 0;
-
-    return {
-      width: contentWidth + element.padding.left + element.padding.right + gap,
-      height:
-        contentHeight + element.padding.top + element.padding.bottom + gap,
-    };
-  },
-
-  moveChildElement: () => {
-    // 자식 요소는 움직이지 못하도록 비활성화
-    return;
   },
 
   // UI 조작 함수들

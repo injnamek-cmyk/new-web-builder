@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { AccordionElement, Element } from "@/shared/types";
-import { useEditorStore } from "@/processes/editor-store";
+import { AccordionElement } from "@/shared/types";
 import { cn } from "@/lib/utils";
 import {
   Accordion,
@@ -10,11 +9,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import DraggableElement from "@/features/draggable-element";
-import TextElementComponent from "@/entities/text-element";
-import ImageElementComponent from "@/entities/image-element";
-import ButtonElementComponent from "@/entities/button-element";
-import ContainerElementComponent from "@/entities/container-element";
 
 interface AccordionElementProps {
   element: AccordionElement;
@@ -27,65 +21,6 @@ export default function AccordionElementComponent({
   isSelected,
   onSelect,
 }: AccordionElementProps) {
-  const { getChildElements, selectElement } = useEditorStore();
-
-  // 자식 요소들 가져오기
-  const childElements = getChildElements(element.id);
-
-  // 자식 요소 렌더링 함수
-  const renderChildElement = (childElement: Element) => {
-    const isChildSelected = false;
-    const onChildSelect = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      selectElement(childElement.id);
-    };
-
-    switch (childElement.type) {
-      case "text":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <TextElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "image":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ImageElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "button":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ButtonElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "container":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ContainerElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      default:
-        return null;
-    }
-  };
-
   // 실제 요소의 최종 크기 계산
   const actualWidth =
     element.width === "auto"
@@ -135,7 +70,6 @@ export default function AccordionElementComponent({
           </AccordionItem>
         ))}
       </Accordion>
-      {childElements.map(renderChildElement)}
     </div>
   );
 }

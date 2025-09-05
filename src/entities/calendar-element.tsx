@@ -1,16 +1,10 @@
 "use client";
 
 import React from "react";
-import { CalendarElement, Element } from "@/shared/types";
+import { CalendarElement } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import DraggableElement from "@/features/draggable-element";
-import TextElementComponent from "@/entities/text-element";
-import ImageElementComponent from "@/entities/image-element";
-import ButtonElementComponent from "@/entities/button-element";
-import ContainerElementComponent from "@/entities/container-element";
-import AccordionElementComponent from "@/entities/accordion-element";
 
 interface CalendarElementProps {
   element: CalendarElement;
@@ -23,77 +17,10 @@ export default function CalendarElementComponent({
   isSelected,
   onSelect,
 }: CalendarElementProps) {
-  const { updateElement, getChildElements, selectElement } = useEditorStore();
-
-  // 자식 요소들 가져오기
-  const childElements = getChildElements(element.id);
+  const { updateElement } = useEditorStore();
 
   const handleDateSelect = (date: Date | undefined) => {
     updateElement(element.id, { selectedDate: date });
-  };
-
-  // 자식 요소 렌더링 함수
-  const renderChildElement = (childElement: Element) => {
-    const isChildSelected = false;
-    const onChildSelect = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      selectElement(childElement.id);
-    };
-
-    switch (childElement.type) {
-      case "text":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <TextElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "image":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ImageElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "button":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ButtonElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "container":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <ContainerElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      case "accordion":
-        return (
-          <DraggableElement key={childElement.id} element={childElement}>
-            <AccordionElementComponent
-              element={childElement}
-              isSelected={isChildSelected}
-              onSelect={onChildSelect}
-            />
-          </DraggableElement>
-        );
-      default:
-        return null;
-    }
   };
 
   // 실제 요소의 최종 크기 계산
@@ -169,7 +96,6 @@ export default function CalendarElementComponent({
           className="rounded-md border"
         />
       )}
-      {childElements.map(renderChildElement)}
     </div>
   );
 }

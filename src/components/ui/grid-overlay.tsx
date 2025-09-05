@@ -7,14 +7,17 @@ interface GridOverlayProps {
   grid: GridConfig;
   canvasWidth: number;
   canvasHeight: number;
+  isDragging?: boolean;
 }
 
 export default function GridOverlay({
   grid,
   canvasWidth,
   canvasHeight,
+  isDragging = false,
 }: GridOverlayProps) {
-  if (!grid.showGrid) return null;
+  // 그리드가 켜져있고 드래그 중일 때만 표시
+  if (!grid.showGrid || !isDragging) return null;
 
   const { cellSize } = grid;
 
