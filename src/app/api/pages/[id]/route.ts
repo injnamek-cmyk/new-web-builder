@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMemoryStore } from "@/shared/lib/memory-store";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 interface RouteParams {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 // 특정 페이지 조회
@@ -11,9 +13,10 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const { id } = await params;
-    const store = getMemoryStore();
-    const page = store.getPage(id);
+    const { id } = params;
+    const page = await prisma.page.findUnique({
+      where: { id },
+    });
 
     if (!page) {
       return NextResponse.json(
@@ -32,24 +35,25 @@ export async function GET(
   }
 }
 
-// 페이지 업데이트
+// 페이지 업데이트 또는 생성
 export async function PUT(
   request: NextRequest,
   { params }: RouteParams
 ) {
   try {
-    const { id } = await params;
-    const { title, canvas } = await request.json();
+    const { id } = params;
+    const body = await request.json();
 
-    const store = getMemoryStore();
-    const updatedPage = store.updatePage(id, { title, canvas });
-    
-    if (!updatedPage) {
-      return NextResponse.json(
-        { error: "Page not found" },
-        { status: 404 }
-      );
-    }
+    const updatedPage = await prisma.page.upsert({
+      where: { id },
+      update: {
+        content: body,
+      },
+      create: {
+        id,
+        content: body,
+      },
+    });
 
     return NextResponse.json({ 
       message: "Page updated successfully", 
@@ -70,17 +74,11 @@ export async function DELETE(
   { params }: RouteParams
 ) {
   try {
-    const { id } = await params;
+    const { id } = params;
     
-    const store = getMemoryStore();
-    const success = store.deletePage(id);
-    
-    if (!success) {
-      return NextResponse.json(
-        { error: "Page not found" },
-        { status: 404 }
-      );
-    }
+    await prisma.page.delete({
+      where: { id },
+    });
 
     return NextResponse.json({ 
       message: "Page deleted successfully" 
