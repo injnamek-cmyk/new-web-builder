@@ -27,7 +27,7 @@ export default function PreviewPage() {
         }
         
         const result = await response.json();
-        setRenderData(result.data);
+        setRenderData(result);
       } catch (err) {
         console.error("Error fetching render data:", err);
         setError(err instanceof Error ? err.message : "Unknown error occurred");

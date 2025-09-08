@@ -1,11 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMemoryStore } from "@/shared/lib/memory-store";
+import { PrismaClient } from "@prisma/client";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-// 페이지 목록 조회
-export async function GET() {
+const prisma = new PrismaClient();
+
+// 사용자의 모든 페이지 조회
+export async function GET(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
-    const store = getMemoryStore();
-    const pages = store.getAllPages();
+    const userId = session.user.id;
+
+    const pages = await prisma.page.findMany({
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
     return NextResponse.json({ pages }, { status: 200 });
   } catch (error) {
     console.error("Failed to fetch pages:", error);
@@ -18,23 +36,27 @@ export async function GET() {
 
 // 새 페이지 생성
 export async function POST(request: NextRequest) {
-  try {
-    const { title, canvas } = await request.json();
-    
-    if (!title || !canvas) {
-      return NextResponse.json(
-        { error: "Title and canvas are required" },
-        { status: 400 }
-      );
-    }
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-    const store = getMemoryStore();
-    const pageData = store.createPage(title, canvas);
+  try {
+    const body = await request.json();
+    const userId = session.user.id;
+
+    // 요청 본문(title, canvas 등) 전체를 content 필드에 저장합니다.
+    const newPage = await prisma.page.create({
+      data: {
+        content: body,
+        userId: userId,
+      },
+    });
 
     return NextResponse.json({ 
       message: "Page created successfully", 
-      page: pageData 
-    }, { status: 201 });
+      page: newPage 
+    }, { status: 201 }); // 201 Created 상태 코드 사용
   } catch (error) {
     console.error("Failed to create page:", error);
     return NextResponse.json(

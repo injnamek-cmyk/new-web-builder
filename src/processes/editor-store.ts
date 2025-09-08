@@ -396,25 +396,33 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   },
 
   loadPage: async (pageId) => {
+    // TODO: 로딩 상태를 관리하는 별도 state(e.g. isLoading)를 사용하는 것이 좋습니다.
     set({ isSaving: true });
 
     try {
       const response = await fetch(`/api/pages/${pageId}`);
       
       if (!response.ok) {
-        throw new Error("Failed to load page");
+        throw new Error(`Failed to load page: ${response.statusText}`);
       }
 
       const result = await response.json();
-      const pageData: StoredPageData = result.page;
+      const pageData = result.page;
 
-      set({
-        currentPageId: pageData.id,
-        currentPageTitle: pageData.title,
-        canvas: pageData.canvas,
-        history: [pageData.canvas],
-        historyIndex: 0,
-      });
+      // content가 JSON 객체이므로, 여기서 title과 canvas를 추출해야 합니다.
+      if (pageData && pageData.content && typeof pageData.content === 'object') {
+        const { title, canvas } = pageData.content as { title: string; canvas: Canvas };
+        
+        set({
+          currentPageId: pageData.id,
+          currentPageTitle: title || "제목 없음",
+          canvas: canvas,
+          history: [canvas],
+          historyIndex: 0,
+        });
+      } else {
+        throw new Error("Invalid page data format");
+      }
     } catch (error) {
       console.error("Failed to load page:", error);
       throw error;

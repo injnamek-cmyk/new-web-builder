@@ -1,178 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getMemoryStore } from "@/shared/lib/memory-store";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 interface RouteParams {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
-// 렌더링을 위한 페이지 데이터 조회 (하이브리드 서버 드리븐 UI용)
+// 특정 페이지의 렌더링 데이터(content) 조회를 위한 API
 export async function GET(
   request: NextRequest,
   { params }: RouteParams
 ) {
   try {
-    const { id } = await params;
-    const store = getMemoryStore();
-    const page = store.getPage(id);
-
-    if (!page) {
-      return NextResponse.json(
-        { error: "Page not found" },
-        { status: 404 }
-      );
+    const { id } = params;
+    if (!id) {
+      return NextResponse.json({ error: "Page ID is required" }, { status: 400 });
     }
 
-    // 하이브리드 서버 드리븐 UI를 위한 렌더링 데이터 구조
+    const page = await prisma.page.findUnique({
+      where: { id },
+    });
+
+    if (!page || !page.content) {
+      return NextResponse.json({ error: "Page not found or content is empty" }, { status: 404 });
+    }
+
+    // content(JSON)와 다른 메타데이터를 조합하여 최종 렌더링 데이터를 구성합니다.
     const renderData = {
       pageId: page.id,
-      title: page.title,
-      canvas: {
-        width: page.canvas.width,
-        height: page.canvas.height,
-        elements: page.canvas.elements.map(element => ({
-          id: element.id,
-          type: element.type,
-          
-          // 하이브리드 레이아웃 지원
-          layoutMode: (element as any).layoutMode || 'absolute',
-          
-          // 절대 포지셔닝 (기존 방식 유지)
-          position: {
-            x: element.x,
-            y: element.y
-          },
-          size: {
-            width: element.width,
-            height: element.height
-          },
-          zIndex: element.zIndex,
-          
-          // 컨테이너 자식 관리
-          children: (element as any).children || [],
-          
-          // 레이아웃별 속성
-          flexProps: (element as any).flexProps || null,
-          gridProps: (element as any).gridProps || null,
-          flowProps: (element as any).flowProps || null,
-          
-          // 스타일과 속성 (기존 방식 유지)
-          style: extractElementStyle(element),
-          props: extractElementProps(element),
-        }))
-      },
+      ...(page.content as object), // title, canvas를 포함
       metadata: {
         createdAt: page.createdAt,
-        updatedAt: page.updatedAt
+        updatedAt: page.updatedAt,
       }
     };
 
-    return NextResponse.json({ data: renderData }, { status: 200 });
+    return NextResponse.json(renderData, { status: 200 });
+
   } catch (error) {
-    console.error("Failed to fetch render data:", error);
+    console.error(`Failed to fetch render data for page ${params.id}:`, error);
     return NextResponse.json(
       { error: "Failed to fetch render data" },
       { status: 500 }
     );
-  }
-}
-
-// 요소의 스타일 정보 추출
-function extractElementStyle(element: any) {
-  const style: any = {
-    padding: element.padding,
-  };
-
-  switch (element.type) {
-    case "text":
-      return {
-        ...style,
-        fontSize: element.fontSize,
-        fontFamily: element.fontFamily,
-        color: element.color,
-        textAlign: element.textAlign,
-        fontWeight: element.fontWeight,
-        textDecoration: element.textDecoration,
-        lineHeight: element.lineHeight,
-      };
-    
-    case "image":
-      return {
-        ...style,
-        objectFit: element.objectFit,
-        objectPosition: element.objectPosition,
-        filter: element.filter,
-      };
-    
-    case "button":
-      return {
-        ...style,
-        backgroundColor: element.backgroundColor,
-        textColor: element.textColor,
-        borderRadius: element.borderRadius,
-      };
-    
-    case "container":
-      return {
-        ...style,
-        backgroundColor: element.backgroundColor,
-        borderRadius: element.borderRadius,
-        borderStyle: element.borderStyle,
-        borderWidth: element.borderWidth,
-        borderColor: element.borderColor,
-        boxShadow: element.boxShadow,
-      };
-    
-    default:
-      return style;
-  }
-}
-
-// 요소의 속성 정보 추출
-function extractElementProps(element: any) {
-  switch (element.type) {
-    case "text":
-      return {
-        content: element.content,
-      };
-    
-    case "image":
-      return {
-        src: element.src,
-        alt: element.alt,
-      };
-    
-    case "button":
-      return {
-        text: element.text,
-        href: element.href,
-        variant: element.variant,
-        size: element.size,
-        icon: element.icon,
-        iconPosition: element.iconPosition,
-      };
-    
-    case "accordion":
-      return {
-        items: element.items,
-        variant: element.variant,
-        collapsible: element.collapsible,
-        accordionType: element.accordionType,
-        disabled: element.disabled,
-      };
-    
-    case "calendar":
-      return {
-        mode: element.mode,
-        selectedDate: element.selectedDate,
-        selectedDates: element.selectedDates,
-        showOutsideDays: element.showOutsideDays,
-        disabled: element.disabled,
-        defaultMonth: element.defaultMonth,
-        fixedWeeks: element.fixedWeeks,
-        weekStartsOn: element.weekStartsOn,
-      };
-    
-    default:
-      return {};
   }
 }
