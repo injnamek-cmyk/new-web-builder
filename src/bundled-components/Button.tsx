@@ -53,15 +53,15 @@ const Slot = React.forwardRef<
   }
 >(({ children, ...props }, ref) => {
   if (React.isValidElement(children)) {
-    return React.cloneElement(children, {
+    const cloneProps = {
       ...props,
-      ...children.props,
-      ref,
-    });
+      ...(children.props || {}),
+    };
+    
+    return React.cloneElement(children, cloneProps, children.props?.children);
   }
   return null;
 });
-
 Slot.displayName = "Slot";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
