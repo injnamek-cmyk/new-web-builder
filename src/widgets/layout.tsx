@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import { ElementType } from "@/shared/types";
+import AuthButton from "@/components/auth-button";
 import PageActions from "@/features/editor-controls/page-actions";
 import WebsiteGeneratorButton from "@/features/editor-controls/website-generator-button";
 import {
@@ -141,6 +142,7 @@ function LayoutContent() {
           <div className="flex items-center gap-2">
             <PageActions className="text-sm" />
             <WebsiteGeneratorButton className="text-sm px-4 py-2" />
+            <AuthButton />
           </div>
         </div>
       </div>
@@ -182,6 +184,7 @@ function LayoutContent() {
           <div className="flex items-center gap-2">
             <PageActions className="px-4 py-2" />
             <WebsiteGeneratorButton className="px-4 py-2" />
+            <AuthButton />
           </div>
         </div>
 
