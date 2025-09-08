@@ -6,8 +6,17 @@ import {
   GridConfig,
   ElementType,
 } from "@/shared/types";
+import { 
+  StoredPageData, 
+  CreatePageRequest, 
+  UpdatePageRequest 
+} from "@/shared/types/server-driven-ui";
 
 interface EditorStore extends EditorState {
+  // 페이지 관리
+  currentPageId: string | null;
+  currentPageTitle: string;
+  isSaving: boolean;
   // UI 상태
   leftPanelVisible: boolean;
   rightPanelVisible: boolean;
@@ -49,6 +58,14 @@ interface EditorStore extends EditorState {
   toggleGrid: () => void;
   setGridConfig: (config: Partial<GridConfig>) => void;
   snapToGrid: (x: number, y: number) => { x: number; y: number };
+
+  // 페이지 관리
+  setCurrentPage: (pageId: string | null, title?: string) => void;
+  setCurrentPageTitle: (title: string) => void;
+  savePage: (title?: string) => Promise<string | null>;
+  loadPage: (pageId: string) => Promise<void>;
+  createNewPage: (title?: string) => Promise<string | null>;
+  getPreviewUrl: () => string | null;
 }
 
 const initialCanvas: Canvas = {
@@ -75,6 +92,9 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   isDragging: false,
   isResizing: false,
   grid: initialGrid,
+  currentPageId: null,
+  currentPageTitle: "새 페이지",
+  isSaving: false,
   leftPanelVisible: true,
   rightPanelVisible: true,
   canvasZoom: 1,
@@ -291,5 +311,129 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
   resetCanvasZoom: () => {
     set({ canvasZoom: 1 });
+  },
+
+  // 페이지 관리 함수들
+  setCurrentPage: (pageId, title) => {
+    set({
+      currentPageId: pageId,
+      currentPageTitle: title || "새 페이지",
+    });
+  },
+
+  setCurrentPageTitle: (title) => {
+    set({ currentPageTitle: title });
+  },
+
+  savePage: async (title) => {
+    const state = get();
+    const pageTitle = title || state.currentPageTitle;
+    
+    set({ isSaving: true });
+
+    try {
+      if (state.currentPageId) {
+        // 기존 페이지 업데이트
+        const updateData: UpdatePageRequest = {
+          title: pageTitle,
+          canvas: state.canvas,
+        };
+
+        const response = await fetch(`/api/pages/${state.currentPageId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updateData),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to update page");
+        }
+
+        set({ currentPageTitle: pageTitle });
+        return state.currentPageId;
+      } else {
+        // 새 페이지 생성
+        const createData: CreatePageRequest = {
+          title: pageTitle,
+          canvas: state.canvas,
+        };
+
+        const response = await fetch("/api/pages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(createData),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to create page");
+        }
+
+        const result = await response.json();
+        set({
+          currentPageId: result.page.id,
+          currentPageTitle: pageTitle,
+        });
+        return result.page.id;
+      }
+    } catch (error) {
+      console.error("Failed to save page:", error);
+      return null;
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
+  loadPage: async (pageId) => {
+    set({ isSaving: true });
+
+    try {
+      const response = await fetch(`/api/pages/${pageId}`);
+      
+      if (!response.ok) {
+        throw new Error("Failed to load page");
+      }
+
+      const result = await response.json();
+      const pageData: StoredPageData = result.page;
+
+      set({
+        currentPageId: pageData.id,
+        currentPageTitle: pageData.title,
+        canvas: pageData.canvas,
+        history: [pageData.canvas],
+        historyIndex: 0,
+      });
+    } catch (error) {
+      console.error("Failed to load page:", error);
+      throw error;
+    } finally {
+      set({ isSaving: false });
+    }
+  },
+
+  createNewPage: async (title) => {
+    const pageTitle = title || "새 페이지";
+
+    set({
+      canvas: initialCanvas,
+      history: [initialCanvas],
+      historyIndex: 0,
+      currentPageId: null,
+      currentPageTitle: pageTitle,
+    });
+
+    return get().savePage(pageTitle);
+  },
+
+  getPreviewUrl: () => {
+    const state = get();
+    if (!state.currentPageId) {
+      return null;
+    }
+    return `/preview/${state.currentPageId}`;
   },
 }));

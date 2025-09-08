@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import { ElementType } from "@/shared/types";
-import WebsiteGenerator from "@/components/website-generator";
+import PageActions from "@/features/editor-controls/page-actions";
+import WebsiteGeneratorButton from "@/features/editor-controls/website-generator-button";
 import {
   ZoomIn,
   ZoomOut,
@@ -137,7 +138,10 @@ function LayoutContent() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <WebsiteGenerator className="text-sm px-4 py-2" />
+          <div className="flex items-center gap-2">
+            <PageActions className="text-sm" />
+            <WebsiteGeneratorButton className="text-sm px-4 py-2" />
+          </div>
         </div>
       </div>
 
@@ -175,7 +179,10 @@ function LayoutContent() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <WebsiteGenerator className="px-8 py-4 text-lg" />
+          <div className="flex items-center gap-2">
+            <PageActions className="px-4 py-2" />
+            <WebsiteGeneratorButton className="px-4 py-2" />
+          </div>
         </div>
 
         <Canvas />
