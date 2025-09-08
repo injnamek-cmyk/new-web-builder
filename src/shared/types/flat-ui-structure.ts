@@ -27,6 +27,26 @@ export function convertToFlatStructure(canvas: Canvas): FlatUIStructure {
       style: extractElementStyle(element),
     };
 
+    // 하이브리드 레이아웃 지원
+    if ((element as any).layoutMode && (element as any).layoutMode !== 'absolute') {
+      flatElement.style.layoutMode = (element as any).layoutMode;
+      
+      if ((element as any).flexProps) {
+        flatElement.style.flexProps = (element as any).flexProps;
+      }
+      if ((element as any).gridProps) {
+        flatElement.style.gridProps = (element as any).gridProps;
+      }
+      if ((element as any).flowProps) {
+        flatElement.style.flowProps = (element as any).flowProps;
+      }
+    }
+
+    // 자식 요소 정보 추가
+    if ((element as any).children && (element as any).children.length > 0) {
+      flatElement.children = (element as any).children;
+    }
+
     // content 설정
     switch (element.type) {
       case "text":

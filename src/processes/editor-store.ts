@@ -5,6 +5,7 @@ import {
   EditorState,
   GridConfig,
   ElementType,
+  ContainerElement,
 } from "@/shared/types";
 import { 
   StoredPageData, 
@@ -45,6 +46,13 @@ interface EditorStore extends EditorState {
   // 다중 요소 조작
   moveSelectedElements: (deltaX: number, deltaY: number) => void;
   deleteSelectedElements: () => void;
+
+  // 컨테이너 자식 관리 (하이브리드 레이아웃)
+  addChildToContainer: (containerId: string, childId: string) => void;
+  removeChildFromContainer: (containerId: string, childId: string) => void;
+  moveChildInContainer: (containerId: string, childId: string, targetIndex: number) => void;
+  setContainerLayoutMode: (containerId: string, layoutMode: "absolute" | "flex" | "grid" | "flow") => void;
+  updateContainerLayout: (containerId: string, layoutProps: Partial<ContainerElement>) => void;
 
   // 드래그 앤 드롭
   moveElement: (id: string, x: number, y: number) => void;
@@ -435,5 +443,138 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       return null;
     }
     return `/preview/${state.currentPageId}`;
+  },
+
+  // 컨테이너 자식 관리 함수들 (하이브리드 레이아웃)
+  addChildToContainer: (containerId, childId) => {
+    set((state) => {
+      const elements = state.canvas.elements.map((element) => {
+        if (element.id === containerId && element.type === "container") {
+          const container = element as ContainerElement;
+          const children = container.children || [];
+          
+          // 이미 자식으로 있다면 추가하지 않음
+          if (children.includes(childId)) {
+            return element;
+          }
+          
+          return {
+            ...container,
+            children: [...children, childId],
+          };
+        }
+        return element;
+      });
+      
+      return {
+        canvas: {
+          ...state.canvas,
+          elements,
+        },
+      };
+    });
+    get().saveToHistory();
+  },
+
+  removeChildFromContainer: (containerId, childId) => {
+    set((state) => {
+      const elements = state.canvas.elements.map((element) => {
+        if (element.id === containerId && element.type === "container") {
+          const container = element as ContainerElement;
+          const children = container.children || [];
+          
+          return {
+            ...container,
+            children: children.filter(id => id !== childId),
+          };
+        }
+        return element;
+      });
+      
+      return {
+        canvas: {
+          ...state.canvas,
+          elements,
+        },
+      };
+    });
+    get().saveToHistory();
+  },
+
+  moveChildInContainer: (containerId, childId, targetIndex) => {
+    set((state) => {
+      const elements = state.canvas.elements.map((element) => {
+        if (element.id === containerId && element.type === "container") {
+          const container = element as ContainerElement;
+          const children = container.children || [];
+          
+          const currentIndex = children.indexOf(childId);
+          if (currentIndex === -1) return element;
+          
+          const newChildren = [...children];
+          newChildren.splice(currentIndex, 1);
+          newChildren.splice(targetIndex, 0, childId);
+          
+          return {
+            ...container,
+            children: newChildren,
+          };
+        }
+        return element;
+      });
+      
+      return {
+        canvas: {
+          ...state.canvas,
+          elements,
+        },
+      };
+    });
+    get().saveToHistory();
+  },
+
+  setContainerLayoutMode: (containerId, layoutMode) => {
+    set((state) => {
+      const elements = state.canvas.elements.map((element) => {
+        if (element.id === containerId && element.type === "container") {
+          return {
+            ...element,
+            layoutMode,
+          } as ContainerElement;
+        }
+        return element;
+      });
+      
+      return {
+        canvas: {
+          ...state.canvas,
+          elements,
+        },
+      };
+    });
+    get().saveToHistory();
+  },
+
+  updateContainerLayout: (containerId, layoutProps) => {
+    set((state) => {
+      const elements = state.canvas.elements.map((element) => {
+        if (element.id === containerId && element.type === "container") {
+          const container = element as ContainerElement;
+          return {
+            ...container,
+            ...layoutProps,
+          };
+        }
+        return element;
+      });
+      
+      return {
+        canvas: {
+          ...state.canvas,
+          elements,
+        },
+      };
+    });
+    get().saveToHistory();
   },
 }));

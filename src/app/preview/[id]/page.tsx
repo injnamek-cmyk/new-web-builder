@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { DynamicRenderer } from "@/features/server-driven-ui/dynamic-renderer";
+import { HybridRenderer } from "@/features/server-driven-ui/hybrid-renderer";
 import { PageRenderData } from "@/shared/types/server-driven-ui";
 import { Loader2 } from "lucide-react";
 
@@ -89,7 +89,7 @@ export default function PreviewPage() {
       {/* 메인 콘텐츠 */}
       <main className="flex items-center justify-center p-8">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          <DynamicRenderer
+          <HybridRenderer
             elements={renderData.canvas.elements}
             canvasWidth={renderData.canvas.width}
             canvasHeight={renderData.canvas.height}

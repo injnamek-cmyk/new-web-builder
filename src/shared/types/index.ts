@@ -73,7 +73,40 @@ export interface ButtonElement extends BaseElement {
   iconPosition?: "left" | "right";
 }
 
-// 컨테이너 요소
+// 레이아웃 모드 타입 (하이브리드 서버 드리븐 UI)
+export type LayoutMode = "absolute" | "flex" | "grid" | "flow";
+
+// Flex 레이아웃 속성
+export interface FlexLayoutProps {
+  flexDirection?: "row" | "column" | "row-reverse" | "column-reverse";
+  justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly";
+  alignItems?: "stretch" | "flex-start" | "flex-end" | "center" | "baseline";
+  alignContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "stretch";
+  flexWrap?: "nowrap" | "wrap" | "wrap-reverse";
+  gap?: number;
+}
+
+// Grid 레이아웃 속성
+export interface GridLayoutProps {
+  gridTemplateColumns?: string;
+  gridTemplateRows?: string;
+  gridGap?: number;
+  gridColumnGap?: number;
+  gridRowGap?: number;
+  gridAutoFlow?: "row" | "column" | "row dense" | "column dense";
+  gridAutoColumns?: string;
+  gridAutoRows?: string;
+}
+
+// Flow 레이아웃 속성 (일반적인 block/inline 흐름)
+export interface FlowLayoutProps {
+  display?: "block" | "inline" | "inline-block";
+  verticalAlign?: "baseline" | "top" | "middle" | "bottom" | "text-top" | "text-bottom";
+  float?: "none" | "left" | "right";
+  clear?: "none" | "left" | "right" | "both";
+}
+
+// 컨테이너 요소 (하이브리드 레이아웃 지원)
 export interface ContainerElement extends BaseElement {
   type: "container";
   backgroundColor: string;
@@ -82,6 +115,24 @@ export interface ContainerElement extends BaseElement {
   borderWidth?: number;
   borderColor?: string;
   boxShadow?: "none" | "sm" | "md" | "lg" | "xl" | "2xl";
+  
+  // 하이브리드 레이아웃 시스템 (옵셔널 - 기존 호환성 유지)
+  layoutMode?: LayoutMode;
+  children?: string[]; // 자식 요소 ID 배열
+  
+  // 레이아웃별 속성 (옵셔널)
+  flex?: FlexLayoutProps;
+  grid?: GridLayoutProps;
+  flow?: FlowLayoutProps;
+  
+  // 간격 조정 속성 (기존 SpacingStyle.padding 외에 추가)
+  gap?: number; // 자식 요소간 간격
+  childPadding?: {
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  }; // 자식 요소들을 위한 내부 패딩
 }
 
 // 아코디언 요소

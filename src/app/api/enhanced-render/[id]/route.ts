@@ -1,17 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getMemoryStore } from "@/shared/lib/memory-store";
+import { LayoutOptimizer } from "@/shared/lib/layout-optimizer";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-// 렌더링을 위한 페이지 데이터 조회 (하이브리드 서버 드리븐 UI용)
+/**
+ * 향상된 렌더링을 위한 페이지 데이터 조회
+ * - 반응형 레이아웃 지원
+ * - 성능 최적화된 구조
+ * - 레이아웃 분석 포함
+ */
 export async function GET(
   request: NextRequest,
   { params }: RouteParams
 ) {
   try {
     const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    
+    // 쿼리 파라미터
+    const includeAnalysis = searchParams.get('analysis') === 'true';
+    const migrate = searchParams.get('migrate') === 'true';
+    const viewport = {
+      width: parseInt(searchParams.get('viewport_width') || '1920'),
+      height: parseInt(searchParams.get('viewport_height') || '1080')
+    };
+
     const store = getMemoryStore();
     const page = store.getPage(id);
 
@@ -22,21 +38,36 @@ export async function GET(
       );
     }
 
-    // 하이브리드 서버 드리븐 UI를 위한 렌더링 데이터 구조
-    const renderData = {
+    let response: any = {
       pageId: page.id,
       title: page.title,
-      canvas: {
+      viewport,
+      metadata: {
+        createdAt: page.createdAt,
+        updatedAt: page.updatedAt,
+        version: "1.0.0"
+      }
+    };
+
+    if (migrate) {
+      // 향상된 캔버스로 마이그레이션
+      const { enhancedCanvas, mappings } = LayoutOptimizer.migrateToEnhancedCanvas(page.canvas);
+      
+      response.canvas = enhancedCanvas;
+      response.migration = {
+        mappings,
+        timestamp: new Date(),
+        fromVersion: "legacy",
+        toVersion: "enhanced"
+      };
+    } else {
+      // 기존 구조 유지
+      response.canvas = {
         width: page.canvas.width,
         height: page.canvas.height,
         elements: page.canvas.elements.map(element => ({
           id: element.id,
           type: element.type,
-          
-          // 하이브리드 레이아웃 지원
-          layoutMode: (element as any).layoutMode || 'absolute',
-          
-          // 절대 포지셔닝 (기존 방식 유지)
           position: {
             x: element.x,
             y: element.y
@@ -46,37 +77,69 @@ export async function GET(
             height: element.height
           },
           zIndex: element.zIndex,
-          
-          // 컨테이너 자식 관리
-          children: (element as any).children || [],
-          
-          // 레이아웃별 속성
-          flexProps: (element as any).flexProps || null,
-          gridProps: (element as any).gridProps || null,
-          flowProps: (element as any).flowProps || null,
-          
-          // 스타일과 속성 (기존 방식 유지)
           style: extractElementStyle(element),
           props: extractElementProps(element),
         }))
-      },
-      metadata: {
-        createdAt: page.createdAt,
-        updatedAt: page.updatedAt
-      }
-    };
+      };
+    }
 
-    return NextResponse.json({ data: renderData }, { status: 200 });
+    if (includeAnalysis) {
+      // 레이아웃 분석 포함
+      const analysis = LayoutOptimizer.analyzeCanvas(page.canvas);
+      response.analysis = analysis;
+    }
+
+    // 성능 헤더 추가
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+      'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      'X-Performance-Mode': migrate ? 'enhanced' : 'legacy'
+    });
+
+    return new NextResponse(JSON.stringify({ data: response }), {
+      status: 200,
+      headers
+    });
+
   } catch (error) {
-    console.error("Failed to fetch render data:", error);
+    console.error("Failed to fetch enhanced render data:", error);
     return NextResponse.json(
-      { error: "Failed to fetch render data" },
+      { 
+        error: "Failed to fetch render data",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     );
   }
 }
 
-// 요소의 스타일 정보 추출
+/**
+ * 성능 최적화를 위한 캐시 무효화
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: RouteParams
+) {
+  try {
+    const { id } = await params;
+    
+    // 향후 Redis 또는 다른 캐시 시스템과 연동
+    console.log(`Invalidating cache for page: ${id}`);
+    
+    return NextResponse.json(
+      { message: "Cache invalidated successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Failed to invalidate cache:", error);
+    return NextResponse.json(
+      { error: "Failed to invalidate cache" },
+      { status: 500 }
+    );
+  }
+}
+
+// 요소의 스타일 정보 추출 (기존 함수 재사용)
 function extractElementStyle(element: any) {
   const style: any = {
     padding: element.padding,
@@ -127,7 +190,7 @@ function extractElementStyle(element: any) {
   }
 }
 
-// 요소의 속성 정보 추출
+// 요소의 속성 정보 추출 (기존 함수 재사용)
 function extractElementProps(element: any) {
   switch (element.type) {
     case "text":

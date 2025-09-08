@@ -829,6 +829,218 @@ export default function PropertyPanel() {
           </div>
         </div>
       </div>
+
+      {/* 하이브리드 레이아웃 설정 */}
+      <div className="border-t pt-3 lg:pt-4">
+        <Label className="text-xs font-medium">레이아웃 모드</Label>
+        <Select
+          value={element.layoutMode || "absolute"}
+          onValueChange={(value) => handlePropertyChange("layoutMode", value)}
+        >
+          <SelectTrigger className="text-xs mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="absolute">절대 위치 (기본)</SelectItem>
+            <SelectItem value="flex">플렉스 박스</SelectItem>
+            <SelectItem value="grid">그리드</SelectItem>
+            <SelectItem value="flow">플로우</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* 레이아웃별 상세 설정 */}
+      {element.layoutMode === "flex" && (
+        <div className="space-y-2">
+          <Label className="text-xs font-medium">플렉스 설정</Label>
+          <div className="grid grid-cols-2 gap-1 lg:gap-2">
+            <div>
+              <Label htmlFor="flexDirection" className="text-xs text-gray-600">
+                방향
+              </Label>
+              <Select
+                value={element.flex?.flexDirection || "row"}
+                onValueChange={(value) => 
+                  handlePropertyChange("flex", { 
+                    ...element.flex, 
+                    flexDirection: value 
+                  })
+                }
+              >
+                <SelectTrigger className="text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="row">가로</SelectItem>
+                  <SelectItem value="column">세로</SelectItem>
+                  <SelectItem value="row-reverse">가로 역순</SelectItem>
+                  <SelectItem value="column-reverse">세로 역순</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="justifyContent" className="text-xs text-gray-600">
+                정렬 (주축)
+              </Label>
+              <Select
+                value={element.flex?.justifyContent || "flex-start"}
+                onValueChange={(value) => 
+                  handlePropertyChange("flex", { 
+                    ...element.flex, 
+                    justifyContent: value 
+                  })
+                }
+              >
+                <SelectTrigger className="text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="flex-start">시작</SelectItem>
+                  <SelectItem value="center">중앙</SelectItem>
+                  <SelectItem value="flex-end">끝</SelectItem>
+                  <SelectItem value="space-between">간격</SelectItem>
+                  <SelectItem value="space-around">둘러싸기</SelectItem>
+                  <SelectItem value="space-evenly">균등</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-1 lg:gap-2">
+            <div>
+              <Label htmlFor="alignItems" className="text-xs text-gray-600">
+                정렬 (교차축)
+              </Label>
+              <Select
+                value={element.flex?.alignItems || "stretch"}
+                onValueChange={(value) => 
+                  handlePropertyChange("flex", { 
+                    ...element.flex, 
+                    alignItems: value 
+                  })
+                }
+              >
+                <SelectTrigger className="text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="stretch">늘이기</SelectItem>
+                  <SelectItem value="flex-start">시작</SelectItem>
+                  <SelectItem value="center">중앙</SelectItem>
+                  <SelectItem value="flex-end">끝</SelectItem>
+                  <SelectItem value="baseline">기준선</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="gap" className="text-xs text-gray-600">
+                간격 (px)
+              </Label>
+              <Input
+                id="gap"
+                type="number"
+                min="0"
+                value={element.gap || 0}
+                onChange={(e) =>
+                  handlePropertyChange("gap", parseInt(e.target.value) || 0)
+                }
+                className="text-xs"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {element.layoutMode === "grid" && (
+        <div className="space-y-2">
+          <Label className="text-xs font-medium">그리드 설정</Label>
+          <div className="grid grid-cols-2 gap-1 lg:gap-2">
+            <div>
+              <Label htmlFor="gridColumns" className="text-xs text-gray-600">
+                컬럼
+              </Label>
+              <Input
+                id="gridColumns"
+                type="text"
+                placeholder="1fr 1fr"
+                value={element.grid?.gridTemplateColumns || "1fr"}
+                onChange={(e) =>
+                  handlePropertyChange("grid", {
+                    ...element.grid,
+                    gridTemplateColumns: e.target.value,
+                  })
+                }
+                className="text-xs"
+              />
+            </div>
+            <div>
+              <Label htmlFor="gridRows" className="text-xs text-gray-600">
+                행
+              </Label>
+              <Input
+                id="gridRows"
+                type="text"
+                placeholder="auto"
+                value={element.grid?.gridTemplateRows || "auto"}
+                onChange={(e) =>
+                  handlePropertyChange("grid", {
+                    ...element.grid,
+                    gridTemplateRows: e.target.value,
+                  })
+                }
+                className="text-xs"
+              />
+            </div>
+          </div>
+          <div>
+            <Label htmlFor="gridGap" className="text-xs text-gray-600">
+              간격 (px)
+            </Label>
+            <Input
+              id="gridGap"
+              type="number"
+              min="0"
+              value={element.gap || element.grid?.gridGap || 0}
+              onChange={(e) =>
+                handlePropertyChange("gap", parseInt(e.target.value) || 0)
+              }
+              className="text-xs"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* 자식 요소 관리 */}
+      {(element.children && element.children.length > 0) && (
+        <div className="border-t pt-3 lg:pt-4">
+          <Label className="text-xs font-medium">
+            자식 요소 ({element.children.length}개)
+          </Label>
+          <div className="mt-2 space-y-1">
+            {element.children.map((childId) => {
+              const childElement = canvas.elements.find(el => el.id === childId);
+              return (
+                <div
+                  key={childId}
+                  className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs"
+                >
+                  <span>
+                    {childElement?.type || "Unknown"} - {childId.slice(0, 8)}
+                  </span>
+                  <button
+                    onClick={() => {
+                      const { removeChildFromContainer } = useEditorStore.getState();
+                      removeChildFromContainer(element.id, childId);
+                    }}
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    제거
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 

@@ -110,6 +110,30 @@ export function createElement(
           bottom: 16,
           left: 16,
         },
+        // 하이브리드 레이아웃 기본값
+        layoutMode: "absolute",
+        children: [],
+        gap: 8,
+        flex: {
+          flexDirection: "row",
+          justifyContent: "flex-start",
+          alignItems: "stretch",
+          flexWrap: "nowrap",
+        },
+        grid: {
+          gridTemplateColumns: "1fr",
+          gridTemplateRows: "auto",
+          gridGap: 8,
+        },
+        flow: {
+          display: "block",
+        },
+        childPadding: {
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+        },
         ...options,
       } as ContainerElement;
 
