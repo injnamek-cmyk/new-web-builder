@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import { ElementType } from "@/shared/types";
+import { StoredPageData } from "@/shared/types/server-driven-ui";
 import PageActions from "@/features/editor-controls/page-actions";
 import WebsiteGeneratorButton from "@/features/editor-controls/website-generator-button";
 import {
@@ -29,6 +30,11 @@ import {
   ChevronRight,
   Calendar,
 } from "lucide-react";
+
+interface LayoutProps {
+  initialPageData: StoredPageData;
+  pageId: string;
+}
 
 const elementTypes: {
   type: ElementType;
@@ -59,7 +65,7 @@ const elementTypes: {
   },
 ];
 
-function LayoutContent() {
+function LayoutContent({ initialPageData, pageId }: LayoutProps) {
   const {
     addElement,
     rightPanelVisible,
@@ -67,7 +73,15 @@ function LayoutContent() {
     canvasZoom,
     setCanvasZoom,
     resetCanvasZoom,
+    initializeEditor,
   } = useEditorStore();
+
+  useEffect(() => {
+    if (initialPageData && pageId) {
+      const { title, canvas } = initialPageData;
+      initializeEditor(pageId, title, canvas);
+    }
+  }, [initialPageData, pageId, initializeEditor]);
 
   const handleAddElement = (type: ElementType) => {
     const element = createElement(type, generateId());
@@ -251,10 +265,10 @@ function LayoutContent() {
   );
 }
 
-export default function Layout() {
+export default function Layout({ initialPageData, pageId }: LayoutProps) {
   return (
     <DragDropProvider>
-      <LayoutContent />
+      <LayoutContent initialPageData={initialPageData} pageId={pageId} />
     </DragDropProvider>
   );
 }

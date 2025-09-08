@@ -74,6 +74,9 @@ interface EditorStore extends EditorState {
   loadPage: (pageId: string) => Promise<void>;
   createNewPage: (title?: string) => Promise<string | null>;
   getPreviewUrl: () => string | null;
+
+  // 페이지 데이터로 에디터 상태를 초기화하는 함수
+  initializeEditor: (pageId: string, title: string, canvas: Canvas) => void;
 }
 
 const initialCanvas: Canvas = {
@@ -319,6 +322,16 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
   resetCanvasZoom: () => {
     set({ canvasZoom: 1 });
+  },
+
+  initializeEditor: (pageId, title, canvas) => {
+    set({
+      currentPageId: pageId,
+      currentPageTitle: title,
+      canvas: canvas,
+      history: [canvas],
+      historyIndex: 0,
+    });
   },
 
   // 페이지 관리 함수들
