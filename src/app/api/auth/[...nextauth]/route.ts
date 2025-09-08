@@ -1,30 +1,67 @@
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaClient } from "@prisma/client";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcrypt";
 
-import NextAuth from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
+const prisma = new PrismaClient();
 
 const handler = NextAuth({
+  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
-        // Add logic here to look up the user from the credentials supplied
-        if (credentials?.email === 'test@test.com' && credentials?.password === 'test') {
-          // Any object returned will be saved in `user` property of the JWT
-          return { id: "1", name: "Test User", email: "test@test.com" }
-        } else {
-          // If you return null then an error will be displayed advising the user to check their details.
-          return null
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials.password) {
+          return null;
         }
-      }
-    })
-  ],
-  pages: {
-    signIn: '/login',
-  },
-})
 
-export { handler as GET, handler as POST }
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!user || !user.password) {
+          return null;
+        }
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
+
+        if (!isPasswordValid) {
+          return null;
+        }
+
+        return user;
+      },
+    }),
+  ],
+  
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.id as string;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
+  },
+  session: {
+    strategy: "jwt",
+  },
+});
+
+export { handler as GET, handler as POST };
