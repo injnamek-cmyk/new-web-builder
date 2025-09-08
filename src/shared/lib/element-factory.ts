@@ -41,10 +41,13 @@ export function createElement(
         height: "auto",
         content: "새 텍스트",
         fontSize: 14,
-        fontFamily: "inherit",
+        fontFamily: "Inter",
         color: "hsl(var(--foreground))",
         textAlign: "left",
         fontWeight: "normal",
+        textDecoration: "none",
+        lineHeight: 1.5,
+        ...options,
       } as TextElement;
 
     case "image":
@@ -56,6 +59,14 @@ export function createElement(
         src: "",
         alt: "이미지",
         objectFit: "cover",
+        objectPosition: "center",
+        filter: {
+          brightness: 100,
+          contrast: 100,
+          saturate: 100,
+          blur: 0,
+        },
+        ...options,
       } as ImageElement;
 
     case "button":
@@ -65,15 +76,20 @@ export function createElement(
         width: "auto",
         height: "auto",
         text: "버튼",
-        backgroundColor: "",
-        textColor: "",
-        borderRadius: 0,
+        backgroundColor: "hsl(var(--primary))",
+        textColor: "hsl(var(--primary-foreground))",
+        borderRadius: 6,
+        variant: "default",
+        size: "default",
+        icon: "none",
+        iconPosition: "left",
         padding: {
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
+          top: 8,
+          right: 16,
+          bottom: 8,
+          left: 16,
         },
+        ...options,
       } as ButtonElement;
 
     case "container":
@@ -82,13 +98,17 @@ export function createElement(
         type: "container",
         width: "auto",
         height: "auto",
-        backgroundColor: "",
-        borderRadius: 0,
+        backgroundColor: "hsl(var(--card))",
+        borderRadius: 8,
+        borderStyle: "none",
+        borderWidth: 0,
+        borderColor: "hsl(var(--border))",
+        boxShadow: "sm",
         padding: {
-          top: 0,
-          right: 0,
-          bottom: 0,
-          left: 0,
+          top: 16,
+          right: 16,
+          bottom: 16,
+          left: 16,
         },
         ...options,
       } as ContainerElement;
@@ -112,7 +132,9 @@ export function createElement(
           },
         ],
         variant: "default",
+        accordionType: "single",
         collapsible: true,
+        disabled: false,
         ...options,
       } as AccordionElement;
 
@@ -125,6 +147,9 @@ export function createElement(
         mode: "single",
         showOutsideDays: true,
         disabled: false,
+        defaultMonth: new Date(),
+        fixedWeeks: false,
+        weekStartsOn: 0,
         ...options,
       } as CalendarElement;
 

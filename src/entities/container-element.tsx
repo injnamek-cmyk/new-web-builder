@@ -38,14 +38,36 @@ export default function ContainerElementComponent({
       ? "auto"
       : Math.max(element.height + safePadding.top + safePadding.bottom, 20);
 
-  // shadcn Card 컴포넌트에 전달할 스타일
+  // Container 스타일
   const containerStyle = {
     width: element.width === "auto" ? "auto" : "100%",
     height: element.height === "auto" ? "auto" : "100%",
     position: "relative" as const,
     minWidth: element.width === "auto" ? "fit-content" : 20,
     minHeight: element.height === "auto" ? "fit-content" : 20,
+    backgroundColor: element.backgroundColor,
+    borderRadius: `${element.borderRadius}px`,
+    borderStyle: element.borderStyle || "none",
+    borderWidth: element.borderWidth ? `${element.borderWidth}px` : "0",
+    borderColor: element.borderColor || "transparent",
+    boxShadow: getBoxShadowValue(element.boxShadow),
+    paddingTop: safePadding.top,
+    paddingRight: safePadding.right,
+    paddingBottom: safePadding.bottom,
+    paddingLeft: safePadding.left,
   };
+
+  function getBoxShadowValue(shadowType?: string) {
+    const shadows = {
+      none: "none",
+      sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+      md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+      lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+      xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+      "2xl": "0 25px 50px -12px rgb(0 0 0 / 0.25)"
+    };
+    return shadows[shadowType as keyof typeof shadows] || shadows.none;
+  }
 
   return (
     <div
@@ -65,11 +87,12 @@ export default function ContainerElementComponent({
       }}
       onClick={onSelect}
     >
-      <Card style={containerStyle} className="w-full h-full">
-        <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
-          컨테이너
-        </div>
-      </Card>
+      <div 
+        style={containerStyle} 
+        className="w-full h-full flex items-center justify-center text-muted-foreground text-sm"
+      >
+        컨테이너
+      </div>
     </div>
   );
 }

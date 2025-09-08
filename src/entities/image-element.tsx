@@ -85,6 +85,8 @@ export default function ImageElementComponent({
           )}
           style={{
             objectFit: element.objectFit,
+            objectPosition: element.objectPosition || "center",
+            filter: element.filter ? `brightness(${element.filter.brightness}%) contrast(${element.filter.contrast}%) saturate(${element.filter.saturate}%) blur(${element.filter.blur}px)` : undefined,
             minWidth: element.width === "auto" ? "fit-content" : undefined,
             minHeight: element.height === "auto" ? "fit-content" : undefined,
           }}

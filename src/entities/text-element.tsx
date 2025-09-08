@@ -59,6 +59,8 @@ export default function TextElementComponent({
           color: element.color,
           textAlign: element.textAlign,
           fontWeight: element.fontWeight,
+          textDecoration: element.textDecoration || "none",
+          lineHeight: element.lineHeight || 1.5,
           minWidth: element.width === "auto" ? "fit-content" : 20,
           minHeight: element.height === "auto" ? "fit-content" : 20,
         }}

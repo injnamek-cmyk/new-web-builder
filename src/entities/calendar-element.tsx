@@ -72,6 +72,9 @@ export default function CalendarElementComponent({
           }}
           showOutsideDays={element.showOutsideDays}
           disabled={element.disabled}
+          defaultMonth={element.defaultMonth}
+          fixedWeeks={element.fixedWeeks}
+          weekStartsOn={element.weekStartsOn}
           className="rounded-md border"
         />
       ) : element.mode === "multiple" ? (
@@ -83,6 +86,9 @@ export default function CalendarElementComponent({
           }
           showOutsideDays={element.showOutsideDays}
           disabled={element.disabled}
+          defaultMonth={element.defaultMonth}
+          fixedWeeks={element.fixedWeeks}
+          weekStartsOn={element.weekStartsOn}
           className="rounded-md border"
         />
       ) : (
@@ -92,6 +98,9 @@ export default function CalendarElementComponent({
           onSelect={handleDateSelect}
           showOutsideDays={element.showOutsideDays}
           disabled={element.disabled}
+          defaultMonth={element.defaultMonth}
+          fixedWeeks={element.fixedWeeks}
+          weekStartsOn={element.weekStartsOn}
           className="rounded-md border"
         />
       )}

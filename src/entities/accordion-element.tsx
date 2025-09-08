@@ -54,9 +54,14 @@ export default function AccordionElementComponent({
       onClick={onSelect}
     >
       <Accordion
-        type={element.collapsible ? "single" : "multiple"}
+        type={element.accordionType || "single"}
         collapsible={element.collapsible}
-        className="w-full"
+        disabled={element.disabled}
+        className={cn(
+          "w-full",
+          element.variant === "outline" && "border rounded-lg p-4",
+          element.variant === "ghost" && "bg-transparent"
+        )}
       >
         {element.items.map((item, index) => (
           <AccordionItem key={item.id} value={`item-${index}`}>

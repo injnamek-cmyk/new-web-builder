@@ -40,6 +40,8 @@ export interface TextElement extends BaseElement {
   color: string;
   textAlign: "left" | "center" | "right";
   fontWeight: "normal" | "bold";
+  textDecoration?: "none" | "underline" | "line-through";
+  lineHeight?: number;
 }
 
 // 이미지 요소
@@ -48,6 +50,13 @@ export interface ImageElement extends BaseElement {
   src: string;
   alt: string;
   objectFit: "cover" | "contain" | "fill" | "none" | "scale-down";
+  objectPosition?: "center" | "top" | "bottom" | "left" | "right" | "top left" | "top right" | "bottom left" | "bottom right";
+  filter?: {
+    brightness: number;
+    contrast: number;
+    saturate: number;
+    blur: number;
+  };
 }
 
 // 버튼 요소
@@ -58,6 +67,10 @@ export interface ButtonElement extends BaseElement {
   textColor: string;
   borderRadius: number;
   href?: string;
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  size?: "default" | "sm" | "lg" | "icon";
+  icon?: string; // Lucide icon name
+  iconPosition?: "left" | "right";
 }
 
 // 컨테이너 요소
@@ -65,6 +78,10 @@ export interface ContainerElement extends BaseElement {
   type: "container";
   backgroundColor: string;
   borderRadius: number;
+  borderStyle?: "none" | "solid" | "dashed" | "dotted";
+  borderWidth?: number;
+  borderColor?: string;
+  boxShadow?: "none" | "sm" | "md" | "lg" | "xl" | "2xl";
 }
 
 // 아코디언 요소
@@ -77,6 +94,8 @@ export interface AccordionElement extends BaseElement {
   }[];
   variant?: "default" | "outline" | "ghost";
   collapsible?: boolean;
+  accordionType?: "single" | "multiple";
+  disabled?: boolean;
 }
 
 // 캘린더 요소
@@ -87,6 +106,9 @@ export interface CalendarElement extends BaseElement {
   selectedDates?: Date[];
   showOutsideDays?: boolean;
   disabled?: boolean;
+  defaultMonth?: Date;
+  fixedWeeks?: boolean;
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday, 1 = Monday, etc.
 }
 
 // 모든 요소 타입의 유니온

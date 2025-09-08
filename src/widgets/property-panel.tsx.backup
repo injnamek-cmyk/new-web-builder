@@ -121,7 +121,7 @@ export default function PropertyPanel() {
   // 일반 속성 변경 핸들러
   const handlePropertyChange = (
     property: string,
-    value: string | number | boolean | Date | object | Array<{ id: string; title: string; content: string }>
+    value: string | number | boolean
   ) => {
     updateElement(selectedElement.id, { [property]: value });
   };
@@ -542,7 +542,7 @@ export default function PropertyPanel() {
 
   const renderButtonProperties = (element: ButtonElement) => {
     const iconOptions = [
-      { value: "none", label: "아이콘 없음" },
+      { value: "", label: "아이콘 없음" },
       { value: "Home", label: "홈" },
       { value: "User", label: "사용자" },
       { value: "Settings", label: "설정" },
@@ -628,8 +628,8 @@ export default function PropertyPanel() {
               아이콘
             </Label>
             <Select
-              value={element.icon || "none"}
-              onValueChange={(value) => handlePropertyChange("icon", value === "none" ? "" : value)}
+              value={element.icon || ""}
+              onValueChange={(value) => handlePropertyChange("icon", value)}
             >
               <SelectTrigger className="text-xs">
                 <SelectValue placeholder="아이콘 선택" />
@@ -957,8 +957,8 @@ export default function PropertyPanel() {
             <div>
               <Label className="text-xs text-gray-600">유형</Label>
               <Select
-                value={element.accordionType || "single"}
-                onValueChange={(value) => handlePropertyChange("accordionType", value)}
+                value={element.type || "single"}
+                onValueChange={(value) => handlePropertyChange("type", value)}
               >
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue />
