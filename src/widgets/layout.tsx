@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import { ElementType } from "@/shared/types";
+import WebsiteGenerator from "@/components/website-generator";
 import {
   ZoomIn,
   ZoomOut,
@@ -110,7 +111,7 @@ function LayoutContent() {
     <div className="h-screen flex flex-col lg:flex-row bg-gray-100 relative">
       {/* 상단 +Add 버튼 (모바일/태블릿) */}
       <div className="lg:hidden bg-white border-b border-gray-200 p-4">
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-between gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -119,7 +120,7 @@ function LayoutContent() {
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-lg rounded-full px-6 py-3 font-medium transition-all duration-200 transform hover:scale-105"
               >
                 <Plus className="w-5 h-5 mr-2" />
-                +Add Element
+                Add Element
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-56">
@@ -135,13 +136,15 @@ function LayoutContent() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <WebsiteGenerator className="text-sm px-4 py-2" />
         </div>
       </div>
 
       {/* 중앙 캔버스 영역 */}
       <div className="flex-1 flex flex-col min-w-0 relative">
-        {/* +Add 드롭다운 버튼 (데스크톱) */}
-        <div className="hidden lg:flex absolute top-6 left-6 z-20">
+        {/* 상단 컨트롤 버튼들 (데스크톱) */}
+        <div className="hidden lg:flex absolute top-6 left-6 z-20 gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -150,7 +153,7 @@ function LayoutContent() {
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white shadow-xl rounded-full px-8 py-4 font-semibold transition-all duration-300 transform hover:scale-105 hover:shadow-2xl"
               >
                 <Plus className="w-6 h-6 mr-3" />
-                +Add Element
+                Add Element
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -171,6 +174,8 @@ function LayoutContent() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+
+          <WebsiteGenerator className="px-8 py-4 text-lg" />
         </div>
 
         <Canvas />
