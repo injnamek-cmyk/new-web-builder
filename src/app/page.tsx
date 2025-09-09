@@ -45,7 +45,7 @@ export default async function DashboardPage() {
             {pages.map((page) => (
               <Card key={page.id} className="flex flex-col bg-white shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader>
-                  <CardTitle className="truncate">{page.id}</CardTitle>
+                  <CardTitle className="truncate">{page.title || page.id}</CardTitle>
                   <CardDescription>
                     업데이트: {new Date(page.updatedAt).toLocaleDateString()}
                   </CardDescription>
