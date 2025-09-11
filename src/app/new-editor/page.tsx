@@ -1,39 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
-import LeftNavigation from "@/components/navigation/left-navigation";
+import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+  ChevronLeft,
+  ChevronRight,
+  ZoomIn,
+  ZoomOut,
+  Type,
+  Square,
+} from "lucide-react";
+import DragDropProvider from "@/features/drag-drop";
+import { useEditorStore } from "@/processes/editor-store";
+import { createElement, generateId } from "@/shared/lib/element-factory";
+import { ElementType } from "@/shared/types";
+import Canvas from "@/widgets/canvas";
+import PropertyPanel from "@/widgets/property-panel";
+import LeftNavigation from "@/components/navigation/left-navigation";
 
-type DiagramType = "rectangle" | "polygon" | "ellipse";
+function NewEditorContent() {
+  const {
+    addElement,
+    leftPanelVisible,
+    toggleLeftPanel,
+    rightPanelVisible,
+    toggleRightPanel,
+    canvasZoom,
+    setCanvasZoom,
+    resetCanvasZoom,
+    initializeEditor,
+  } = useEditorStore();
 
-const diagramConfig = {
-  rectangle: {
-    icon: "/icons/toolbar/rectangle.svg",
-    label: "Rectangle"
-  },
-  polygon: {
-    icon: "/icons/toolbar/polygon.svg",
-    label: "Polygon"
-  },
-  ellipse: {
-    icon: "/icons/toolbar/ellipse.svg",
-    label: "Ellipse"
-  }
-};
+  useEffect(() => {
+    // Initialize editor with default canvas settings
+    initializeEditor("new-editor", "New Editor Canvas", {
+      width: 1920,
+      height: 1080,
+      elements: [],
+      selectedElementIds: [],
+    });
+  }, [initializeEditor]);
 
-export default function NewEditorPage() {
-  const [selectedDiagram, setSelectedDiagram] = useState<DiagramType>("rectangle");
+  const handleAddElement = (type: ElementType) => {
+    const element = createElement(type, generateId());
+    addElement(element);
+  };
+
   return (
-    <main>
+    <div className="h-screen flex flex-col relative bg-gray-50">
       {/* 헤더 */}
-      <header className="px-5 py-[14px] bg-white border-b border-stone-300/50">
+      <header className="px-5 py-[14px] bg-white border-b border-stone-300/50 relative z-50">
         <div className="flex">
           <Image src="/logo/ditto.svg" alt="Ditto" width={32} height={32} />
           <Image
@@ -45,150 +62,130 @@ export default function NewEditorPage() {
         </div>
       </header>
 
-      {/* 좌측 네비게이션/사이드 메뉴 */}
-      <LeftNavigation />
+      <div className="flex-1 relative overflow-hidden">
+        {/* 좌측 네비게이션/사이드 메뉴 - 접을 수 있게 절대 위치로 */}
+        <div
+          className={`absolute top-0 left-0 h-full bg-white border-r border-stone-300/50 transition-all duration-300 z-40 ${
+            leftPanelVisible ? "w-72" : "w-12"
+          }`}
+        >
+          {/* 좌측 패널 토글 버튼 */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleLeftPanel}
+            className="absolute -right-4 top-4 z-50 bg-white border-2 border-gray-200 shadow-lg hover:bg-gray-50 transition-all duration-200"
+          >
+            {leftPanelVisible ? (
+              <ChevronLeft className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </Button>
 
-      {/* 우측 편집/액션 패널 */}
-      <aside className="w-72 h-[1020px] px-4 py-1 left-[1640px] top-[60px] absolute bg-white border-l border-stone-300/50 flex flex-col justify-start items-center gap-4">
-        <nav className="flex flex-col justify-start items-center gap-2 w-full">
-          <section className="w-full flex flex-col justify-center items-start gap-1">
-            <div className="px-5 flex justify-between items-center w-full">
-              <div className="flex gap-2">
-                <span className="p-1 rounded-sm text-zinc-700/70 text-[10px] font-medium">
-                  Menu
-                </span>
-                <span className="p-1 bg-zinc-500/20 rounded-sm text-neutral-900 text-[10px] font-semibold">
-                  Studio
-                </span>
-              </div>
-              <span className="h-4 py-3 flex flex-col justify-center items-center"></span>
+          {leftPanelVisible && <LeftNavigation />}
+        </div>
+
+        {/* 우측 속성 패널 - 접을 수 있게 절대 위치로 */}
+        <div
+          className={`absolute top-0 right-0 h-full bg-white border-l border-stone-300/50 transition-all duration-300 z-40 ${
+            rightPanelVisible ? "w-72" : "w-12"
+          }`}
+        >
+          {/* 속성 패널 토글 버튼 */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleRightPanel}
+            className="absolute -left-4 top-4 z-50 bg-white border-2 border-gray-200 shadow-lg hover:bg-gray-50 transition-all duration-200"
+          >
+            {rightPanelVisible ? (
+              <ChevronRight className="w-4 h-4" />
+            ) : (
+              <ChevronLeft className="w-4 h-4" />
+            )}
+          </Button>
+
+          {rightPanelVisible && (
+            <div className="p-4 h-full overflow-y-auto">
+              <PropertyPanel />
             </div>
-            <hr className="w-full   bg-zinc-300/50" />
-          </section>
-          <ul className="flex flex-col justify-start items-start gap-2 w-full">
-            <li>
-              <span className="text-neutral-900 text-xs font-semibold">
-                Style
-              </span>
-              <ul className="flex flex-col justify-start items-start gap-0.5 w-full pl-2">
-                <li className="py-1 text-zinc-700/40 text-xs">Text Styles</li>
-                <li className="py-1 rounded-sm outline-[0.80px] outline-offset-[-0.80px] outline-teal-400 text-zinc-700/80 text-xs">
-                  Sub 01
-                </li>
-              </ul>
-            </li>
-            <li className="text-neutral-900 text-xs font-semibold">Export</li>
-          </ul>
-        </nav>
-      </aside>
-
-      {/* 툴바/위젯/패널들 (적절한 section/aside 사용) */}
-      <article className="px-3 py-2 rounded-lg flex justify-start items-center gap-2 shadow-md fixed bottom-4 left-1/2 transform -translate-x-1/2">
-        <div className="flex justify-start items-center gap-2.5">
-          <button className="bg-teal-300 rounded-lg shadow-md overflow-hidden p-2">
-            <Image
-              src="/icons/toolbar/cursor.svg"
-              alt="Cursor"
-              width={21}
-              height={20}
-            />
-          </button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="rounded-lg overflow-hidden p-2 flex items-center gap-1">
-                <Image
-                  src={diagramConfig[selectedDiagram].icon}
-                  alt={diagramConfig[selectedDiagram].label}
-                  width={21}
-                  height={20}
-                />
-                <ChevronDown size={12} className="text-gray-600" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {Object.entries(diagramConfig).map(([key, config]) => (
-                <DropdownMenuItem 
-                  key={key}
-                  onClick={() => setSelectedDiagram(key as DiagramType)}
-                >
-                  <Image
-                    src={config.icon}
-                    alt={config.label}
-                    width={16}
-                    height={16}
-                    className="mr-2"
-                  />
-                  {config.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <button className="rounded-lg overflow-hidden p-2">
-            <Image
-              src="/icons/toolbar/text.svg"
-              alt="Text"
-              width={22}
-              height={20}
-            />
-          </button>
-
-          <button className="bg-white rounded-lg overflow-hidden p-2 flex items-center gap-2">
-            <Image
-              src="/icons/toolbar/line.svg"
-              alt="Line"
-              width={21}
-              height={20}
-            />
-          </button>
-
-          <button className="bg-white rounded-lg overflow-hidden p-2 flex items-center gap-2">
-            <Image
-              src="/icons/toolbar/button.svg"
-              alt="Button"
-              width={16}
-              height={14}
-            />
-          </button>
-
-          <button className="bg-white rounded-lg overflow-hidden p-2 flex items-center gap-2">
-            <Image
-              src="/icons/toolbar/icon.svg"
-              alt="Icon"
-              width={18}
-              height={17}
-            />
-          </button>
-
-          <button className="bg-white rounded-lg overflow-hidden p-2 flex items-center gap-2">
-            <Image
-              src="/icons/toolbar/input.svg"
-              alt="Input"
-              width={15}
-              height={12}
-            />
-          </button>
-
-          <button className="bg-white rounded-lg overflow-hidden p-2">
-            <Image
-              src="/icons/toolbar/image.svg"
-              alt="Image"
-              width={21}
-              height={20}
-            />
-          </button>
+          )}
         </div>
 
-        <div className="flex justify-start items-center gap-2">
-          <Image
-            src="/icons/toolbar/widgets.svg"
-            alt="Widgets"
-            width={37}
-            height={36}
-          />
+        {/* 중앙 캔버스 영역 */}
+        <div
+          className="h-full transition-all duration-300"
+          style={{
+            marginLeft: leftPanelVisible ? "288px" : "48px",
+            marginRight: rightPanelVisible ? "288px" : "48px",
+          }}
+        >
+          <Canvas />
         </div>
-      </article>
-    </main>
+
+        {/* 하단 툴바 - 요소 추가 */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-3 flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleAddElement("text")}
+              className="flex items-center gap-2"
+            >
+              <Type className="w-4 h-4" />
+              텍스트
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleAddElement("button")}
+              className="flex items-center gap-2"
+            >
+              <Square className="w-4 h-4" />
+              버튼
+            </Button>
+          </div>
+        </div>
+
+        {/* 줌 컨트롤 */}
+        <div className="absolute bottom-4 right-4 z-50">
+          <div className="bg-white rounded-lg shadow-lg p-2 flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCanvasZoom(canvasZoom - 0.1)}
+              disabled={canvasZoom <= 0.1}
+            >
+              <ZoomOut className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetCanvasZoom}
+              className="min-w-[60px]"
+            >
+              {Math.round(canvasZoom * 100)}%
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCanvasZoom(canvasZoom + 0.1)}
+              disabled={canvasZoom >= 3}
+            >
+              <ZoomIn className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function NewEditorPage() {
+  return (
+    <DragDropProvider>
+      <NewEditorContent />
+    </DragDropProvider>
   );
 }
