@@ -1,19 +1,16 @@
 import { apiClient } from '@/lib/api';
 import { Page } from '@prisma/client';
+import type { Canvas } from '@/shared/types';
 
+// API Request/Response types with proper typing instead of 'any'
 export interface CreatePageRequest {
   title: string;
-  canvas: {
-    elements: any[];
-    selectedElementIds: string[];
-    width: number;
-    height: number;
-  };
+  canvas: Canvas;
 }
 
 export interface UpdatePageRequest {
   title: string;
-  canvas: any;
+  canvas: Canvas;
 }
 
 export interface PageListResponse {

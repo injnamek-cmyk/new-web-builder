@@ -4,14 +4,12 @@ import {
   Canvas,
   EditorState,
   GridConfig,
-  ElementType,
   ContainerElement,
 } from "@/shared/types";
-import { 
-  StoredPageData, 
+import type { 
   CreatePageRequest, 
   UpdatePageRequest 
-} from "@/shared/types/server-driven-ui";
+} from "@/lib/api/pages";
 
 interface EditorStore extends EditorState {
   // 페이지 관리
