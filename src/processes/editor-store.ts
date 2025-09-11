@@ -426,11 +426,17 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       if (pageData && pageData.content && typeof pageData.content === 'object') {
         const { title, canvas } = pageData.content as { title: string; canvas: Canvas };
         
+        // 로드된 캔버스에 selectedElementIds가 없으면 빈 배열로 초기화
+        const safeCanvas = {
+          ...canvas,
+          selectedElementIds: canvas.selectedElementIds || [],
+        };
+        
         set({
           currentPageId: pageData.id,
           currentPageTitle: title || "제목 없음",
-          canvas: canvas,
-          history: [canvas],
+          canvas: safeCanvas,
+          history: [safeCanvas],
           historyIndex: 0,
         });
       } else {

@@ -28,6 +28,9 @@ import { getValidPaddingValue } from "@/lib/utils";
 
 export default function PropertyPanel() {
   const { canvas, updateElement, deleteElement } = useEditorStore();
+  if (!canvas) {
+    return null;
+  }
 
   // 타입 자동 추론을 위한 핸들러 함수
   const createAutoTypeHandler = (property: string, elementId: string) => {
@@ -57,7 +60,7 @@ export default function PropertyPanel() {
   };
 
   // 다중 선택된 경우 속성 패널 비활성화
-  if (canvas.selectedElementIds.length === 0) {
+  if (canvas.selectedElementIds && canvas.selectedElementIds.length === 0) {
     return (
       <Card className="p-2 lg:p-4">
         <h3 className="text-xs lg:text-sm font-medium text-gray-700 mb-2 lg:mb-4">
@@ -71,7 +74,7 @@ export default function PropertyPanel() {
   }
 
   // 다중 선택된 경우 속성 패널 비활성화
-  if (canvas.selectedElementIds.length > 1) {
+  if (canvas.selectedElementIds && canvas.selectedElementIds.length > 1) {
     return (
       <Card className="p-2 lg:p-4">
         <h3 className="text-xs lg:text-sm font-medium text-gray-700 mb-2 lg:mb-4">
@@ -121,7 +124,13 @@ export default function PropertyPanel() {
   // 일반 속성 변경 핸들러
   const handlePropertyChange = (
     property: string,
-    value: string | number | boolean | Date | object | Array<{ id: string; title: string; content: string }>
+    value:
+      | string
+      | number
+      | boolean
+      | Date
+      | object
+      | Array<{ id: string; title: string; content: string }>
   ) => {
     updateElement(selectedElement.id, { [property]: value });
   };
@@ -271,8 +280,12 @@ export default function PropertyPanel() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="Inter">인터 (Inter)</SelectItem>
-            <SelectItem value="Noto Sans KR">노토산스 (Noto Sans KR)</SelectItem>
-            <SelectItem value="Malgun Gothic">맑은 고딕 (Malgun Gothic)</SelectItem>
+            <SelectItem value="Noto Sans KR">
+              노토산스 (Noto Sans KR)
+            </SelectItem>
+            <SelectItem value="Malgun Gothic">
+              맑은 고딕 (Malgun Gothic)
+            </SelectItem>
             <SelectItem value="Arial">Arial</SelectItem>
             <SelectItem value="Georgia">Georgia</SelectItem>
             <SelectItem value="Times New Roman">Times New Roman</SelectItem>
@@ -326,7 +339,9 @@ export default function PropertyPanel() {
           </Label>
           <Select
             value={element.textDecoration || "none"}
-            onValueChange={(value) => handlePropertyChange("textDecoration", value)}
+            onValueChange={(value) =>
+              handlePropertyChange("textDecoration", value)
+            }
           >
             <SelectTrigger className="text-xs">
               <SelectValue />
@@ -381,7 +396,7 @@ export default function PropertyPanel() {
               variant="outline"
               size="sm"
               className="text-xs"
-              onClick={() => document.getElementById('image-upload')?.click()}
+              onClick={() => document.getElementById("image-upload")?.click()}
             >
               <Upload className="w-3 h-3 mr-1" />
               파일 선택
@@ -415,7 +430,9 @@ export default function PropertyPanel() {
             </Label>
             <Select
               value={element.objectFit}
-              onValueChange={(value) => handlePropertyChange("objectFit", value)}
+              onValueChange={(value) =>
+                handlePropertyChange("objectFit", value)
+              }
             >
               <SelectTrigger className="text-xs">
                 <SelectValue />
@@ -435,7 +452,9 @@ export default function PropertyPanel() {
             </Label>
             <Select
               value={element.objectPosition || "center"}
-              onValueChange={(value) => handlePropertyChange("objectPosition", value)}
+              onValueChange={(value) =>
+                handlePropertyChange("objectPosition", value)
+              }
             >
               <SelectTrigger className="text-xs">
                 <SelectValue />
@@ -471,7 +490,7 @@ export default function PropertyPanel() {
                 onChange={(e) =>
                   handlePropertyChange("filter", {
                     ...element.filter,
-                    brightness: parseInt(e.target.value)
+                    brightness: parseInt(e.target.value),
                   })
                 }
                 className="text-xs"
@@ -490,7 +509,7 @@ export default function PropertyPanel() {
                 onChange={(e) =>
                   handlePropertyChange("filter", {
                     ...element.filter,
-                    contrast: parseInt(e.target.value)
+                    contrast: parseInt(e.target.value),
                   })
                 }
                 className="text-xs"
@@ -509,7 +528,7 @@ export default function PropertyPanel() {
                 onChange={(e) =>
                   handlePropertyChange("filter", {
                     ...element.filter,
-                    saturate: parseInt(e.target.value)
+                    saturate: parseInt(e.target.value),
                   })
                 }
                 className="text-xs"
@@ -528,7 +547,7 @@ export default function PropertyPanel() {
                 onChange={(e) =>
                   handlePropertyChange("filter", {
                     ...element.filter,
-                    blur: parseInt(e.target.value)
+                    blur: parseInt(e.target.value),
                   })
                 }
                 className="text-xs"
@@ -562,7 +581,7 @@ export default function PropertyPanel() {
       { value: "ArrowRight", label: "오른쪽 화살표 (굵음)" },
       { value: "ArrowLeft", label: "왼쪽 화살표 (굵음)" },
       { value: "ShoppingCart", label: "쇼핑카트" },
-      { value: "CreditCard", label: "신용카드" }
+      { value: "CreditCard", label: "신용카드" },
     ];
 
     return (
@@ -629,13 +648,15 @@ export default function PropertyPanel() {
             </Label>
             <Select
               value={element.icon || "none"}
-              onValueChange={(value) => handlePropertyChange("icon", value === "none" ? "" : value)}
+              onValueChange={(value) =>
+                handlePropertyChange("icon", value === "none" ? "" : value)
+              }
             >
               <SelectTrigger className="text-xs">
                 <SelectValue placeholder="아이콘 선택" />
               </SelectTrigger>
               <SelectContent>
-                {iconOptions.map(option => (
+                {iconOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -649,7 +670,9 @@ export default function PropertyPanel() {
             </Label>
             <Select
               value={element.iconPosition || "left"}
-              onValueChange={(value) => handlePropertyChange("iconPosition", value)}
+              onValueChange={(value) =>
+                handlePropertyChange("iconPosition", value)
+              }
             >
               <SelectTrigger className="text-xs">
                 <SelectValue />
@@ -685,7 +708,9 @@ export default function PropertyPanel() {
               id="textColor"
               type="color"
               value={element.textColor}
-              onChange={(e) => handlePropertyChange("textColor", e.target.value)}
+              onChange={(e) =>
+                handlePropertyChange("textColor", e.target.value)
+              }
               className="text-xs"
             />
           </div>
@@ -786,7 +811,9 @@ export default function PropertyPanel() {
             </Label>
             <Select
               value={element.borderStyle || "none"}
-              onValueChange={(value) => handlePropertyChange("borderStyle", value)}
+              onValueChange={(value) =>
+                handlePropertyChange("borderStyle", value)
+              }
             >
               <SelectTrigger className="text-xs">
                 <SelectValue />
@@ -823,7 +850,9 @@ export default function PropertyPanel() {
               id="borderColor"
               type="color"
               value={element.borderColor || "#000000"}
-              onChange={(e) => handlePropertyChange("borderColor", e.target.value)}
+              onChange={(e) =>
+                handlePropertyChange("borderColor", e.target.value)
+              }
               className="text-xs"
             />
           </div>
@@ -860,10 +889,10 @@ export default function PropertyPanel() {
               </Label>
               <Select
                 value={element.flex?.flexDirection || "row"}
-                onValueChange={(value) => 
-                  handlePropertyChange("flex", { 
-                    ...element.flex, 
-                    flexDirection: value 
+                onValueChange={(value) =>
+                  handlePropertyChange("flex", {
+                    ...element.flex,
+                    flexDirection: value,
                   })
                 }
               >
@@ -884,10 +913,10 @@ export default function PropertyPanel() {
               </Label>
               <Select
                 value={element.flex?.justifyContent || "flex-start"}
-                onValueChange={(value) => 
-                  handlePropertyChange("flex", { 
-                    ...element.flex, 
-                    justifyContent: value 
+                onValueChange={(value) =>
+                  handlePropertyChange("flex", {
+                    ...element.flex,
+                    justifyContent: value,
                   })
                 }
               >
@@ -912,10 +941,10 @@ export default function PropertyPanel() {
               </Label>
               <Select
                 value={element.flex?.alignItems || "stretch"}
-                onValueChange={(value) => 
-                  handlePropertyChange("flex", { 
-                    ...element.flex, 
-                    alignItems: value 
+                onValueChange={(value) =>
+                  handlePropertyChange("flex", {
+                    ...element.flex,
+                    alignItems: value,
                   })
                 }
               >
@@ -1010,14 +1039,16 @@ export default function PropertyPanel() {
       )}
 
       {/* 자식 요소 관리 */}
-      {(element.children && element.children.length > 0) && (
+      {element.children && element.children.length > 0 && (
         <div className="border-t pt-3 lg:pt-4">
           <Label className="text-xs font-medium">
             자식 요소 ({element.children.length}개)
           </Label>
           <div className="mt-2 space-y-1">
             {element.children.map((childId) => {
-              const childElement = canvas.elements.find(el => el.id === childId);
+              const childElement = canvas.elements.find(
+                (el) => el.id === childId
+              );
               return (
                 <div
                   key={childId}
@@ -1028,7 +1059,8 @@ export default function PropertyPanel() {
                   </span>
                   <button
                     onClick={() => {
-                      const { removeChildFromContainer } = useEditorStore.getState();
+                      const { removeChildFromContainer } =
+                        useEditorStore.getState();
                       removeChildFromContainer(element.id, childId);
                     }}
                     className="text-red-500 hover:text-red-700"
@@ -1124,18 +1156,22 @@ export default function PropertyPanel() {
       const newItem = {
         id: `item-${Date.now()}`,
         title: `새 아이템 ${element.items.length + 1}`,
-        content: "내용을 입력하세요"
+        content: "내용을 입력하세요",
       };
       handlePropertyChange("items", [...element.items, newItem]);
     };
 
     const removeAccordionItem = (itemId: string) => {
-      const updatedItems = element.items.filter(item => item.id !== itemId);
+      const updatedItems = element.items.filter((item) => item.id !== itemId);
       handlePropertyChange("items", updatedItems);
     };
 
-    const updateAccordionItem = (itemId: string, field: "title" | "content", value: string) => {
-      const updatedItems = element.items.map(item => 
+    const updateAccordionItem = (
+      itemId: string,
+      field: "title" | "content",
+      value: string
+    ) => {
+      const updatedItems = element.items.map((item) =>
         item.id === itemId ? { ...item, [field]: value } : item
       );
       handlePropertyChange("items", updatedItems);
@@ -1170,7 +1206,9 @@ export default function PropertyPanel() {
               <Label className="text-xs text-gray-600">유형</Label>
               <Select
                 value={element.accordionType || "single"}
-                onValueChange={(value) => handlePropertyChange("accordionType", value)}
+                onValueChange={(value) =>
+                  handlePropertyChange("accordionType", value)
+                }
               >
                 <SelectTrigger className="h-8 text-xs">
                   <SelectValue />
@@ -1182,7 +1220,7 @@ export default function PropertyPanel() {
               </Select>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-4 mt-2">
             <div className="flex items-center gap-2">
               <input
@@ -1226,7 +1264,7 @@ export default function PropertyPanel() {
               추가
             </Button>
           </div>
-          
+
           <div className="space-y-2 max-h-60 overflow-y-auto">
             {element.items.map((item, index) => (
               <div key={item.id} className="border rounded p-2 space-y-2">
@@ -1247,7 +1285,9 @@ export default function PropertyPanel() {
                   <Label className="text-xs text-gray-600">제목</Label>
                   <Input
                     value={item.title}
-                    onChange={(e) => updateAccordionItem(item.id, "title", e.target.value)}
+                    onChange={(e) =>
+                      updateAccordionItem(item.id, "title", e.target.value)
+                    }
                     className="text-xs"
                     placeholder="제목을 입력하세요"
                   />
@@ -1256,7 +1296,9 @@ export default function PropertyPanel() {
                   <Label className="text-xs text-gray-600">내용</Label>
                   <Textarea
                     value={item.content}
-                    onChange={(e) => updateAccordionItem(item.id, "content", e.target.value)}
+                    onChange={(e) =>
+                      updateAccordionItem(item.id, "content", e.target.value)
+                    }
                     className="text-xs min-h-[60px]"
                     placeholder="내용을 입력하세요"
                   />
@@ -1298,7 +1340,9 @@ export default function PropertyPanel() {
             <Label className="text-xs text-gray-600">주 시작일</Label>
             <Select
               value={(element.weekStartsOn || 0).toString()}
-              onValueChange={(value) => handlePropertyChange("weekStartsOn", parseInt(value))}
+              onValueChange={(value) =>
+                handlePropertyChange("weekStartsOn", parseInt(value))
+              }
             >
               <SelectTrigger className="h-8 text-xs">
                 <SelectValue />
@@ -1315,7 +1359,7 @@ export default function PropertyPanel() {
             </Select>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4 mt-2">
           <div className="flex items-center gap-2">
             <input
@@ -1344,7 +1388,7 @@ export default function PropertyPanel() {
             </Label>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4">
           <div className="flex items-center gap-2">
             <input
@@ -1360,7 +1404,7 @@ export default function PropertyPanel() {
             </Label>
           </div>
         </div>
-        
+
         <div>
           <Label htmlFor="defaultMonth" className="text-xs text-gray-600">
             기본 달 (YYYY-MM 형식)
@@ -1368,12 +1412,19 @@ export default function PropertyPanel() {
           <Input
             id="defaultMonth"
             type="month"
-            value={element.defaultMonth ? 
-              `${element.defaultMonth.getFullYear()}-${(element.defaultMonth.getMonth() + 1).toString().padStart(2, '0')}` : 
-              `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`
+            value={
+              element.defaultMonth
+                ? `${element.defaultMonth.getFullYear()}-${(
+                    element.defaultMonth.getMonth() + 1
+                  )
+                    .toString()
+                    .padStart(2, "0")}`
+                : `${new Date().getFullYear()}-${(new Date().getMonth() + 1)
+                    .toString()
+                    .padStart(2, "0")}`
             }
             onChange={(e) => {
-              const [year, month] = e.target.value.split('-');
+              const [year, month] = e.target.value.split("-");
               const date = new Date(parseInt(year), parseInt(month) - 1, 1);
               handlePropertyChange("defaultMonth", date);
             }}

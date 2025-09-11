@@ -101,12 +101,7 @@ export default function Canvas() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    canvas.selectedElementIds,
-    deleteSelectedElements,
-    moveSelectedElements,
-    toggleGrid,
-  ]);
+  }, [deleteSelectedElements, moveSelectedElements, toggleGrid]);
 
   // 스크롤 줌 이벤트 리스너
   useEffect(() => {
@@ -197,13 +192,15 @@ export default function Canvas() {
     }
   };
 
+  console.log("canvas", canvas);
+
   return (
     <div
       ref={canvasRef}
       className="flex-1 bg-gray-50 relative overflow-auto hide-scrollbar"
     >
       {/* 선택된 요소 정보 표시 */}
-      {canvas.selectedElementIds.length > 0 && (
+      {canvas && canvas.selectedElementIds.length > 0 && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-3 text-sm font-medium text-gray-700">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -220,10 +217,10 @@ export default function Canvas() {
       <div
         className="relative bg-white shadow-lg mx-auto my-2 lg:my-8"
         style={{
-          width: canvas.width * canvasZoom,
-          height: canvas.height * canvasZoom,
-          minWidth: canvas.width * canvasZoom,
-          minHeight: canvas.height * canvasZoom,
+          width: canvas?.width * canvasZoom,
+          height: canvas?.height * canvasZoom,
+          minWidth: canvas?.width * canvasZoom,
+          minHeight: canvas?.height * canvasZoom,
           display: "block", // 항상 block으로 유지
           position: "relative", // 절대 위치 요소들의 기준점
           marginLeft: "max(20px, calc(50vw - 50%))", // 좌측 패딩
@@ -235,17 +232,17 @@ export default function Canvas() {
           style={{
             transform: `scale(${canvasZoom})`,
             transformOrigin: "top left",
-            width: canvas.width,
-            height: canvas.height,
+            width: canvas?.width,
+            height: canvas?.height,
           }}
         >
           <GridOverlay
             grid={grid}
-            canvasWidth={canvas.width}
-            canvasHeight={canvas.height}
+            canvasWidth={canvas?.width}
+            canvasHeight={canvas?.height}
             isDragging={isDragging}
           />
-          {canvas.elements.map(renderElement)}
+          {canvas?.elements.map(renderElement)}
         </div>
       </div>
     </div>

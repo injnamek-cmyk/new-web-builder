@@ -10,12 +10,9 @@ export default withAuth({
 })
 
 // config 객체는 미들웨어가 어떤 경로에서 실행되어야 하는지를 정의합니다.
-export const config = { 
+export const config = {
   matcher: [
-    // 미들웨어를 적용할 경로를 지정합니다.
-    // '/': 프로젝트의 메인 페이지
-    // '/editor/:path*': 에디터와 관련된 모든 하위 경로
-    "/",
+    // 에디터와 관련된 모든 하위 경로에만 미들웨어를 적용합니다.
     "/editor/:path*",
   ],
 }

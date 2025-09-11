@@ -1,13 +1,22 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { GET as getPages } from "@/app/api/pages/route";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlusCircle, Edit, Eye } from "lucide-react";
 import AuthButton from "@/components/auth-button";
 import { CreatePageButton } from "@/components/create-page-button";
+import { PageList } from "@/components/page-list";
 import { Page } from "@prisma/client";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Eye, Edit } from "lucide-react";
+import { DeletePageButton } from "@/components/delete-page-button";
 
 async function getPageData() {
   // HTTP 요청 대신 라우트 핸들러를 직접 호출합니다.
@@ -29,7 +38,9 @@ export default async function DashboardPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-800">
-              {session?.user?.name ? `${session.user.name}님의 페이지` : "내 페이지"}
+              {session?.user?.name
+                ? `${session.user.name}님의 페이지`
+                : "내 페이지"}
             </h1>
             <p className="text-md text-gray-600 mt-1">
               여기에서 페이지를 관리하고 새로 만드세요.
@@ -43,9 +54,14 @@ export default async function DashboardPage() {
         {pages.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {pages.map((page) => (
-              <Card key={page.id} className="flex flex-col bg-white shadow-sm hover:shadow-md transition-shadow">
+              <Card
+                key={page.id}
+                className="flex flex-col bg-white shadow-sm hover:shadow-md transition-shadow"
+              >
                 <CardHeader>
-                  <CardTitle className="truncate">{page.title || page.id}</CardTitle>
+                  <CardTitle className="truncate">
+                    {page.title || page.id}
+                  </CardTitle>
                   <CardDescription>
                     업데이트: {new Date(page.updatedAt).toLocaleDateString()}
                   </CardDescription>
@@ -68,6 +84,10 @@ export default async function DashboardPage() {
                       수정
                     </Link>
                   </Button>
+                  <DeletePageButton 
+                    pageId={page.id} 
+                    pageTitle={page.title || page.id}
+                  />
                 </CardFooter>
               </Card>
             ))}
