@@ -1,7 +1,5 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
   AlertDialog,
@@ -15,6 +13,8 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
 import { Trash2, Loader2 } from 'lucide-react'
+import { useDeletePage } from '@/hooks/use-pages'
+import { toast } from 'sonner'
 
 interface DeletePageButtonProps {
   pageId: string
@@ -23,31 +23,18 @@ interface DeletePageButtonProps {
 }
 
 export function DeletePageButton({ pageId, pageTitle, onDelete }: DeletePageButtonProps) {
-  const router = useRouter()
-  const [isDeleting, setIsDeleting] = useState(false)
+  const deletePageMutation = useDeletePage()
 
   const handleDelete = async () => {
-    setIsDeleting(true)
     try {
-      const response = await fetch(`/api/pages/${pageId}`, {
-        method: 'DELETE',
-      })
-
-      if (!response.ok) {
-        throw new Error('페이지 삭제에 실패했습니다.')
-      }
-
-      // 성공적으로 삭제되면 페이지 새로고침 또는 콜백 실행
+      await deletePageMutation.mutateAsync(pageId)
+      toast.success('페이지가 삭제되었습니다.')
       if (onDelete) {
         onDelete()
-      } else {
-        router.refresh()
       }
     } catch (error) {
       console.error(error)
-      alert('페이지 삭제에 실패했습니다.')
-    } finally {
-      setIsDeleting(false)
+      toast.error('페이지 삭제에 실패했습니다.')
     }
   }
 
@@ -57,10 +44,10 @@ export function DeletePageButton({ pageId, pageTitle, onDelete }: DeletePageButt
         <Button
           variant="outline"
           size="sm"
-          disabled={isDeleting}
+          disabled={deletePageMutation.isPending}
           className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
         >
-          {isDeleting ? (
+          {deletePageMutation.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
             <Trash2 className="w-4 h-4" />
@@ -80,10 +67,10 @@ export function DeletePageButton({ pageId, pageTitle, onDelete }: DeletePageButt
           <AlertDialogCancel>취소</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleDelete}
-            disabled={isDeleting}
+            disabled={deletePageMutation.isPending}
             className="bg-red-600 hover:bg-red-700"
           >
-            {isDeleting ? (
+            {deletePageMutation.isPending ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 삭제 중...

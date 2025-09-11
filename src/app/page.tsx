@@ -1,10 +1,9 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { GET as getPages } from "@/app/api/pages/route";
+"use client";
+
+import { useSession } from "next-auth/react";
+import { usePages } from "@/hooks/use-pages";
 import AuthButton from "@/components/auth-button";
 import { CreatePageButton } from "@/components/create-page-button";
-import { PageList } from "@/components/page-list";
-import { Page } from "@prisma/client";
 import {
   Card,
   CardHeader,
@@ -15,19 +14,34 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Eye, Edit } from "lucide-react";
+import { Eye, Edit, Loader2 } from "lucide-react";
 import { DeletePageButton } from "@/components/delete-page-button";
 
-async function getPageData() {
-  // HTTP 요청 대신 라우트 핸들러를 직접 호출합니다.
-  const response = await getPages(new Request("http://localhost/api/pages"));
-  const data = await response.json();
-  return data.pages as Page[];
-}
+export default function DashboardPage() {
+  const { data: session, status } = useSession();
+  const { data: pages = [], isLoading, error } = usePages();
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
-  const pages = await getPageData();
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center gap-2">
+          <Loader2 className="w-6 h-6 animate-spin" />
+          <span>로딩 중...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-xl font-semibold text-red-600 mb-2">오류가 발생했습니다</h1>
+          <p className="text-gray-600">페이지를 불러올 수 없습니다.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-gray-50">
@@ -51,7 +65,14 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {pages.length > 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="flex items-center gap-2">
+              <Loader2 className="w-6 h-6 animate-spin" />
+              <span>페이지를 불러오는 중...</span>
+            </div>
+          </div>
+        ) : pages.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {pages.map((page) => (
               <Card
