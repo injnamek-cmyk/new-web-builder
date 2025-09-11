@@ -9,13 +9,16 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 export default async function EditorPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await getServerSession(authOptions);
 
+  // Next.js 15에서는 params를 await해야 합니다
+  const { id } = await params;
+
   if (!session?.user?.id) {
     // The middleware should handle this, but as a fallback
-    redirect(`/login?callbackUrl=/editor/${params.id}`);
+    redirect(`/login?callbackUrl=/editor/${id}`);
   }
 
   let page: Page | null = null;
@@ -24,7 +27,7 @@ export default async function EditorPage({
     // 소유권 확인을 위해 userId도 조건에 추가합니다.
     page = await prisma.page.findFirst({
       where: {
-        id: params.id,
+        id: id,
         userId: session.user.id,
       },
     });
@@ -42,5 +45,5 @@ export default async function EditorPage({
   // The 'content' field from Prisma with type 'Json' is already a JS object.
   const pageData = page.content as unknown as StoredPageData;
 
-  return <Layout initialPageData={pageData} pageId={params.id} />;
+  return <Layout initialPageData={pageData} pageId={id} />;
 }
