@@ -112,19 +112,16 @@ export default function ContainerElementComponent({
   const handleChildClick = (childId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // 현재 선택된 요소가 있는지 확인
     const currentSelectedId = selectedElementIds[0];
-    
-    // 현재 선택된 요소가 이 컨테이너의 자식인지 확인
     const isCurrentSelectedSibling = currentSelectedId && element.children?.includes(currentSelectedId);
     
-    // 다음 중 하나의 경우 자식 선택 허용:
-    // 1. 컨테이너가 선택된 상태
-    // 2. 현재 선택된 요소가 같은 컨테이너의 자식 (형제 요소)
     if (isSelected || isCurrentSelectedSibling) {
       selectElement(childId);
+    } else if (!currentSelectedId) {
+      selectElement(element.id);
     }
   };
+
 
   const renderChildElement = (childElement: Element) => {
     const isChildSelected = isElementSelected(childElement.id);
@@ -160,6 +157,7 @@ export default function ContainerElementComponent({
             variant={childElement.variant}
             size={childElement.size}
             className={cn(
+              "cursor-pointer",
               isChildSelected ? "ring-2 ring-green-500 ring-offset-1" : ""
             )}
             onClick={(e) => {
@@ -170,6 +168,9 @@ export default function ContainerElementComponent({
               
               if (isSelected || isCurrentSelectedSibling) {
                 selectElement(childElement.id);
+              } else if (!currentSelectedId) {
+                // 아무것도 선택되지 않은 상태에서는 컨테이너를 선택
+                selectElement(element.id);
               } else if (childElement.href) {
                 window.open(childElement.href, "_blank");
               }
