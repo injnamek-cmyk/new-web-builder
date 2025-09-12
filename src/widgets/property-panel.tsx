@@ -28,7 +28,14 @@ import {
 import { getValidPaddingValue } from "@/lib/utils";
 
 export default function PropertyPanel() {
-  const { canvas, updateElement, deleteElement, addElement, addChildToContainer, removeChildFromContainer } = useEditorStore();
+  const {
+    canvas,
+    updateElement,
+    deleteElement,
+    addElement,
+    addChildToContainer,
+    removeChildFromContainer,
+  } = useEditorStore();
   if (!canvas) {
     return null;
   }
@@ -633,10 +640,9 @@ export default function PropertyPanel() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="sm">소</SelectItem>
-                <SelectItem value="default">기본</SelectItem>
-                <SelectItem value="lg">대</SelectItem>
-                <SelectItem value="icon">아이콘</SelectItem>
+                <SelectItem value="sm">small</SelectItem>
+                <SelectItem value="default">medium</SelectItem>
+                <SelectItem value="lg">large</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -685,7 +691,6 @@ export default function PropertyPanel() {
             </Select>
           </div>
         </div>
-
 
         <div>
           <Label htmlFor="href" className="text-xs">
@@ -1005,7 +1010,12 @@ export default function PropertyPanel() {
             onValueChange={(elementType) => {
               if (elementType) {
                 const newId = generateId();
-                const newElement = createElement(elementType as any, newId, 0, 0);
+                const newElement = createElement(
+                  elementType as any,
+                  newId,
+                  0,
+                  0
+                );
                 // 자식 요소는 캔버스에 독립적으로 추가하지 않고, 컨테이너에만 추가
                 addElement(newElement);
                 addChildToContainer(element.id, newId);
@@ -1026,7 +1036,7 @@ export default function PropertyPanel() {
             </SelectContent>
           </Select>
         </div>
-        
+
         {element.children && element.children.length > 0 && (
           <div className="mt-2 space-y-1">
             {element.children.map((childId) => {
@@ -1044,7 +1054,9 @@ export default function PropertyPanel() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => removeChildFromContainer(element.id, childId)}
+                    onClick={() =>
+                      removeChildFromContainer(element.id, childId)
+                    }
                     className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
                   >
                     <Trash2 className="w-3 h-3" />
@@ -1054,7 +1066,7 @@ export default function PropertyPanel() {
             })}
           </div>
         )}
-        
+
         {(!element.children || element.children.length === 0) && (
           <div className="text-xs text-gray-500 text-center py-4 border border-dashed border-gray-300 rounded">
             위의 드롭다운에서 자식 요소를 추가하세요
@@ -1093,36 +1105,40 @@ export default function PropertyPanel() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-1 lg:gap-2">
-        <div>
-          <Label htmlFor="width" className="text-xs">
-            너비
-          </Label>
-          <Input
-            id="width"
-            type="text"
-            placeholder="auto 또는 숫자"
-            value={element.width === "auto" ? "auto" : element.width.toString()}
-            onChange={handleWidthChange}
-            className="text-xs"
-          />
+      {element.type !== "button" && (
+        <div className="grid grid-cols-2 gap-1 lg:gap-2">
+          <div>
+            <Label htmlFor="width" className="text-xs">
+              너비
+            </Label>
+            <Input
+              id="width"
+              type="text"
+              placeholder="auto 또는 숫자"
+              value={
+                element.width === "auto" ? "auto" : element.width.toString()
+              }
+              onChange={handleWidthChange}
+              className="text-xs"
+            />
+          </div>
+          <div>
+            <Label htmlFor="height" className="text-xs">
+              높이
+            </Label>
+            <Input
+              id="height"
+              type="text"
+              placeholder="auto 또는 숫자"
+              value={
+                element.height === "auto" ? "auto" : element.height.toString()
+              }
+              onChange={handleHeightChange}
+              className="text-xs"
+            />
+          </div>
         </div>
-        <div>
-          <Label htmlFor="height" className="text-xs">
-            높이
-          </Label>
-          <Input
-            id="height"
-            type="text"
-            placeholder="auto 또는 숫자"
-            value={
-              element.height === "auto" ? "auto" : element.height.toString()
-            }
-            onChange={handleHeightChange}
-            className="text-xs"
-          />
-        </div>
-      </div>
+      )}
 
       <div>
         <Label htmlFor="zIndex" className="text-xs">
