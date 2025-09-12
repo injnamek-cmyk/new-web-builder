@@ -3,7 +3,6 @@
 import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useMode } from "@/shared/contexts/mode-context";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Accordion,
@@ -12,25 +11,102 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-// 하이브리드 렌더링 요소 타입
-interface HybridRenderElement {
-  id: string;
-  type: string;
-  layoutMode: 'absolute' | 'flex' | 'grid' | 'flow';
-  
-  // 절대 포지셔닝용 (기존 호환성)
-  position: { x: number; y: number };
-  size: { width: number | "auto"; height: number | "auto" };
-  zIndex: number;
-  
+import { RenderElement } from "@/shared/types/server-driven-ui";
+
+// 하이브리드 렌더링 요소 타입 (기존 RenderElement를 확장)
+interface HybridRenderElement extends RenderElement {
+  layoutMode?: "absolute" | "flex" | "grid" | "flow";
+
   // 하이브리드 레이아웃용
-  children: string[];
-  flexProps?: any;
-  gridProps?: any;
-  flowProps?: any;
-  
-  style: Record<string, any>;
-  props: Record<string, any>;
+  children?: string[];
+  flexProps?: {
+    flexDirection?: "row" | "column" | "row-reverse" | "column-reverse";
+    justifyContent?:
+      | "flex-start"
+      | "flex-end"
+      | "center"
+      | "space-between"
+      | "space-around"
+      | "space-evenly";
+    alignItems?: "stretch" | "flex-start" | "flex-end" | "center" | "baseline";
+    gap?: number;
+  };
+  gridProps?: {
+    gridTemplateColumns?: string;
+    gridTemplateRows?: string;
+    gap?: number;
+  };
+  flowProps?: {
+    display?: "block" | "inline" | "inline-block";
+    margin?: number | string;
+  };
+
+  // 스타일 및 속성
+  style: Record<string, string | number>;
+  props: Record<string, string | number | boolean>;
+
+  // 레이아웃 속성
+  width?: number | "auto";
+  height?: number | "auto";
+  padding?: {
+    top?: number;
+    right?: number;
+    bottom?: number;
+    left?: number;
+  };
+
+  // 컨테이너 속성
+  backgroundColor?: string;
+  borderRadius?: number;
+  borderStyle?: string;
+  borderWidth?: number;
+  borderColor?: string;
+  boxShadow?: string;
+  x?: number;
+  y?: number;
+
+  // 텍스트 속성
+  fontSize?: number;
+  fontFamily?: string;
+  color?: string;
+  textAlign?: "left" | "center" | "right";
+  fontWeight?: string | number;
+  textDecoration?: string;
+  lineHeight?: number;
+  content?: string;
+
+  // 이미지 속성
+  src?: string;
+  alt?: string;
+  objectFit?: "contain" | "cover" | "fill" | "none" | "scale-down";
+  objectPosition?: string;
+  filter?: {
+    brightness?: number;
+    contrast?: number;
+    saturate?: number;
+    blur?: number;
+  };
+
+  // 버튼 속성
+  variant?: string;
+  text?: string;
+  href?: string;
+  icon?: string;
+  iconPosition?: "left" | "right";
+
+  // 아코디언 속성
+  accordionType?: "single" | "multiple";
+  collapsible?: boolean;
+  disabled?: boolean;
+  items?: { id: string; title: string; content: string }[];
+
+  // 캘린더 속성
+  mode?: "single" | "multiple" | "range";
+  selectedDate?: Date;
+  showOutsideDays?: boolean;
+  defaultMonth?: Date;
+  fixedWeeks?: boolean;
+  weekStartsOn?: number;
 }
 
 interface HybridRendererProps {
@@ -39,22 +115,22 @@ interface HybridRendererProps {
   canvasHeight: number;
 }
 
-export function HybridRenderer({ 
-  elements, 
-  canvasWidth, 
-  canvasHeight 
+export function HybridRenderer({
+  elements,
+  canvasWidth,
+  canvasHeight,
 }: HybridRendererProps) {
-  const { mode } = useMode();
-  
+  console.log("elements", elements);
+
   // 요소들을 ID로 매핑
   const elementMap = new Map<string, HybridRenderElement>();
-  elements.forEach(element => {
+  elements.forEach((element) => {
     elementMap.set(element.id, element);
   });
 
   // 최상위 요소들 찾기 (다른 요소의 children에 포함되지 않은 요소들)
-  const topLevelElements = elements.filter(element => {
-    return !elements.some(parent => parent.children.includes(element.id));
+  const topLevelElements = elements.filter((element) => {
+    return !elements.some((parent) => parent.children?.includes(element.id));
   });
 
   return (
@@ -67,9 +143,9 @@ export function HybridRenderer({
       }}
     >
       {topLevelElements.map((element) => (
-        <HybridElement 
-          key={element.id} 
-          element={element} 
+        <HybridElement
+          key={element.id}
+          element={element}
           elementMap={elementMap}
         />
       ))}
@@ -84,31 +160,34 @@ interface HybridElementProps {
 
 function HybridElement({ element, elementMap }: HybridElementProps) {
   // 자식 요소들 가져오기
-  const childElements = element.children
-    .map(childId => elementMap.get(childId))
+  const childElements = (element.children || [])
+    .map((childId) => elementMap.get(childId))
     .filter(Boolean) as HybridRenderElement[];
 
   // 레이아웃 모드별 스타일 적용
   const getLayoutStyle = (): React.CSSProperties => {
     const baseStyle: React.CSSProperties = {
       zIndex: element.zIndex,
-      padding: element.style.padding ? 
-        `${element.style.padding.top}px ${element.style.padding.right}px ${element.style.padding.bottom}px ${element.style.padding.left}px` : 
-        undefined,
+      padding:
+        element.padding &&
+        typeof element.padding === "object" &&
+        element.padding.top !== undefined
+          ? `${element.padding.top}px ${element.padding.right}px ${element.padding.bottom}px ${element.padding.left}px`
+          : undefined,
     };
 
-    switch (element.layoutMode) {
-      case 'absolute':
+    switch (element.layoutMode || "absolute") {
+      case "absolute":
         return {
           ...baseStyle,
           position: "absolute",
-          left: element.position.x,
-          top: element.position.y,
-          width: element.size.width,
-          height: element.size.height,
+          left: element.x,
+          top: element.y,
+          width: element.width,
+          height: element.height,
         };
 
-      case 'flex':
+      case "flex":
         return {
           ...baseStyle,
           display: "flex",
@@ -116,28 +195,28 @@ function HybridElement({ element, elementMap }: HybridElementProps) {
           justifyContent: element.flexProps?.justifyContent || "flex-start",
           alignItems: element.flexProps?.alignItems || "stretch",
           gap: element.flexProps?.gap || 0,
-          width: element.size.width !== "auto" ? element.size.width : undefined,
-          height: element.size.height !== "auto" ? element.size.height : undefined,
+          width: element.width !== "auto" ? element.width : undefined,
+          height: element.height !== "auto" ? element.height : undefined,
         };
 
-      case 'grid':
+      case "grid":
         return {
           ...baseStyle,
           display: "grid",
           gridTemplateColumns: element.gridProps?.gridTemplateColumns || "1fr",
           gridTemplateRows: element.gridProps?.gridTemplateRows || "auto",
           gap: element.gridProps?.gap || 0,
-          width: element.size.width !== "auto" ? element.size.width : undefined,
-          height: element.size.height !== "auto" ? element.size.height : undefined,
+          width: element.width !== "auto" ? element.width : undefined,
+          height: element.height !== "auto" ? element.height : undefined,
         };
 
-      case 'flow':
+      case "flow":
         return {
           ...baseStyle,
           display: element.flowProps?.display || "block",
           margin: element.flowProps?.margin || 0,
-          width: element.size.width !== "auto" ? element.size.width : undefined,
-          height: element.size.height !== "auto" ? element.size.height : undefined,
+          width: element.width !== "auto" ? element.width : undefined,
+          height: element.height !== "auto" ? element.height : undefined,
         };
 
       default:
@@ -153,18 +232,18 @@ function HybridElement({ element, elementMap }: HybridElementProps) {
       <div
         style={{
           ...layoutStyle,
-          backgroundColor: element.style.backgroundColor,
-          borderRadius: element.style.borderRadius,
-          borderStyle: element.style.borderStyle,
-          borderWidth: element.style.borderWidth,
-          borderColor: element.style.borderColor,
-          boxShadow: getBoxShadow(element.style.boxShadow),
+          backgroundColor: element.backgroundColor,
+          borderRadius: element.borderRadius,
+          borderStyle: element.borderStyle,
+          borderWidth: element.borderWidth,
+          borderColor: element.borderColor,
+          boxShadow: getBoxShadow(element.boxShadow),
         }}
       >
-        {childElements.map(child => (
-          <HybridElement 
-            key={child.id} 
-            element={child} 
+        {childElements.map((child) => (
+          <HybridElement
+            key={child.id}
+            element={child}
             elementMap={elementMap}
           />
         ))}
@@ -173,9 +252,10 @@ function HybridElement({ element, elementMap }: HybridElementProps) {
   }
 
   // 다른 요소 타입들은 기존 방식대로 렌더링
+  const isAbsolute = (element.layoutMode || "absolute") === "absolute";
   return (
-    <div style={element.layoutMode === 'absolute' ? layoutStyle : {}}>
-      <div style={element.layoutMode !== 'absolute' ? layoutStyle : {}}>
+    <div style={isAbsolute ? layoutStyle : {}}>
+      <div style={!isAbsolute ? layoutStyle : {}}>
         {renderElementContent(element)}
       </div>
     </div>
@@ -188,23 +268,26 @@ function renderElementContent(element: HybridRenderElement) {
       return (
         <div
           style={{
-            fontSize: element.style.fontSize,
-            fontFamily: element.style.fontFamily,
-            color: element.style.color,
-            textAlign: element.style.textAlign,
-            fontWeight: element.style.fontWeight,
-            textDecoration: element.style.textDecoration,
-            lineHeight: element.style.lineHeight,
+            fontSize: element.fontSize,
+            fontFamily: element.fontFamily,
+            color: element.color,
+            textAlign: element.textAlign,
+            fontWeight: element.fontWeight,
+            textDecoration: element.textDecoration,
+            lineHeight: element.lineHeight,
             display: "flex",
             alignItems: "center",
-            justifyContent: element.style.textAlign === "center" ? "center" : 
-                           element.style.textAlign === "right" ? "flex-end" : 
-                           "flex-start",
+            justifyContent:
+              element.textAlign === "center"
+                ? "center"
+                : element.textAlign === "right"
+                ? "flex-end"
+                : "flex-start",
             width: "100%",
             height: "100%",
           }}
         >
-          {element.props.content}
+          {element.content}
         </div>
       );
 
@@ -212,15 +295,19 @@ function renderElementContent(element: HybridRenderElement) {
       return (
         <div style={{ position: "relative", width: "100%", height: "100%" }}>
           <Image
-            src={element.props.src}
-            alt={element.props.alt}
+            src={element.src || ""}
+            alt={element.alt || ""}
             fill
             style={{
-              objectFit: element.style.objectFit,
-              objectPosition: element.style.objectPosition,
-              filter: element.style.filter ? 
-                `brightness(${element.style.filter.brightness}) contrast(${element.style.filter.contrast}) saturate(${element.style.filter.saturate}) blur(${element.style.filter.blur}px)` : 
-                undefined,
+              objectFit: element.objectFit,
+              objectPosition: element.objectPosition,
+              filter: element.filter
+                ? `brightness(${element.filter.brightness || 1}) contrast(${
+                    element.filter.contrast || 1
+                  }) saturate(${element.filter.saturate || 1}) blur(${
+                    element.filter.blur || 0
+                  }px)`
+                : undefined,
             }}
           />
         </div>
@@ -229,27 +316,34 @@ function renderElementContent(element: HybridRenderElement) {
     case "button":
       return (
         <Button
-          variant={element.props.variant}
-          size={element.props.size}
+          variant={
+            element.variant as
+              | "default"
+              | "destructive"
+              | "outline"
+              | "secondary"
+              | "ghost"
+              | "link"
+              | null
+              | undefined
+          }
+          size="default"
           style={{
-            backgroundColor: element.style.backgroundColor,
-            color: element.style.textColor,
-            borderRadius: element.style.borderRadius,
             width: "100%",
             height: "100%",
           }}
           onClick={() => {
-            if (element.props.href && mode === 'preview') {
-              window.open(element.props.href, "_blank");
+            if (element.href) {
+              window.open(element.href, "_blank");
             }
           }}
         >
-          {element.props.icon && element.props.iconPosition === "left" && (
-            <span className="mr-2">{element.props.icon}</span>
+          {element.icon && element.iconPosition === "left" && (
+            <span className="mr-2">{element.icon}</span>
           )}
-          {element.props.text}
-          {element.props.icon && element.props.iconPosition === "right" && (
-            <span className="ml-2">{element.props.icon}</span>
+          {element.text}
+          {element.icon && element.iconPosition === "right" && (
+            <span className="ml-2">{element.icon}</span>
           )}
         </Button>
       );
@@ -257,31 +351,41 @@ function renderElementContent(element: HybridRenderElement) {
     case "accordion":
       return (
         <Accordion
-          type={element.props.accordionType || "single"}
-          collapsible={element.props.collapsible}
-          disabled={element.props.disabled}
+          type={element.accordionType || "single"}
+          collapsible={element.collapsible}
+          disabled={element.disabled}
           className="w-full h-full"
         >
-          {element.props.items?.map((item: { id: string; title: string; content: string }, index: number) => (
-            <AccordionItem key={item.id || index} value={item.id || `item-${index}`}>
-              <AccordionTrigger>{item.title}</AccordionTrigger>
-              <AccordionContent>{item.content}</AccordionContent>
-            </AccordionItem>
-          ))}
+          {element.items?.map(
+            (
+              item: { id: string; title: string; content: string },
+              index: number
+            ) => (
+              <AccordionItem
+                key={item.id || index}
+                value={item.id || `item-${index}`}
+              >
+                <AccordionTrigger>{item.title}</AccordionTrigger>
+                <AccordionContent>{item.content}</AccordionContent>
+              </AccordionItem>
+            )
+          )}
         </Accordion>
       );
 
     case "calendar":
       return (
         <Calendar
-          mode={element.props.mode}
-          selected={element.props.selectedDate}
+          mode="single"
+          selected={element.selectedDate}
           onSelect={() => {}} // 읽기 전용
-          disabled={element.props.disabled}
-          showOutsideDays={element.props.showOutsideDays}
-          defaultMonth={element.props.defaultMonth}
-          fixedWeeks={element.props.fixedWeeks}
-          weekStartsOn={element.props.weekStartsOn}
+          disabled={element.disabled}
+          showOutsideDays={element.showOutsideDays}
+          defaultMonth={element.defaultMonth}
+          fixedWeeks={element.fixedWeeks}
+          weekStartsOn={
+            element.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6 | undefined
+          }
           className="rounded-md border w-full h-full"
         />
       );
@@ -308,11 +412,17 @@ function renderElementContent(element: HybridRenderElement) {
 
 function getBoxShadow(shadowType?: string): string | undefined {
   switch (shadowType) {
-    case "sm": return "0 1px 2px 0 rgb(0 0 0 / 0.05)";
-    case "md": return "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)";
-    case "lg": return "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)";
-    case "xl": return "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)";
-    case "2xl": return "0 25px 50px -12px rgb(0 0 0 / 0.25)";
-    default: return undefined;
+    case "sm":
+      return "0 1px 2px 0 rgb(0 0 0 / 0.05)";
+    case "md":
+      return "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)";
+    case "lg":
+      return "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)";
+    case "xl":
+      return "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)";
+    case "2xl":
+      return "0 25px 50px -12px rgb(0 0 0 / 0.25)";
+    default:
+      return undefined;
   }
 }
