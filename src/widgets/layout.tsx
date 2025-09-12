@@ -29,6 +29,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar,
+  Shapes,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -62,6 +63,11 @@ const elementTypes: {
     type: "calendar",
     label: "캘린더",
     icon: <Calendar className="w-4 h-4" />,
+  },
+  {
+    type: "shape",
+    label: "도형",
+    icon: <Shapes className="w-4 h-4" />,
   },
 ];
 

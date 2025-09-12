@@ -5,7 +5,8 @@ export type ElementType =
   | "button"
   | "container"
   | "accordion"
-  | "calendar";
+  | "calendar"
+  | "shape";
 
 // 스타일 속성 인터페이스
 export interface SpacingStyle {
@@ -162,6 +163,17 @@ export interface CalendarElement extends BaseElement {
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday, 1 = Monday, etc.
 }
 
+// 도형 요소
+export interface ShapeElement extends BaseElement {
+  type: "shape";
+  shapeType: "rectangle" | "circle" | "triangle" | "diamond" | "star" | "heart";
+  backgroundColor: string;
+  borderColor: string;
+  borderWidth: number;
+  borderStyle: "solid" | "dashed" | "dotted" | "none";
+  borderRadius?: number; // rectangle에만 적용
+}
+
 // 모든 요소 타입의 유니온
 export type Element =
   | TextElement
@@ -169,7 +181,8 @@ export type Element =
   | ButtonElement
   | ContainerElement
   | AccordionElement
-  | CalendarElement;
+  | CalendarElement
+  | ShapeElement;
 
 // 캔버스 상태
 export interface Canvas {

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import Layout from "@/widgets/layout";
+import NewEditorLayout from "@/widgets/new-editor-layout";
 import { StoredPageData } from "@/shared/types/server-driven-ui";
 import { Page } from "@prisma/client";
 import { getServerSession } from "next-auth";
@@ -45,5 +45,5 @@ export default async function EditorPage({
   // The 'content' field from Prisma with type 'Json' is already a JS object.
   const pageData = page.content as unknown as StoredPageData;
 
-  return <Layout initialPageData={pageData} pageId={id} />;
+  return <NewEditorLayout initialPageData={pageData} pageId={id} />;
 }

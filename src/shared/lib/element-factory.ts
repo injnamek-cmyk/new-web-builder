@@ -6,6 +6,7 @@ import {
   ContainerElement,
   AccordionElement,
   CalendarElement,
+  ShapeElement,
   ElementType,
 } from "@/shared/types";
 
@@ -176,6 +177,21 @@ export function createElement(
         weekStartsOn: 0,
         ...options,
       } as CalendarElement;
+
+    case "shape":
+      return {
+        ...baseElement,
+        type: "shape",
+        width: 100,
+        height: 100,
+        shapeType: "rectangle",
+        backgroundColor: "hsl(var(--primary))",
+        borderColor: "hsl(var(--border))",
+        borderWidth: 2,
+        borderStyle: "solid",
+        borderRadius: 8,
+        ...options,
+      } as ShapeElement;
 
     default:
       throw new Error(`Unknown element type: ${type}`);

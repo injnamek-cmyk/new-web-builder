@@ -10,6 +10,7 @@ import ButtonElementComponent from "@/entities/button-element";
 import ContainerElementComponent from "@/entities/container-element";
 import AccordionElementComponent from "@/entities/accordion-element";
 import CalendarElementComponent from "@/entities/calendar-element";
+import ShapeElementComponent from "@/entities/shape-element";
 import GridOverlay from "@/components/ui/grid-overlay";
 
 export default function Canvas() {
@@ -181,6 +182,16 @@ export default function Canvas() {
         return (
           <DraggableElement key={element.id} element={element}>
             <CalendarElementComponent
+              element={element}
+              isSelected={isElementSelected}
+              onSelect={onSelect}
+            />
+          </DraggableElement>
+        );
+      case "shape":
+        return (
+          <DraggableElement key={element.id} element={element}>
+            <ShapeElementComponent
               element={element}
               isSelected={isElementSelected}
               onSelect={onSelect}

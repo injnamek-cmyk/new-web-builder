@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,16 +10,24 @@ import {
   ZoomOut,
   Type,
   Square,
+  Shapes,
 } from "lucide-react";
 import DragDropProvider from "@/features/drag-drop";
 import { useEditorStore } from "@/processes/editor-store";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import { ElementType } from "@/shared/types";
+import { StoredPageData } from "@/shared/types/server-driven-ui";
 import Canvas from "@/widgets/canvas";
 import PropertyPanel from "@/widgets/property-panel";
 import LeftNavigation from "@/components/navigation/left-navigation";
+import PageActions from "@/features/editor-controls/page-actions";
 
-function NewEditorContent() {
+interface NewEditorLayoutProps {
+  initialPageData: StoredPageData;
+  pageId: string;
+}
+
+function NewEditorLayoutContent({ initialPageData, pageId }: NewEditorLayoutProps) {
   const {
     addElement,
     leftPanelVisible,
@@ -33,14 +41,11 @@ function NewEditorContent() {
   } = useEditorStore();
 
   useEffect(() => {
-    // Initialize editor with default canvas settings
-    initializeEditor("new-editor", "New Editor Canvas", {
-      width: 1920,
-      height: 1080,
-      elements: [],
-      selectedElementIds: [],
-    });
-  }, [initializeEditor]);
+    if (initialPageData && pageId) {
+      const { title, canvas } = initialPageData;
+      initializeEditor(pageId, title, canvas);
+    }
+  }, [initialPageData, pageId, initializeEditor]);
 
   const handleAddElement = (type: ElementType) => {
     const element = createElement(type, generateId());
@@ -51,14 +56,17 @@ function NewEditorContent() {
     <div className="h-screen flex flex-col relative bg-gray-50">
       {/* 헤더 */}
       <header className="px-5 py-[14px] bg-white border-b border-stone-300/50 relative z-50">
-        <div className="flex">
-          <Image src="/logo/ditto.svg" alt="Ditto" width={32} height={32} />
-          <Image
-            src="/logo/ditto_text.svg"
-            alt="Ditto"
-            width={64}
-            height={32}
-          />
+        <div className="flex items-center justify-between">
+          <div className="flex">
+            <Image src="/logo/ditto.svg" alt="Ditto" width={32} height={32} />
+            <Image
+              src="/logo/ditto_text.svg"
+              alt="Ditto"
+              width={64}
+              height={32}
+            />
+          </div>
+          <PageActions />
         </div>
       </header>
 
@@ -145,6 +153,15 @@ function NewEditorContent() {
               <Square className="w-4 h-4" />
               버튼
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleAddElement("shape")}
+              className="flex items-center gap-2"
+            >
+              <Shapes className="w-4 h-4" />
+              도형
+            </Button>
           </div>
         </div>
 
@@ -182,10 +199,10 @@ function NewEditorContent() {
   );
 }
 
-export default function NewEditorPage() {
+export default function NewEditorLayout({ initialPageData, pageId }: NewEditorLayoutProps) {
   return (
     <DragDropProvider>
-      <NewEditorContent />
+      <NewEditorLayoutContent initialPageData={initialPageData} pageId={pageId} />
     </DragDropProvider>
   );
 }
