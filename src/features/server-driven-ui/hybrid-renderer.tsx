@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useMode } from "@/shared/contexts/mode-context";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Accordion,
@@ -43,6 +44,8 @@ export function HybridRenderer({
   canvasWidth, 
   canvasHeight 
 }: HybridRendererProps) {
+  const { mode } = useMode();
+  
   // 요소들을 ID로 매핑
   const elementMap = new Map<string, HybridRenderElement>();
   elements.forEach(element => {
@@ -236,7 +239,7 @@ function renderElementContent(element: HybridRenderElement) {
             height: "100%",
           }}
           onClick={() => {
-            if (element.props.href) {
+            if (element.props.href && mode === 'preview') {
               window.open(element.props.href, "_blank");
             }
           }}

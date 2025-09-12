@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import { RenderElement } from "@/shared/types/server-driven-ui";
 import { Button } from "@/components/ui/button";
+import { useMode } from "@/shared/contexts/mode-context";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Accordion,
@@ -17,6 +18,7 @@ interface DynamicElementProps {
 }
 
 export function DynamicElement({ element }: DynamicElementProps) {
+  const { mode } = useMode();
   const baseStyle: React.CSSProperties = {
     position: "relative",
     width: element.size.width,
@@ -82,7 +84,7 @@ export function DynamicElement({ element }: DynamicElementProps) {
               height: "100%",
             }}
             onClick={() => {
-              if (element.props.href) {
+              if (element.props.href && mode === 'preview') {
                 window.open(element.props.href, "_blank");
               }
             }}

@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import DragDropProvider from "@/features/drag-drop";
 import { useEditorStore } from "@/processes/editor-store";
+import { ModeProvider } from "@/shared/contexts/mode-context";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import { ElementType } from "@/shared/types";
 import { StoredPageData } from "@/shared/types/server-driven-ui";
@@ -241,8 +242,10 @@ function NewEditorLayoutContent({ initialPageData, pageId }: NewEditorLayoutProp
 
 export default function NewEditorLayout({ initialPageData, pageId }: NewEditorLayoutProps) {
   return (
-    <DragDropProvider>
-      <NewEditorLayoutContent initialPageData={initialPageData} pageId={pageId} />
-    </DragDropProvider>
+    <ModeProvider mode="editor">
+      <DragDropProvider>
+        <NewEditorLayoutContent initialPageData={initialPageData} pageId={pageId} />
+      </DragDropProvider>
+    </ModeProvider>
   );
 }

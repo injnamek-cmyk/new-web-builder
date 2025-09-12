@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { HybridRenderer } from "@/features/server-driven-ui/hybrid-renderer";
 import { PageRenderData } from "@/shared/types/server-driven-ui";
 import { Loader2 } from "lucide-react";
+import { ModeProvider } from "@/shared/contexts/mode-context";
 
 export default function PreviewPage() {
   const params = useParams();
@@ -71,7 +72,8 @@ export default function PreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <ModeProvider mode="preview">
+      <div className="min-h-screen bg-gray-100">
       {/* 헤더 */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -106,6 +108,7 @@ export default function PreviewPage() {
           </div>
         </div>
       </footer>
-    </div>
+      </div>
+    </ModeProvider>
   );
 }

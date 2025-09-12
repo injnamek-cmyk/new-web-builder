@@ -4,6 +4,7 @@ import React from "react";
 import { ContainerElement, Element } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
 import { useEditorStore } from "@/processes/editor-store";
+import { useMode } from "@/shared/contexts/mode-context";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -18,14 +19,17 @@ interface ContainerElementProps {
   element: ContainerElement;
   isSelected: boolean;
   onSelect: (e: React.MouseEvent) => void;
+  isNested?: boolean;
 }
 
 export default function ContainerElementComponent({
   element,
   isSelected,
   onSelect,
+  isNested = false,
 }: ContainerElementProps) {
   const { canvas } = useEditorStore();
+  const { mode } = useMode();
 
   // 실제 요소의 최종 크기 계산 (패딩 포함)
   const safePadding = {
@@ -107,9 +111,26 @@ export default function ContainerElementComponent({
     return shadows[shadowType as keyof typeof shadows] || shadows.none;
   }
 
-  const { selectElement, isSelected: isElementSelected, canvas: { selectedElementIds } } = useEditorStore();
+  const { selectElement, isSelected: isElementSelected, canvas: { selectedElementIds, elements } } = useEditorStore();
 
-  const handleChildClick = (childId: string, e: React.MouseEvent) => {
+  // 가장 최상위 조상 컨테이너를 찾는 함수
+  const findTopLevelContainer = (elementId: string): string => {
+    // 현재 요소를 포함하는 컨테이너들을 찾기
+    const parentContainer = elements.find(el => 
+      el.type === 'container' && 
+      (el as ContainerElement).children?.includes(elementId)
+    );
+    
+    if (!parentContainer) {
+      // 부모가 없으면 현재 요소가 최상위
+      return elementId;
+    }
+    
+    // 재귀적으로 부모의 부모를 찾기
+    return findTopLevelContainer(parentContainer.id);
+  };
+
+  const handleChildClick = (childId: string, e: React.MouseEvent, isContainer = false, childElement?: Element) => {
     e.stopPropagation();
     
     const currentSelectedId = selectedElementIds[0];
@@ -118,7 +139,16 @@ export default function ContainerElementComponent({
     if (isSelected || isCurrentSelectedSibling) {
       selectElement(childId);
     } else if (!currentSelectedId) {
-      selectElement(element.id);
+      // 아무것도 선택되지 않은 상태에서는 최상위 조상 컨테이너를 선택
+      const topLevelContainerId = findTopLevelContainer(element.id);
+      selectElement(topLevelContainerId);
+    } else if (isContainer) {
+      // 자식 컨테이너의 경우 최상위 조상 컨테이너를 선택
+      const topLevelContainerId = findTopLevelContainer(element.id);
+      selectElement(topLevelContainerId);
+    } else if (childElement?.type === 'button' && childElement.href && mode === 'preview') {
+      // 프리뷰 모드에서만 버튼의 href 처리
+      window.open(childElement.href, "_blank");
     }
   };
 
@@ -160,21 +190,7 @@ export default function ContainerElementComponent({
               "cursor-pointer",
               isChildSelected ? "ring-2 ring-green-500 ring-offset-1" : ""
             )}
-            onClick={(e) => {
-              e.stopPropagation();
-              
-              const currentSelectedId = selectedElementIds[0];
-              const isCurrentSelectedSibling = currentSelectedId && element.children?.includes(currentSelectedId);
-              
-              if (isSelected || isCurrentSelectedSibling) {
-                selectElement(childElement.id);
-              } else if (!currentSelectedId) {
-                // 아무것도 선택되지 않은 상태에서는 컨테이너를 선택
-                selectElement(element.id);
-              } else if (childElement.href) {
-                window.open(childElement.href, "_blank");
-              }
-            }}
+            onClick={(e) => handleChildClick(childElement.id, e, false, childElement)}
           >
             {childElement.text}
           </Button>
@@ -224,16 +240,13 @@ export default function ContainerElementComponent({
         );
       case "container":
         return (
-          <div
+          <ContainerElementComponent
             key={childElement.id}
-            className={cn(
-              "border border-dashed border-gray-400 p-2 rounded min-h-[50px] bg-gray-50 cursor-pointer",
-              isChildSelected ? "ring-2 ring-green-500 ring-offset-1" : ""
-            )}
-            onClick={(e) => handleChildClick(childElement.id, e)}
-          >
-            <span className="text-xs text-gray-500">중첩 컨테이너</span>
-          </div>
+            element={childElement as ContainerElement}
+            isSelected={isChildSelected}
+            onSelect={(e) => handleChildClick(childElement.id, e, true)}
+            isNested={true}
+          />
         );
       case "image":
         return (
@@ -286,10 +299,10 @@ export default function ContainerElementComponent({
   return (
     <div
       className={cn(
-        "absolute cursor-pointer select-none",
+        isNested ? "cursor-pointer select-none" : "absolute cursor-pointer select-none",
         isSelected ? "ring-2 ring-blue-500 ring-offset-2" : ""
       )}
-      style={{
+      style={isNested ? {} : {
         left: element.x,
         top: element.y,
         zIndex: element.zIndex,

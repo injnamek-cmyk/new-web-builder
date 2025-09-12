@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { ButtonElement } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useMode } from "@/shared/contexts/mode-context";
 import {
   Home,
   User,
@@ -69,6 +70,7 @@ export default function ButtonElementComponent({
 }: ButtonElementProps) {
   // 클라이언트 사이드에서만 렌더링되도록 하여 Hydration mismatch 방지
   const [isClient, setIsClient] = useState(false);
+  const { mode } = useMode();
 
   useEffect(() => {
     setIsClient(true);
@@ -122,7 +124,7 @@ export default function ButtonElementComponent({
         size={(element.size as "default" | "sm" | "lg" | "icon") || "default"}
         onDoubleClick={(e) => {
           e.stopPropagation();
-          if (element.href) {
+          if (element.href && mode === 'preview') {
             window.open(element.href, "_blank");
           }
         }}
