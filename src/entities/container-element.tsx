@@ -3,7 +3,7 @@
 import React from "react";
 import { ContainerElement } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
+import { useEditorStore } from "@/processes/editor-store";
 
 interface ContainerElementProps {
   element: ContainerElement;
@@ -16,6 +16,8 @@ export default function ContainerElementComponent({
   isSelected,
   onSelect,
 }: ContainerElementProps) {
+  const { canvas } = useEditorStore();
+
   // 실제 요소의 최종 크기 계산 (패딩 포함)
   const safePadding = {
     top: getValidPaddingValue(element.padding.top),
@@ -25,21 +27,22 @@ export default function ContainerElementComponent({
   };
 
   // 드래그 오버레이를 위한 원본 크기 (패딩 제외)
-  const originalWidth = element.width === "auto" ? 100 : element.width;
+  const originalWidth = element.width === "auto" ? 200 : element.width;
   const originalHeight = element.height === "auto" ? 100 : element.height;
 
-  // 실제 표시 크기 (패딩 포함)
-  const actualWidth =
-    element.width === "auto"
-      ? "auto"
-      : Math.max(element.width + safePadding.left + safePadding.right, 20);
-  const actualHeight =
-    element.height === "auto"
-      ? "auto"
-      : Math.max(element.height + safePadding.top + safePadding.bottom, 20);
+  // 자식 요소들 찾기
+  const childrenElements = element.children
+    ?.map((childId) => canvas.elements.find((el) => el.id === childId))
+    .filter(Boolean) || [];
+
+  // Flex 속성
+  const flexDirection = element.flex?.flexDirection || "row";
+  const justifyContent = element.flex?.justifyContent || "flex-start";
+  const alignItems = element.flex?.alignItems || "stretch";
+  const gap = element.gap || 8;
 
   // Container 스타일
-  const containerStyle = {
+  const containerStyle: React.CSSProperties = {
     width: element.width === "auto" ? "auto" : "100%",
     height: element.height === "auto" ? "auto" : "100%",
     position: "relative" as const,
@@ -51,10 +54,12 @@ export default function ContainerElementComponent({
     borderWidth: element.borderWidth ? `${element.borderWidth}px` : "0",
     borderColor: element.borderColor || "transparent",
     boxShadow: getBoxShadowValue(element.boxShadow),
-    paddingTop: safePadding.top,
-    paddingRight: safePadding.right,
-    paddingBottom: safePadding.bottom,
-    paddingLeft: safePadding.left,
+    padding: `${safePadding.top}px ${safePadding.right}px ${safePadding.bottom}px ${safePadding.left}px`,
+    display: "flex",
+    flexDirection,
+    justifyContent,
+    alignItems,
+    gap: `${gap}px`,
   };
 
   function getBoxShadowValue(shadowType?: string) {
@@ -68,6 +73,51 @@ export default function ContainerElementComponent({
     };
     return shadows[shadowType as keyof typeof shadows] || shadows.none;
   }
+
+  const renderChildElement = (childElement: any) => {
+    // 자식 요소는 상대 위치로 렌더링
+    switch (childElement.type) {
+      case "text":
+        return (
+          <div 
+            key={childElement.id}
+            style={{
+              fontSize: `${childElement.fontSize}px`,
+              fontFamily: childElement.fontFamily,
+              color: childElement.color,
+              textAlign: childElement.textAlign,
+              fontWeight: childElement.fontWeight,
+              textDecoration: childElement.textDecoration,
+              lineHeight: childElement.lineHeight,
+            }}
+          >
+            {childElement.content}
+          </div>
+        );
+      case "button":
+        return (
+          <button
+            key={childElement.id}
+            style={{
+              backgroundColor: childElement.backgroundColor,
+              color: childElement.textColor,
+              borderRadius: `${childElement.borderRadius}px`,
+              padding: `${childElement.padding.top}px ${childElement.padding.right}px ${childElement.padding.bottom}px ${childElement.padding.left}px`,
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {childElement.text}
+          </button>
+        );
+      default:
+        return (
+          <div key={childElement.id} className="bg-gray-200 p-2 rounded">
+            {childElement.type}
+          </div>
+        );
+    }
+  };
 
   return (
     <div
@@ -87,11 +137,14 @@ export default function ContainerElementComponent({
       }}
       onClick={onSelect}
     >
-      <div 
-        style={containerStyle} 
-        className="w-full h-full flex items-center justify-center text-muted-foreground text-sm"
-      >
-        컨테이너
+      <div style={containerStyle}>
+        {childrenElements.length > 0 ? (
+          childrenElements.map(renderChildElement)
+        ) : (
+          <div className="text-muted-foreground text-sm opacity-50">
+            자식 요소를 추가하세요
+          </div>
+        )}
       </div>
     </div>
   );

@@ -11,6 +11,10 @@ import {
   Type,
   Square,
   Shapes,
+  Container,
+  Image as ImageIcon,
+  ChevronDown,
+  Calendar,
 } from "lucide-react";
 import DragDropProvider from "@/features/drag-drop";
 import { useEditorStore } from "@/processes/editor-store";
@@ -147,11 +151,47 @@ function NewEditorLayoutContent({ initialPageData, pageId }: NewEditorLayoutProp
             <Button
               variant="outline"
               size="sm"
+              onClick={() => handleAddElement("image")}
+              className="flex items-center gap-2"
+            >
+              <ImageIcon className="w-4 h-4" />
+              이미지
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => handleAddElement("button")}
               className="flex items-center gap-2"
             >
               <Square className="w-4 h-4" />
               버튼
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleAddElement("container")}
+              className="flex items-center gap-2"
+            >
+              <Container className="w-4 h-4" />
+              컨테이너
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleAddElement("accordion")}
+              className="flex items-center gap-2"
+            >
+              <ChevronDown className="w-4 h-4" />
+              아코디언
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleAddElement("calendar")}
+              className="flex items-center gap-2"
+            >
+              <Calendar className="w-4 h-4" />
+              캘린더
             </Button>
             <Button
               variant="outline"

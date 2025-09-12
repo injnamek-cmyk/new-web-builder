@@ -111,8 +111,8 @@ export function createElement(
           bottom: 16,
           left: 16,
         },
-        // 하이브리드 레이아웃 기본값
-        layoutMode: "absolute",
+        // 기본값을 flex로 설정
+        layoutMode: "flex",
         children: [],
         gap: 8,
         flex: {

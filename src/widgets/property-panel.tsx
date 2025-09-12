@@ -15,6 +15,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2, Upload } from "lucide-react";
 import { useEditorStore } from "@/processes/editor-store";
+import { createElement, generateId } from "@/shared/lib/element-factory";
 import {
   Element,
   TextElement,
@@ -27,7 +28,7 @@ import {
 import { getValidPaddingValue } from "@/lib/utils";
 
 export default function PropertyPanel() {
-  const { canvas, updateElement, deleteElement } = useEditorStore();
+  const { canvas, updateElement, deleteElement, addElement, addChildToContainer, removeChildFromContainer } = useEditorStore();
   if (!canvas) {
     return null;
   }
@@ -1039,11 +1040,39 @@ export default function PropertyPanel() {
       )}
 
       {/* 자식 요소 관리 */}
-      {element.children && element.children.length > 0 && (
-        <div className="border-t pt-3 lg:pt-4">
+      <div className="border-t pt-3 lg:pt-4">
+        <div className="flex items-center justify-between mb-2">
           <Label className="text-xs font-medium">
-            자식 요소 ({element.children.length}개)
+            자식 요소 ({element.children?.length || 0}개)
           </Label>
+          <Select
+            value=""
+            onValueChange={(elementType) => {
+              if (elementType) {
+                const newId = generateId();
+                const newElement = createElement(elementType as any, newId, 0, 0);
+                // 자식 요소는 캔버스에 독립적으로 추가하지 않고, 컨테이너에만 추가
+                addElement(newElement);
+                addChildToContainer(element.id, newId);
+              }
+            }}
+          >
+            <SelectTrigger className="w-[140px] text-xs h-7">
+              <SelectValue placeholder="요소 추가" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="text">텍스트</SelectItem>
+              <SelectItem value="button">버튼</SelectItem>
+              <SelectItem value="image">이미지</SelectItem>
+              <SelectItem value="container">컨테이너</SelectItem>
+              <SelectItem value="accordion">아코디언</SelectItem>
+              <SelectItem value="calendar">캘린더</SelectItem>
+              <SelectItem value="shape">도형</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {element.children && element.children.length > 0 && (
           <div className="mt-2 space-y-1">
             {element.children.map((childId) => {
               const childElement = canvas.elements.find(
@@ -1057,22 +1086,26 @@ export default function PropertyPanel() {
                   <span>
                     {childElement?.type || "Unknown"} - {childId.slice(0, 8)}
                   </span>
-                  <button
-                    onClick={() => {
-                      const { removeChildFromContainer } =
-                        useEditorStore.getState();
-                      removeChildFromContainer(element.id, childId);
-                    }}
-                    className="text-red-500 hover:text-red-700"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeChildFromContainer(element.id, childId)}
+                    className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
                   >
-                    제거
-                  </button>
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
                 </div>
               );
             })}
           </div>
-        </div>
-      )}
+        )}
+        
+        {(!element.children || element.children.length === 0) && (
+          <div className="text-xs text-gray-500 text-center py-4 border border-dashed border-gray-300 rounded">
+            위의 드롭다운에서 자식 요소를 추가하세요
+          </div>
+        )}
+      </div>
     </div>
   );
 

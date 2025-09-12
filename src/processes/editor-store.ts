@@ -503,6 +503,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
   removeChildFromContainer: (containerId, childId) => {
     set((state) => {
+      // 1. 컨테이너에서 자식 관계 제거
       const elements = state.canvas.elements.map((element) => {
         if (element.id === containerId && element.type === "container") {
           const container = element as ContainerElement;
@@ -514,12 +515,18 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
           };
         }
         return element;
-      });
+      })
+      // 2. 캔버스에서 해당 요소 완전 삭제
+      .filter(element => element.id !== childId);
+      
+      // 3. 선택된 요소가 삭제된 요소라면 선택 해제
+      const selectedElementIds = state.canvas.selectedElementIds.filter(id => id !== childId);
       
       return {
         canvas: {
           ...state.canvas,
           elements,
+          selectedElementIds,
         },
       };
     });

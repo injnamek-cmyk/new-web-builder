@@ -253,7 +253,16 @@ export default function Canvas() {
             canvasHeight={canvas?.height}
             isDragging={isDragging}
           />
-          {canvas?.elements.map(renderElement)}
+          {canvas?.elements
+            .filter((element) => {
+              // 다른 컨테이너의 자식인 요소는 캔버스에서 직접 렌더링하지 않음
+              const isChildOfContainer = canvas?.elements.some((containerElement) => 
+                containerElement.type === "container" && 
+                (containerElement as any).children?.includes(element.id)
+              );
+              return !isChildOfContainer;
+            })
+            .map(renderElement)}
         </div>
       </div>
     </div>
