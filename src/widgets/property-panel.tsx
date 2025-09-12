@@ -686,51 +686,6 @@ export default function PropertyPanel() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-1 lg:gap-2">
-          <div>
-            <Label htmlFor="backgroundColor" className="text-xs">
-              배경색
-            </Label>
-            <Input
-              id="backgroundColor"
-              type="color"
-              value={element.backgroundColor}
-              onChange={(e) =>
-                handlePropertyChange("backgroundColor", e.target.value)
-              }
-              className="text-xs"
-            />
-          </div>
-          <div>
-            <Label htmlFor="textColor" className="text-xs">
-              글자색
-            </Label>
-            <Input
-              id="textColor"
-              type="color"
-              value={element.textColor}
-              onChange={(e) =>
-                handlePropertyChange("textColor", e.target.value)
-              }
-              className="text-xs"
-            />
-          </div>
-        </div>
-
-        <div>
-          <Label htmlFor="borderRadius" className="text-xs">
-            모서리 둥글기
-          </Label>
-          <Input
-            id="borderRadius"
-            type="number"
-            value={element.borderRadius}
-            onChange={(e) =>
-              handlePropertyChange("borderRadius", parseInt(e.target.value))
-            }
-            className="text-xs"
-          />
-        </div>
 
         <div>
           <Label htmlFor="href" className="text-xs">

@@ -4,6 +4,14 @@ import React from "react";
 import { ContainerElement } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
 import { useEditorStore } from "@/processes/editor-store";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface ContainerElementProps {
   element: ContainerElement;
@@ -96,24 +104,86 @@ export default function ContainerElementComponent({
         );
       case "button":
         return (
-          <button
+          <Button
             key={childElement.id}
-            style={{
-              backgroundColor: childElement.backgroundColor,
-              color: childElement.textColor,
-              borderRadius: `${childElement.borderRadius}px`,
-              padding: `${childElement.padding.top}px ${childElement.padding.right}px ${childElement.padding.bottom}px ${childElement.padding.left}px`,
-              border: "none",
-              cursor: "pointer",
+            variant={childElement.variant}
+            size={childElement.size}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (childElement.href) {
+                window.open(childElement.href, "_blank");
+              }
             }}
           >
             {childElement.text}
-          </button>
+          </Button>
+        );
+      case "calendar":
+        return (
+          <Calendar
+            key={childElement.id}
+            mode={childElement.mode || "single"}
+            selected={childElement.selectedDate}
+            onSelect={() => {}} // 컨테이너 내에서는 선택 기능 비활성화
+            disabled={childElement.disabled}
+            className="rounded-md border"
+          />
+        );
+      case "accordion":
+        return (
+          <Accordion
+            key={childElement.id}
+            type={childElement.accordionType || "single"}
+            collapsible={childElement.collapsible}
+            className="w-full"
+          >
+            {childElement.items?.map((item: any, index: number) => (
+              <AccordionItem key={item.id} value={`item-${index}`}>
+                <AccordionTrigger>{item.title}</AccordionTrigger>
+                <AccordionContent>{item.content}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        );
+      case "container":
+        return (
+          <div 
+            key={childElement.id} 
+            className="border border-dashed border-gray-400 p-2 rounded min-h-[50px] bg-gray-50"
+          >
+            <span className="text-xs text-gray-500">중첩 컨테이너</span>
+          </div>
+        );
+      case "image":
+        return (
+          <div 
+            key={childElement.id}
+            className="bg-gray-100 border border-gray-300 rounded flex items-center justify-center"
+            style={{ 
+              width: childElement.width === "auto" ? "100px" : childElement.width,
+              height: childElement.height === "auto" ? "100px" : childElement.height 
+            }}
+          >
+            {childElement.src ? (
+              <img 
+                src={childElement.src} 
+                alt={childElement.alt || "이미지"}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: childElement.objectFit || "cover",
+                  objectPosition: childElement.objectPosition || "center"
+                }}
+              />
+            ) : (
+              <span className="text-xs text-gray-500">이미지</span>
+            )}
+          </div>
         );
       default:
         return (
           <div key={childElement.id} className="bg-gray-200 p-2 rounded">
-            {childElement.type}
+            <span className="text-xs text-gray-500">{childElement.type}</span>
           </div>
         );
     }

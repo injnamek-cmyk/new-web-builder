@@ -63,9 +63,6 @@ export default function ButtonElementComponent({
     height: element.height === "auto" ? "auto" : "100%",
     minWidth: element.width === "auto" ? "fit-content" : 20,
     minHeight: element.height === "auto" ? "fit-content" : 20,
-    backgroundColor: element.backgroundColor,
-    color: element.textColor,
-    borderRadius: `${element.borderRadius}px`,
   };
 
   // 서버 사이드 렌더링 중에는 간단한 버전을 렌더링
@@ -87,7 +84,7 @@ export default function ButtonElementComponent({
       >
         <div
           style={buttonStyle}
-          className="w-full h-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium"
+          className="w-full h-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
         >
           {element.text || "버튼"}
         </div>

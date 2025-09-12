@@ -64,12 +64,9 @@ export interface ImageElement extends BaseElement {
 export interface ButtonElement extends BaseElement {
   type: "button";
   text: string;
-  backgroundColor: string;
-  textColor: string;
-  borderRadius: number;
+  variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  size: "default" | "sm" | "lg" | "icon";
   href?: string;
-  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
-  size?: "default" | "sm" | "lg" | "icon";
   icon?: string; // Lucide icon name
   iconPosition?: "left" | "right";
 }
