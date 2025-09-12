@@ -88,6 +88,8 @@ export interface FlexLayoutProps {
 export interface GridLayoutProps {
   gridTemplateColumns?: string;
   gridTemplateRows?: string;
+  gridColumns?: number; // 컬럼 개수
+  gridRows?: number | "auto"; // 행 개수 (auto 허용)
   gridGap?: number;
   gridColumnGap?: number;
   gridRowGap?: number;

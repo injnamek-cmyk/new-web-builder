@@ -947,17 +947,18 @@ export default function PropertyPanel() {
           <div className="grid grid-cols-2 gap-1 lg:gap-2">
             <div>
               <Label htmlFor="gridColumns" className="text-xs text-gray-600">
-                컬럼
+                컬럼 개수
               </Label>
               <Input
                 id="gridColumns"
-                type="text"
-                placeholder="1fr 1fr"
-                value={element.grid?.gridTemplateColumns || "1fr"}
+                type="number"
+                min="1"
+                max="12"
+                value={element.grid?.gridColumns || 2}
                 onChange={(e) =>
                   handlePropertyChange("grid", {
                     ...element.grid,
-                    gridTemplateColumns: e.target.value,
+                    gridColumns: parseInt(e.target.value) || 2,
                   })
                 }
                 className="text-xs"
@@ -965,21 +966,33 @@ export default function PropertyPanel() {
             </div>
             <div>
               <Label htmlFor="gridRows" className="text-xs text-gray-600">
-                행
+                행 개수
               </Label>
-              <Input
-                id="gridRows"
-                type="text"
-                placeholder="auto"
-                value={element.grid?.gridTemplateRows || "auto"}
-                onChange={(e) =>
+              <Select
+                value={element.grid?.gridRows?.toString() || "auto"}
+                onValueChange={(value) =>
                   handlePropertyChange("grid", {
                     ...element.grid,
-                    gridTemplateRows: e.target.value,
+                    gridRows: value === "auto" ? "auto" : parseInt(value),
                   })
                 }
-                className="text-xs"
-              />
+              >
+                <SelectTrigger className="text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">자동</SelectItem>
+                  <SelectItem value="1">1</SelectItem>
+                  <SelectItem value="2">2</SelectItem>
+                  <SelectItem value="3">3</SelectItem>
+                  <SelectItem value="4">4</SelectItem>
+                  <SelectItem value="5">5</SelectItem>
+                  <SelectItem value="6">6</SelectItem>
+                  <SelectItem value="8">8</SelectItem>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="12">12</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div>

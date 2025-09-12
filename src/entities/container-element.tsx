@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ContainerElement } from "@/shared/types";
+import { ContainerElement, Element } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
 import { useEditorStore } from "@/processes/editor-store";
 import { Button } from "@/components/ui/button";
@@ -42,32 +42,58 @@ export default function ContainerElementComponent({
       ?.map((childId) => canvas.elements.find((el) => el.id === childId))
       .filter(Boolean) || [];
 
+  // 레이아웃 모드에 따른 스타일 설정
+  const layoutMode = element.layoutMode || "flex";
+  const gap = element.gap || 8;
+
   // Flex 속성
   const flexDirection = element.flex?.flexDirection || "row";
   const justifyContent = element.flex?.justifyContent || "flex-start";
   const alignItems = element.flex?.alignItems || "stretch";
-  const gap = element.gap || 8;
 
-  // Container 스타일
-  const containerStyle: React.CSSProperties = {
-    width: element.width === "auto" ? "auto" : "100%",
-    height: element.height === "auto" ? "auto" : "100%",
-    position: "relative" as const,
-    minWidth: element.width === "auto" ? "fit-content" : 20,
-    minHeight: element.height === "auto" ? "fit-content" : 20,
-    backgroundColor: element.backgroundColor,
-    borderRadius: `${element.borderRadius}px`,
-    borderStyle: element.borderStyle || "dashed",
-    borderWidth: element.borderWidth ? `${element.borderWidth}px` : "0",
-    borderColor: element.borderColor || "transparent",
-    boxShadow: getBoxShadowValue(element.boxShadow),
-    padding: `${safePadding.top}px ${safePadding.right}px ${safePadding.bottom}px ${safePadding.left}px`,
-    display: "flex",
-    flexDirection,
-    justifyContent,
-    alignItems,
-    gap: `${gap}px`,
+  // Grid 속성
+  const gridColumns = element.grid?.gridColumns || 2;
+  const gridRows = element.grid?.gridRows || "auto";
+
+  // 레이아웃별 스타일 생성
+  const getLayoutStyle = (): React.CSSProperties => {
+    const baseStyle: React.CSSProperties = {
+      width: element.width === "auto" ? "auto" : "100%",
+      height: element.height === "auto" ? "auto" : "100%",
+      position: "relative" as const,
+      minWidth: element.width === "auto" ? "fit-content" : 20,
+      minHeight: element.height === "auto" ? "fit-content" : 20,
+      backgroundColor: element.backgroundColor,
+      borderRadius: `${element.borderRadius}px`,
+      borderStyle: element.borderStyle || "dashed",
+      borderWidth: element.borderWidth ? `${element.borderWidth}px` : "0",
+      borderColor: element.borderColor || "transparent",
+      boxShadow: getBoxShadowValue(element.boxShadow),
+      padding: `${safePadding.top}px ${safePadding.right}px ${safePadding.bottom}px ${safePadding.left}px`,
+      gap: `${gap}px`,
+    };
+
+    switch (layoutMode) {
+      case "grid":
+        return {
+          ...baseStyle,
+          display: "grid",
+          gridTemplateColumns: `repeat(${gridColumns}, 1fr)`,
+          gridTemplateRows: gridRows === "auto" ? "auto" : `repeat(${gridRows}, 1fr)`,
+        };
+      case "flex":
+      default:
+        return {
+          ...baseStyle,
+          display: "flex",
+          flexDirection,
+          justifyContent,
+          alignItems,
+        };
+    }
   };
+
+  const containerStyle = getLayoutStyle();
 
   function getBoxShadowValue(shadowType?: string) {
     const shadows = {
@@ -81,7 +107,7 @@ export default function ContainerElementComponent({
     return shadows[shadowType as keyof typeof shadows] || shadows.none;
   }
 
-  const renderChildElement = (childElement: any) => {
+  const renderChildElement = (childElement: Element) => {
     // 자식 요소는 상대 위치로 렌더링
     switch (childElement.type) {
       case "text":
@@ -121,7 +147,7 @@ export default function ContainerElementComponent({
         return (
           <Calendar
             key={childElement.id}
-            mode={childElement.mode || "single"}
+            mode="single"
             selected={childElement.selectedDate}
             onSelect={() => {}} // 컨테이너 내에서는 선택 기능 비활성화
             disabled={childElement.disabled}
@@ -205,7 +231,7 @@ export default function ContainerElementComponent({
     >
       <div style={containerStyle}>
         {childrenElements.length > 0 ? (
-          childrenElements.map(renderChildElement)
+          childrenElements.filter((el): el is Element => el !== undefined).map(renderChildElement)
         ) : (
           <div className="text-muted-foreground text-sm opacity-50">
             자식 요소를 추가하세요
