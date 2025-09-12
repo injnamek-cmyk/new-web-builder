@@ -107,13 +107,38 @@ export default function ContainerElementComponent({
     return shadows[shadowType as keyof typeof shadows] || shadows.none;
   }
 
+  const { selectElement, isSelected: isElementSelected, canvas: { selectedElementIds } } = useEditorStore();
+
+  const handleChildClick = (childId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    // 현재 선택된 요소가 있는지 확인
+    const currentSelectedId = selectedElementIds[0];
+    
+    // 현재 선택된 요소가 이 컨테이너의 자식인지 확인
+    const isCurrentSelectedSibling = currentSelectedId && element.children?.includes(currentSelectedId);
+    
+    // 다음 중 하나의 경우 자식 선택 허용:
+    // 1. 컨테이너가 선택된 상태
+    // 2. 현재 선택된 요소가 같은 컨테이너의 자식 (형제 요소)
+    if (isSelected || isCurrentSelectedSibling) {
+      selectElement(childId);
+    }
+  };
+
   const renderChildElement = (childElement: Element) => {
+    const isChildSelected = isElementSelected(childElement.id);
+    
     // 자식 요소는 상대 위치로 렌더링
     switch (childElement.type) {
       case "text":
         return (
           <div
             key={childElement.id}
+            className={cn(
+              "cursor-pointer",
+              isChildSelected ? "ring-2 ring-green-500 ring-offset-1" : ""
+            )}
             style={{
               fontSize: `${childElement.fontSize}px`,
               fontFamily: childElement.fontFamily,
@@ -123,6 +148,7 @@ export default function ContainerElementComponent({
               textDecoration: childElement.textDecoration,
               lineHeight: childElement.lineHeight,
             }}
+            onClick={(e) => handleChildClick(childElement.id, e)}
           >
             {childElement.content}
           </div>
@@ -133,9 +159,18 @@ export default function ContainerElementComponent({
             key={childElement.id}
             variant={childElement.variant}
             size={childElement.size}
+            className={cn(
+              isChildSelected ? "ring-2 ring-green-500 ring-offset-1" : ""
+            )}
             onClick={(e) => {
               e.stopPropagation();
-              if (childElement.href) {
+              
+              const currentSelectedId = selectedElementIds[0];
+              const isCurrentSelectedSibling = currentSelectedId && element.children?.includes(currentSelectedId);
+              
+              if (isSelected || isCurrentSelectedSibling) {
+                selectElement(childElement.id);
+              } else if (childElement.href) {
                 window.open(childElement.href, "_blank");
               }
             }}
@@ -145,36 +180,56 @@ export default function ContainerElementComponent({
         );
       case "calendar":
         return (
-          <Calendar
+          <div
             key={childElement.id}
-            mode="single"
-            selected={childElement.selectedDate}
-            onSelect={() => {}} // 컨테이너 내에서는 선택 기능 비활성화
-            disabled={childElement.disabled}
-            className="rounded-md border"
-          />
+            className={cn(
+              "cursor-pointer",
+              isChildSelected ? "ring-2 ring-green-500 ring-offset-1" : ""
+            )}
+            onClick={(e) => handleChildClick(childElement.id, e)}
+          >
+            <Calendar
+              mode="single"
+              selected={childElement.selectedDate}
+              onSelect={() => {}} // 컨테이너 내에서는 선택 기능 비활성화
+              disabled={childElement.disabled}
+              className="rounded-md border"
+            />
+          </div>
         );
       case "accordion":
         return (
-          <Accordion
+          <div
             key={childElement.id}
-            type={childElement.accordionType || "single"}
-            collapsible={childElement.collapsible}
-            className="w-full"
+            className={cn(
+              "cursor-pointer",
+              isChildSelected ? "ring-2 ring-green-500 ring-offset-1" : ""
+            )}
+            onClick={(e) => handleChildClick(childElement.id, e)}
           >
-            {childElement.items?.map((item: { id: string; title: string; content: string }, index: number) => (
-              <AccordionItem key={item.id} value={`item-${index}`}>
-                <AccordionTrigger>{item.title}</AccordionTrigger>
-                <AccordionContent>{item.content}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+            <Accordion
+              type={childElement.accordionType || "single"}
+              collapsible={childElement.collapsible}
+              className="w-full"
+            >
+              {childElement.items?.map((item: { id: string; title: string; content: string }, index: number) => (
+                <AccordionItem key={item.id} value={`item-${index}`}>
+                  <AccordionTrigger>{item.title}</AccordionTrigger>
+                  <AccordionContent>{item.content}</AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         );
       case "container":
         return (
           <div
             key={childElement.id}
-            className="border border-dashed border-gray-400 p-2 rounded min-h-[50px] bg-gray-50"
+            className={cn(
+              "border border-dashed border-gray-400 p-2 rounded min-h-[50px] bg-gray-50 cursor-pointer",
+              isChildSelected ? "ring-2 ring-green-500 ring-offset-1" : ""
+            )}
+            onClick={(e) => handleChildClick(childElement.id, e)}
           >
             <span className="text-xs text-gray-500">중첩 컨테이너</span>
           </div>
@@ -183,13 +238,17 @@ export default function ContainerElementComponent({
         return (
           <div
             key={childElement.id}
-            className="bg-gray-100 border border-gray-300 rounded flex items-center justify-center"
+            className={cn(
+              "bg-gray-100 border border-gray-300 rounded flex items-center justify-center cursor-pointer",
+              isChildSelected ? "ring-2 ring-green-500 ring-offset-1" : ""
+            )}
             style={{
               width:
                 childElement.width === "auto" ? "100px" : childElement.width,
               height:
                 childElement.height === "auto" ? "100px" : childElement.height,
             }}
+            onClick={(e) => handleChildClick(childElement.id, e)}
           >
             {childElement.src ? (
               <Image
@@ -209,7 +268,14 @@ export default function ContainerElementComponent({
         );
       default:
         return (
-          <div key={childElement.id} className="bg-gray-200 p-2 rounded">
+          <div 
+            key={childElement.id} 
+            className={cn(
+              "bg-gray-200 p-2 rounded cursor-pointer",
+              isChildSelected ? "ring-2 ring-green-500 ring-offset-1" : ""
+            )}
+            onClick={(e) => handleChildClick(childElement.id, e)}
+          >
             <span className="text-xs text-gray-500">{childElement.type}</span>
           </div>
         );
