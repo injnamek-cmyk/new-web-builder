@@ -13,8 +13,8 @@ export interface RenderElement {
     height: number | "auto";
   };
   zIndex: number;
-  style: Record<string, any>;
-  props: Record<string, any>;
+  style?: Record<string, any>;
+  props?: Record<string, any>;
 }
 
 // 렌더링을 위한 캔버스 정의

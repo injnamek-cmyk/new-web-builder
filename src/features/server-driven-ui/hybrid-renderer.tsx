@@ -15,11 +15,12 @@ import { RenderElement } from "@/shared/types/server-driven-ui";
 
 // 하이브리드 렌더링 요소 타입 (기존 RenderElement를 확장)
 interface HybridRenderElement extends RenderElement {
-  layoutMode?: "absolute" | "flex" | "grid" | "flow";
+  layoutMode?: "flex" | "grid" | "flow";
+  positionMode?: "absolute" | "relative" | "static";
 
   // 하이브리드 레이아웃용
   children?: string[];
-  flexProps?: {
+  flex?: {
     flexDirection?: "row" | "column" | "row-reverse" | "column-reverse";
     justifyContent?:
       | "flex-start"
@@ -41,9 +42,9 @@ interface HybridRenderElement extends RenderElement {
     margin?: number | string;
   };
 
-  // 스타일 및 속성
-  style: Record<string, string | number>;
-  props: Record<string, string | number | boolean>;
+  // 스타일 및 속성 (옵션널로 변경)
+  style?: Record<string, string | number>;
+  props?: Record<string, string | number | boolean>;
 
   // 레이아웃 속성
   width?: number | "auto";
@@ -159,14 +160,20 @@ interface HybridElementProps {
   elementMap: Map<string, HybridRenderElement>;
 }
 
-function HybridElement({ element, elementMap, isTopLevel = false }: HybridElementProps & { isTopLevel?: boolean }) {
+function HybridElement({
+  element,
+  elementMap,
+  isTopLevel = false,
+}: HybridElementProps & { isTopLevel?: boolean }) {
   // 자식 요소들 가져오기
   const childElements = (element.children || [])
     .map((childId) => elementMap.get(childId))
     .filter(Boolean) as HybridRenderElement[];
 
-  // 레이아웃 모드별 스타일 적용
-  const getLayoutStyle = (isTopLevel: boolean = false): React.CSSProperties => {
+  // 포지션과 레이아웃 스타일 적용
+  const getElementStyle = (
+    isTopLevel: boolean = false
+  ): React.CSSProperties => {
     const baseStyle: React.CSSProperties = {
       zIndex: element.zIndex,
       padding:
@@ -177,98 +184,85 @@ function HybridElement({ element, elementMap, isTopLevel = false }: HybridElemen
           : undefined,
     };
 
-    // 최상위 요소는 항상 absolute positioning
-    if (isTopLevel) {
-      const layoutModeStyle: React.CSSProperties = {};
-      
-      switch (element.layoutMode || "absolute") {
-        case "flex":
-          layoutModeStyle.display = "flex";
-          layoutModeStyle.flexDirection = element.flexProps?.flexDirection || "row";
-          layoutModeStyle.justifyContent = element.flexProps?.justifyContent || "flex-start";
-          layoutModeStyle.alignItems = element.flexProps?.alignItems || "stretch";
-          layoutModeStyle.gap = element.flexProps?.gap || 0;
-          break;
-        case "grid":
-          layoutModeStyle.display = "grid";
-          layoutModeStyle.gridTemplateColumns = element.gridProps?.gridTemplateColumns || "1fr";
-          layoutModeStyle.gridTemplateRows = element.gridProps?.gridTemplateRows || "auto";
-          layoutModeStyle.gap = element.gridProps?.gap || 0;
-          break;
-        case "flow":
-          layoutModeStyle.display = element.flowProps?.display || "block";
-          layoutModeStyle.margin = element.flowProps?.margin || 0;
-          break;
-      }
+    // 포지션 스타일 결정
+    const positionStyle: React.CSSProperties = {};
+    const positionMode = isTopLevel
+      ? "absolute"
+      : element.positionMode || "static";
 
-      return {
-        ...baseStyle,
-        ...layoutModeStyle,
-        position: "absolute",
-        left: element.x,
-        top: element.y,
-        width: element.width,
-        height: element.height,
-      };
-    }
-
-    // 자식 요소들은 layoutMode에 따른 일반 스타일
-    switch (element.layoutMode || "absolute") {
+    switch (positionMode) {
       case "absolute":
-        return {
-          ...baseStyle,
-          position: "absolute",
-          left: element.x,
-          top: element.y,
-          width: element.width,
-          height: element.height,
-        };
-
-      case "flex":
-        return {
-          ...baseStyle,
-          display: "flex",
-          flexDirection: element.flexProps?.flexDirection || "row",
-          justifyContent: element.flexProps?.justifyContent || "flex-start",
-          alignItems: element.flexProps?.alignItems || "stretch",
-          gap: element.flexProps?.gap || 0,
-          width: element.width !== "auto" ? element.width : undefined,
-          height: element.height !== "auto" ? element.height : undefined,
-        };
-
-      case "grid":
-        return {
-          ...baseStyle,
-          display: "grid",
-          gridTemplateColumns: element.gridProps?.gridTemplateColumns || "1fr",
-          gridTemplateRows: element.gridProps?.gridTemplateRows || "auto",
-          gap: element.gridProps?.gap || 0,
-          width: element.width !== "auto" ? element.width : undefined,
-          height: element.height !== "auto" ? element.height : undefined,
-        };
-
-      case "flow":
-        return {
-          ...baseStyle,
-          display: element.flowProps?.display || "block",
-          margin: element.flowProps?.margin || 0,
-          width: element.width !== "auto" ? element.width : undefined,
-          height: element.height !== "auto" ? element.height : undefined,
-        };
-
+        positionStyle.position = "absolute";
+        positionStyle.left = element.x;
+        positionStyle.top = element.y;
+        break;
+      case "relative":
+        positionStyle.position = "relative";
+        if (element.x !== undefined) positionStyle.left = element.x;
+        if (element.y !== undefined) positionStyle.top = element.y;
+        break;
+      case "static":
       default:
-        return baseStyle;
+        // static은 기본값이므로 별도 설정 불필요
+        break;
     }
+
+    // 레이아웃 모드 스타일 결정 (자식 배치 방식)
+    const layoutStyle: React.CSSProperties = {};
+    switch (element.layoutMode) {
+      case "flex":
+        layoutStyle.display = "flex";
+        layoutStyle.flexDirection = element.flex?.flexDirection || "row";
+        layoutStyle.justifyContent =
+          element.flex?.justifyContent || "flex-start";
+        layoutStyle.alignItems = element.flex?.alignItems || "stretch";
+        layoutStyle.gap = element.flex?.gap || 0;
+        break;
+      case "grid":
+        layoutStyle.display = "grid";
+        layoutStyle.gridTemplateColumns =
+          element.gridProps?.gridTemplateColumns || "1fr";
+        layoutStyle.gridTemplateRows =
+          element.gridProps?.gridTemplateRows || "auto";
+        layoutStyle.gap = element.gridProps?.gap || 0;
+        break;
+      case "flow":
+        layoutStyle.display = element.flowProps?.display || "block";
+        if (element.flowProps?.margin !== undefined) {
+          layoutStyle.margin = element.flowProps.margin;
+        }
+        break;
+      default:
+        // 기본은 block 레이아웃
+        layoutStyle.display = "block";
+        break;
+    }
+
+    // 크기 스타일
+    const sizeStyle: React.CSSProperties = {};
+    if (element.width !== undefined && element.width !== "auto") {
+      sizeStyle.width = element.width;
+    }
+    if (element.height !== undefined && element.height !== "auto") {
+      sizeStyle.height = element.height;
+    }
+
+    return {
+      ...baseStyle,
+      ...positionStyle,
+      ...layoutStyle,
+      ...sizeStyle,
+    };
   };
 
-  const layoutStyle = getLayoutStyle(isTopLevel);
+  const elementStyle = getElementStyle(isTopLevel);
 
   // 컨테이너 타입의 경우 자식 요소들을 렌더링
   if (element.type === "container") {
     return (
       <div
         style={{
-          ...layoutStyle,
+          ...elementStyle,
           backgroundColor: element.backgroundColor,
           borderRadius: element.borderRadius,
           borderStyle: element.borderStyle,
@@ -289,11 +283,7 @@ function HybridElement({ element, elementMap, isTopLevel = false }: HybridElemen
   }
 
   // 다른 요소 타입들은 기존 방식대로 렌더링
-  return (
-    <div style={layoutStyle}>
-      {renderElementContent(element)}
-    </div>
-  );
+  return <div style={elementStyle}>{renderElementContent(element)}</div>;
 }
 
 function renderElementContent(element: HybridRenderElement) {
@@ -302,6 +292,7 @@ function renderElementContent(element: HybridRenderElement) {
       return (
         <div
           style={{
+            // HybridRenderElement의 텍스트 스타일 속성들 적용
             fontSize: element.fontSize,
             fontFamily: element.fontFamily,
             color: element.color,
@@ -309,6 +300,9 @@ function renderElementContent(element: HybridRenderElement) {
             fontWeight: element.fontWeight,
             textDecoration: element.textDecoration,
             lineHeight: element.lineHeight,
+            // 추가 스타일 객체가 있다면 적용 (덮어쓸 수 있음)
+            ...element.style,
+            // 레이아웃 기본값
             display: "flex",
             alignItems: "center",
             justifyContent:
@@ -327,21 +321,29 @@ function renderElementContent(element: HybridRenderElement) {
 
     case "image":
       return (
-        <div style={{ position: "relative", width: "100%", height: "100%" }}>
+        <div
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            // 사용자 정의 컨테이너 스타일 적용
+            ...element.style,
+          }}
+        >
           <Image
             src={element.src || ""}
             alt={element.alt || ""}
             fill
             style={{
-              objectFit: element.objectFit,
-              objectPosition: element.objectPosition,
+              objectFit: element.objectFit || element.objectFit,
+              objectPosition: element.objectPosition || element.objectPosition,
               filter: element.filter
                 ? `brightness(${element.filter.brightness || 1}) contrast(${
                     element.filter.contrast || 1
                   }) saturate(${element.filter.saturate || 1}) blur(${
                     element.filter.blur || 0
                   }px)`
-                : undefined,
+                : element.filter || undefined,
             }}
           />
         </div>
@@ -365,6 +367,8 @@ function renderElementContent(element: HybridRenderElement) {
           style={{
             width: "100%",
             height: "100%",
+            // 사용자 정의 스타일 적용
+            ...element.style,
           }}
           onClick={() => {
             if (element.href) {
@@ -372,11 +376,11 @@ function renderElementContent(element: HybridRenderElement) {
             }
           }}
         >
-          {element.icon && element.iconPosition === "left" && (
+          {element.icon !== "none" && element.iconPosition === "left" && (
             <span className="mr-2">{element.icon}</span>
           )}
           {element.text}
-          {element.icon && element.iconPosition === "right" && (
+          {element.icon !== "none" && element.iconPosition === "right" && (
             <span className="ml-2">{element.icon}</span>
           )}
         </Button>
