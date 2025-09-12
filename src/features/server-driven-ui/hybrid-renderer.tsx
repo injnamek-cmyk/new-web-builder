@@ -147,6 +147,7 @@ export function HybridRenderer({
           key={element.id}
           element={element}
           elementMap={elementMap}
+          isTopLevel={true}
         />
       ))}
     </div>
@@ -158,14 +159,14 @@ interface HybridElementProps {
   elementMap: Map<string, HybridRenderElement>;
 }
 
-function HybridElement({ element, elementMap }: HybridElementProps) {
+function HybridElement({ element, elementMap, isTopLevel = false }: HybridElementProps & { isTopLevel?: boolean }) {
   // 자식 요소들 가져오기
   const childElements = (element.children || [])
     .map((childId) => elementMap.get(childId))
     .filter(Boolean) as HybridRenderElement[];
 
   // 레이아웃 모드별 스타일 적용
-  const getLayoutStyle = (): React.CSSProperties => {
+  const getLayoutStyle = (isTopLevel: boolean = false): React.CSSProperties => {
     const baseStyle: React.CSSProperties = {
       zIndex: element.zIndex,
       padding:
@@ -176,6 +177,42 @@ function HybridElement({ element, elementMap }: HybridElementProps) {
           : undefined,
     };
 
+    // 최상위 요소는 항상 absolute positioning
+    if (isTopLevel) {
+      const layoutModeStyle: React.CSSProperties = {};
+      
+      switch (element.layoutMode || "absolute") {
+        case "flex":
+          layoutModeStyle.display = "flex";
+          layoutModeStyle.flexDirection = element.flexProps?.flexDirection || "row";
+          layoutModeStyle.justifyContent = element.flexProps?.justifyContent || "flex-start";
+          layoutModeStyle.alignItems = element.flexProps?.alignItems || "stretch";
+          layoutModeStyle.gap = element.flexProps?.gap || 0;
+          break;
+        case "grid":
+          layoutModeStyle.display = "grid";
+          layoutModeStyle.gridTemplateColumns = element.gridProps?.gridTemplateColumns || "1fr";
+          layoutModeStyle.gridTemplateRows = element.gridProps?.gridTemplateRows || "auto";
+          layoutModeStyle.gap = element.gridProps?.gap || 0;
+          break;
+        case "flow":
+          layoutModeStyle.display = element.flowProps?.display || "block";
+          layoutModeStyle.margin = element.flowProps?.margin || 0;
+          break;
+      }
+
+      return {
+        ...baseStyle,
+        ...layoutModeStyle,
+        position: "absolute",
+        left: element.x,
+        top: element.y,
+        width: element.width,
+        height: element.height,
+      };
+    }
+
+    // 자식 요소들은 layoutMode에 따른 일반 스타일
     switch (element.layoutMode || "absolute") {
       case "absolute":
         return {
@@ -224,7 +261,7 @@ function HybridElement({ element, elementMap }: HybridElementProps) {
     }
   };
 
-  const layoutStyle = getLayoutStyle();
+  const layoutStyle = getLayoutStyle(isTopLevel);
 
   // 컨테이너 타입의 경우 자식 요소들을 렌더링
   if (element.type === "container") {
@@ -252,12 +289,9 @@ function HybridElement({ element, elementMap }: HybridElementProps) {
   }
 
   // 다른 요소 타입들은 기존 방식대로 렌더링
-  const isAbsolute = (element.layoutMode || "absolute") === "absolute";
   return (
-    <div style={isAbsolute ? layoutStyle : {}}>
-      <div style={!isAbsolute ? layoutStyle : {}}>
-        {renderElementContent(element)}
-      </div>
+    <div style={layoutStyle}>
+      {renderElementContent(element)}
     </div>
   );
 }
