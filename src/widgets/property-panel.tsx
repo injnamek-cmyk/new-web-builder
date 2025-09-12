@@ -35,6 +35,7 @@ export default function PropertyPanel() {
     addElement,
     addChildToContainer,
     removeChildFromContainer,
+    selectElement,
   } = useEditorStore();
   if (!canvas) {
     return null;
@@ -1019,6 +1020,8 @@ export default function PropertyPanel() {
                 // 자식 요소는 캔버스에 독립적으로 추가하지 않고, 컨테이너에만 추가
                 addElement(newElement);
                 addChildToContainer(element.id, newId);
+                // 부모 컨테이너를 다시 선택
+                selectElement(element.id);
               }
             }}
           >

@@ -98,8 +98,8 @@ export function createElement(
         height: "auto",
         backgroundColor: "hsl(var(--card))",
         borderRadius: 8,
-        borderStyle: "none",
-        borderWidth: 0,
+        borderStyle: "dashed",
+        borderWidth: 1,
         borderColor: "hsl(var(--border))",
         boxShadow: "sm",
         padding: {

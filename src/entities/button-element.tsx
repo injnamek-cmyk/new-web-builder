@@ -4,10 +4,27 @@ import React, { useEffect, useState } from "react";
 import { ButtonElement } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { 
-  Home, User, Settings, Mail, Phone, Search, Download, Upload, 
-  Heart, Star, Plus, Minus, Check, X, ChevronRight, ChevronLeft,
-  ArrowRight, ArrowLeft, ShoppingCart, CreditCard
+import {
+  Home,
+  User,
+  Settings,
+  Mail,
+  Phone,
+  Search,
+  Download,
+  Upload,
+  Heart,
+  Star,
+  Plus,
+  Minus,
+  Check,
+  X,
+  ChevronRight,
+  ChevronLeft,
+  ArrowRight,
+  ArrowLeft,
+  ShoppingCart,
+  CreditCard,
 } from "lucide-react";
 
 interface ButtonElementProps {
@@ -18,12 +35,29 @@ interface ButtonElementProps {
 
 // 아이콘 렌더링 함수
 const renderIcon = (iconName: string, className: string) => {
-  const iconMap: Record<string, React.ComponentType<{className?: string}>> = {
-    Home, User, Settings, Mail, Phone, Search, Download, Upload,
-    Heart, Star, Plus, Minus, Check, X, ChevronRight, ChevronLeft,
-    ArrowRight, ArrowLeft, ShoppingCart, CreditCard
+  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+    Home,
+    User,
+    Settings,
+    Mail,
+    Phone,
+    Search,
+    Download,
+    Upload,
+    Heart,
+    Star,
+    Plus,
+    Minus,
+    Check,
+    X,
+    ChevronRight,
+    ChevronLeft,
+    ArrowRight,
+    ArrowLeft,
+    ShoppingCart,
+    CreditCard,
   };
-  
+
   const IconComponent = iconMap[iconName];
   return IconComponent ? <IconComponent className={className} /> : null;
 };
@@ -40,10 +74,6 @@ export default function ButtonElementComponent({
     setIsClient(true);
   }, []);
 
-  // 버튼은 shadcn의 size에 따라 크기가 자동 결정됨
-
-  // 버튼은 shadcn의 size prop에 따라 크기가 결정되므로 인라인 스타일 제거
-
   // 서버 사이드 렌더링 중에는 간단한 버전을 렌더링
   if (!isClient) {
     return (
@@ -57,9 +87,7 @@ export default function ButtonElementComponent({
         }}
         onClick={onSelect}
       >
-        <div
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2"
-        >
+        <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2">
           {element.text || "버튼"}
         </div>
       </div>
@@ -82,7 +110,15 @@ export default function ButtonElementComponent({
       suppressHydrationWarning={true}
     >
       <Button
-        variant={(element.variant as "default" | "destructive" | "outline" | "secondary" | "ghost" | "link") || "default"}
+        variant={
+          (element.variant as
+            | "default"
+            | "destructive"
+            | "outline"
+            | "secondary"
+            | "ghost"
+            | "link") || "default"
+        }
         size={(element.size as "default" | "sm" | "lg" | "icon") || "default"}
         onDoubleClick={(e) => {
           e.stopPropagation();
@@ -92,9 +128,15 @@ export default function ButtonElementComponent({
         }}
         suppressHydrationWarning={true}
       >
-        {element.icon && element.icon !== "none" && element.iconPosition === "left" && renderIcon(element.icon, "w-4 h-4 mr-2")}
+        {element.icon &&
+          element.icon !== "none" &&
+          element.iconPosition === "left" &&
+          renderIcon(element.icon, "w-4 h-4 mr-2")}
         {element.text || "버튼"}
-        {element.icon && element.icon !== "none" && element.iconPosition === "right" && renderIcon(element.icon, "w-4 h-4 ml-2")}
+        {element.icon &&
+          element.icon !== "none" &&
+          element.iconPosition === "right" &&
+          renderIcon(element.icon, "w-4 h-4 ml-2")}
       </Button>
     </div>
   );

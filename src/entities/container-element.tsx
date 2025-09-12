@@ -12,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import Image from "next/image";
 
 interface ContainerElementProps {
   element: ContainerElement;
@@ -34,14 +35,12 @@ export default function ContainerElementComponent({
     left: getValidPaddingValue(element.padding.left),
   };
 
-  // 드래그 오버레이를 위한 원본 크기 (패딩 제외)
-  const originalWidth = element.width === "auto" ? 200 : element.width;
-  const originalHeight = element.height === "auto" ? 100 : element.height;
 
   // 자식 요소들 찾기
-  const childrenElements = element.children
-    ?.map((childId) => canvas.elements.find((el) => el.id === childId))
-    .filter(Boolean) || [];
+  const childrenElements =
+    element.children
+      ?.map((childId) => canvas.elements.find((el) => el.id === childId))
+      .filter(Boolean) || [];
 
   // Flex 속성
   const flexDirection = element.flex?.flexDirection || "row";
@@ -58,7 +57,7 @@ export default function ContainerElementComponent({
     minHeight: element.height === "auto" ? "fit-content" : 20,
     backgroundColor: element.backgroundColor,
     borderRadius: `${element.borderRadius}px`,
-    borderStyle: element.borderStyle || "none",
+    borderStyle: element.borderStyle || "dashed",
     borderWidth: element.borderWidth ? `${element.borderWidth}px` : "0",
     borderColor: element.borderColor || "transparent",
     boxShadow: getBoxShadowValue(element.boxShadow),
@@ -77,7 +76,7 @@ export default function ContainerElementComponent({
       md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
       lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
       xl: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
-      "2xl": "0 25px 50px -12px rgb(0 0 0 / 0.25)"
+      "2xl": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
     };
     return shadows[shadowType as keyof typeof shadows] || shadows.none;
   }
@@ -87,7 +86,7 @@ export default function ContainerElementComponent({
     switch (childElement.type) {
       case "text":
         return (
-          <div 
+          <div
             key={childElement.id}
             style={{
               fontSize: `${childElement.fontSize}px`,
@@ -137,7 +136,7 @@ export default function ContainerElementComponent({
             collapsible={childElement.collapsible}
             className="w-full"
           >
-            {childElement.items?.map((item: any, index: number) => (
+            {childElement.items?.map((item: { id: string; title: string; content: string }, index: number) => (
               <AccordionItem key={item.id} value={`item-${index}`}>
                 <AccordionTrigger>{item.title}</AccordionTrigger>
                 <AccordionContent>{item.content}</AccordionContent>
@@ -147,8 +146,8 @@ export default function ContainerElementComponent({
         );
       case "container":
         return (
-          <div 
-            key={childElement.id} 
+          <div
+            key={childElement.id}
             className="border border-dashed border-gray-400 p-2 rounded min-h-[50px] bg-gray-50"
           >
             <span className="text-xs text-gray-500">중첩 컨테이너</span>
@@ -156,23 +155,25 @@ export default function ContainerElementComponent({
         );
       case "image":
         return (
-          <div 
+          <div
             key={childElement.id}
             className="bg-gray-100 border border-gray-300 rounded flex items-center justify-center"
-            style={{ 
-              width: childElement.width === "auto" ? "100px" : childElement.width,
-              height: childElement.height === "auto" ? "100px" : childElement.height 
+            style={{
+              width:
+                childElement.width === "auto" ? "100px" : childElement.width,
+              height:
+                childElement.height === "auto" ? "100px" : childElement.height,
             }}
           >
             {childElement.src ? (
-              <img 
-                src={childElement.src} 
+              <Image
+                src={childElement.src}
                 alt={childElement.alt || "이미지"}
                 style={{
                   width: "100%",
                   height: "100%",
                   objectFit: childElement.objectFit || "cover",
-                  objectPosition: childElement.objectPosition || "center"
+                  objectPosition: childElement.objectPosition || "center",
                 }}
               />
             ) : (
@@ -198,12 +199,7 @@ export default function ContainerElementComponent({
       style={{
         left: element.x,
         top: element.y,
-        width: originalWidth,
-        height: originalHeight,
         zIndex: element.zIndex,
-        display: "inline-block",
-        minWidth: element.width === "auto" ? "fit-content" : undefined,
-        minHeight: element.height === "auto" ? "fit-content" : undefined,
       }}
       onClick={onSelect}
     >
