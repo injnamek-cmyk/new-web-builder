@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { ShapeElement } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
-import { Shape } from "@/bundled-components/Shape";
+import { Shape } from "@/components/ui/shape";
 
 interface ShapeElementProps {
   element: ShapeElement;

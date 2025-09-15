@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/processes/editor-store";
-import { downloadHTMLHybrid } from "@/shared/lib/html-export-hybrid";
-import { Save, Eye, Loader2, ExternalLink, Download } from "lucide-react";
+import { Save, Eye, Loader2, ExternalLink, Rocket } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PageActionsProps {
@@ -18,9 +17,12 @@ export default function PageActions({ className }: PageActionsProps) {
     getPreviewUrl,
     canvas,
     currentPageTitle,
+    currentPageId,
   } = useEditorStore();
 
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [deployUrl, setDeployUrl] = useState<string | null>(null);
 
   const handleSave = async () => {
     const pageId = await savePage();
@@ -39,19 +41,49 @@ export default function PageActions({ className }: PageActionsProps) {
     }
   };
 
-  const handleExportHTML = () => {
+  const handleDeploy = async () => {
     if (canvas.elements.length === 0) {
-      alert("내보낼 요소가 없습니다. 먼저 요소를 추가해주세요.");
+      alert("배포할 요소가 없습니다. 먼저 요소를 추가해주세요.");
       return;
     }
 
-    const filename = `${currentPageTitle || 'web-page'}.html`;
-    downloadHTMLHybrid(canvas, filename, {
-      title: currentPageTitle || 'Web Builder Export',
-      responsive: true,
-      includeTailwind: false,
-      includeBootstrap: false
-    });
+    if (!currentPageId) {
+      alert("페이지를 먼저 저장해주세요.");
+      return;
+    }
+
+    setIsDeploying(true);
+    setDeployUrl(null);
+
+    try {
+      const response = await fetch('/api/deploy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pageId: currentPageId,
+          config: {
+            projectName: currentPageTitle || 'My Website',
+            analytics: false,
+          }
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setDeployUrl(result.deployUrl);
+        alert(`배포 완료! URL: ${result.deployUrl}`);
+      } else {
+        alert(`배포 실패: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Deploy error:', error);
+      alert('배포 중 오류가 발생했습니다.');
+    } finally {
+      setIsDeploying(false);
+    }
   };
 
   return (
@@ -88,16 +120,39 @@ export default function PageActions({ className }: PageActionsProps) {
         <ExternalLink className="w-3 h-3 ml-1" />
       </Button>
 
-      {/* HTML 내보내기 버튼 */}
+      {/* 배포하기 버튼 */}
       <Button
         variant="outline"
         size="sm"
-        onClick={handleExportHTML}
-        className="text-green-600 border-green-200 hover:bg-green-50"
+        onClick={handleDeploy}
+        disabled={isDeploying}
+        className="text-purple-600 border-purple-200 hover:bg-purple-50"
       >
-        <Download className="w-4 h-4 mr-2" />
-        HTML 내보내기
+        {isDeploying ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            배포 중...
+          </>
+        ) : (
+          <>
+            <Rocket className="w-4 h-4 mr-2" />
+            배포하기
+          </>
+        )}
       </Button>
+
+      {/* 배포 완료 시 URL 표시 */}
+      {deployUrl && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => window.open(deployUrl, '_blank')}
+          className="text-blue-600 border-blue-200 hover:bg-blue-50"
+        >
+          <ExternalLink className="w-4 h-4 mr-2" />
+          사이트 보기
+        </Button>
+      )}
 
       {/* 성공 메시지 */}
       {showSuccessMessage && (
