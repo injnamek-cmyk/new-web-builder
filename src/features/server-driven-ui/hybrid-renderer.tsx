@@ -14,12 +14,13 @@ import {
 import { RenderElement } from "@/shared/types/server-driven-ui";
 
 // 하이브리드 렌더링 요소 타입 (기존 RenderElement를 확장)
-interface HybridRenderElement extends RenderElement {
+interface HybridRenderElement extends Omit<RenderElement, 'size'> {
   layoutMode?: "flex" | "grid" | "flow";
   positionMode?: "absolute" | "relative" | "static";
 
   // 하이브리드 레이아웃용
   children?: string[];
+  gap?: number; // 전역 gap 속성
   flex?: {
     flexDirection?: "row" | "column" | "row-reverse" | "column-reverse";
     justifyContent?:
@@ -46,7 +47,8 @@ interface HybridRenderElement extends RenderElement {
   style?: Record<string, string | number>;
   props?: Record<string, string | number | boolean>;
 
-  // 레이아웃 속성
+  // 레이아웃 속성 (size 속성 재정의)
+  size?: string; // 버튼용 size 속성
   width?: number | "auto";
   height?: number | "auto";
   padding?: {
@@ -90,7 +92,6 @@ interface HybridRenderElement extends RenderElement {
 
   // 버튼 속성
   variant?: string;
-  size?: string;
   text?: string;
   href?: string;
   icon?: string;
@@ -260,10 +261,38 @@ function HybridElement({
 
   // 컨테이너 타입의 경우 자식 요소들을 렌더링
   if (element.type === "container") {
+    // 컨테이너용 레이아웃 스타일 다시 계산 (gap 포함)
+    const containerLayoutStyle: React.CSSProperties = {};
+    switch (element.layoutMode) {
+      case "flex":
+        containerLayoutStyle.display = "flex";
+        containerLayoutStyle.flexDirection = element.flex?.flexDirection || "row";
+        containerLayoutStyle.justifyContent = element.flex?.justifyContent || "flex-start";
+        containerLayoutStyle.alignItems = element.flex?.alignItems || "stretch";
+        containerLayoutStyle.gap = element.gap ?? element.flex?.gap ?? 0;
+        break;
+      case "grid":
+        containerLayoutStyle.display = "grid";
+        containerLayoutStyle.gridTemplateColumns = element.gridProps?.gridTemplateColumns || "1fr";
+        containerLayoutStyle.gridTemplateRows = element.gridProps?.gridTemplateRows || "auto";
+        containerLayoutStyle.gap = element.gap ?? element.gridProps?.gap ?? 0;
+        break;
+      case "flow":
+        containerLayoutStyle.display = element.flowProps?.display || "block";
+        if (element.flowProps?.margin !== undefined) {
+          containerLayoutStyle.margin = element.flowProps.margin;
+        }
+        break;
+      default:
+        containerLayoutStyle.display = "block";
+        break;
+    }
+
     return (
       <div
         style={{
           ...elementStyle,
+          ...containerLayoutStyle,
           backgroundColor: element.backgroundColor,
           borderRadius: element.borderRadius,
           borderStyle: element.borderStyle,
@@ -354,24 +383,20 @@ function renderElementContent(element: HybridRenderElement) {
       return (
         <Button
           variant={
-            element.variant as
+            (element.variant as
               | "default"
               | "destructive"
               | "outline"
               | "secondary"
               | "ghost"
-              | "link"
-              | null
-              | undefined
+              | "link") || "default"
           }
           size={
-            element.size as
+            (element.size as
               | "default"
               | "sm"
               | "lg"
-              | "icon"
-              | null
-              | undefined
+              | "icon") || "default"
           }
           style={{
             ...element.style,
