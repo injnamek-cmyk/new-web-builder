@@ -365,15 +365,15 @@ function renderElementContent(element: HybridRenderElement) {
             alt={element.alt || ""}
             fill
             style={{
-              objectFit: element.objectFit || element.objectFit,
-              objectPosition: element.objectPosition || element.objectPosition,
+              objectFit: element.objectFit || "fill",
+              objectPosition: element.objectPosition || "center",
               filter: element.filter
-                ? `brightness(${element.filter.brightness || 1}) contrast(${
-                    element.filter.contrast || 1
-                  }) saturate(${element.filter.saturate || 1}) blur(${
-                    element.filter.blur || 0
+                ? `brightness(${element.filter.brightness ?? 100}%) contrast(${
+                    element.filter.contrast ?? 100
+                  }%) saturate(${element.filter.saturate ?? 100}%) blur(${
+                    element.filter.blur ?? 0
                   }px)`
-                : element.filter || undefined,
+                : undefined,
             }}
           />
         </div>
