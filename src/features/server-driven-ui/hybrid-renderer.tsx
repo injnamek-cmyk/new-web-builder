@@ -90,6 +90,7 @@ interface HybridRenderElement extends RenderElement {
 
   // 버튼 속성
   variant?: string;
+  size?: string;
   text?: string;
   href?: string;
   icon?: string;
@@ -363,11 +364,16 @@ function renderElementContent(element: HybridRenderElement) {
               | null
               | undefined
           }
-          size="default"
+          size={
+            element.size as
+              | "default"
+              | "sm"
+              | "lg"
+              | "icon"
+              | null
+              | undefined
+          }
           style={{
-            width: "100%",
-            height: "100%",
-            // 사용자 정의 스타일 적용
             ...element.style,
           }}
           onClick={() => {

@@ -81,12 +81,6 @@ export function createElement(
         size: "default",
         icon: "none",
         iconPosition: "left",
-        padding: {
-          top: 8,
-          right: 16,
-          bottom: 8,
-          left: 16,
-        },
         ...options,
       } as ButtonElement;
 

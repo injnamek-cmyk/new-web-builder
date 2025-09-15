@@ -1488,7 +1488,7 @@ export default function PropertyPanel() {
 
       <div className="space-y-3 lg:space-y-6">
         {renderSpecificProperties()}
-        {renderSpacingControls(selectedElement)}
+        {selectedElement.type !== "button" && renderSpacingControls(selectedElement)}
         {renderCommonProperties(selectedElement)}
       </div>
     </Card>
