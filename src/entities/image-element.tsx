@@ -76,23 +76,33 @@ export default function ImageElementComponent({
       onClick={onSelect}
     >
       {element.src ? (
-        <Image
-          src={element.src}
-          alt={element.alt}
-          className={cn(
-            element.width === "auto" ? "w-auto" : "w-full",
-            element.height === "auto" ? "h-auto" : "h-full"
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          {element.width === "auto" || element.height === "auto" ? (
+            <Image
+              src={element.src}
+              alt={element.alt}
+              fill
+              style={{
+                objectFit: element.objectFit,
+                objectPosition: element.objectPosition || "center",
+                filter: element.filter ? `brightness(${element.filter.brightness}%) contrast(${element.filter.contrast}%) saturate(${element.filter.saturate}%) blur(${element.filter.blur}px)` : undefined,
+              }}
+            />
+          ) : (
+            <Image
+              src={element.src}
+              alt={element.alt}
+              width={element.width}
+              height={element.height}
+              className={cn("w-full h-full")}
+              style={{
+                objectFit: element.objectFit,
+                objectPosition: element.objectPosition || "center",
+                filter: element.filter ? `brightness(${element.filter.brightness}%) contrast(${element.filter.contrast}%) saturate(${element.filter.saturate}%) blur(${element.filter.blur}px)` : undefined,
+              }}
+            />
           )}
-          style={{
-            objectFit: element.objectFit,
-            objectPosition: element.objectPosition || "center",
-            filter: element.filter ? `brightness(${element.filter.brightness}%) contrast(${element.filter.contrast}%) saturate(${element.filter.saturate}%) blur(${element.filter.blur}px)` : undefined,
-            minWidth: element.width === "auto" ? "fit-content" : undefined,
-            minHeight: element.height === "auto" ? "fit-content" : undefined,
-          }}
-          width={element.width === "auto" ? undefined : element.width}
-          height={element.height === "auto" ? undefined : element.height}
-        />
+        </div>
       ) : (
         <div
           className={cn(
