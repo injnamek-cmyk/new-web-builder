@@ -6,7 +6,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 const prisma = new PrismaClient();
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // 특정 페이지 조회
@@ -15,7 +15,7 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const page = await prisma.page.findUnique({
       where: { id },
     });
@@ -48,7 +48,7 @@ export async function PUT(
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const userId = session.user.id;
 
@@ -93,7 +93,7 @@ export async function DELETE(
   }
 
   try {
-    const { id } = params;
+    const { id } = await params;
     const userId = session.user.id;
 
     const page = await prisma.page.findUnique({

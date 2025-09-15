@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/processes/editor-store";
-import { Save, Eye, Loader2, ExternalLink } from "lucide-react";
+import { downloadHTMLHybrid } from "@/shared/lib/html-export-hybrid";
+import { Save, Eye, Loader2, ExternalLink, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PageActionsProps {
@@ -15,6 +16,8 @@ export default function PageActions({ className }: PageActionsProps) {
     isSaving,
     savePage,
     getPreviewUrl,
+    canvas,
+    currentPageTitle,
   } = useEditorStore();
 
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -34,6 +37,21 @@ export default function PageActions({ className }: PageActionsProps) {
     } else {
       alert("페이지를 먼저 저장해주세요.");
     }
+  };
+
+  const handleExportHTML = () => {
+    if (canvas.elements.length === 0) {
+      alert("내보낼 요소가 없습니다. 먼저 요소를 추가해주세요.");
+      return;
+    }
+
+    const filename = `${currentPageTitle || 'web-page'}.html`;
+    downloadHTMLHybrid(canvas, filename, {
+      title: currentPageTitle || 'Web Builder Export',
+      responsive: true,
+      includeTailwind: false,
+      includeBootstrap: false
+    });
   };
 
   return (
@@ -68,6 +86,17 @@ export default function PageActions({ className }: PageActionsProps) {
         <Eye className="w-4 h-4 mr-2" />
         미리보기
         <ExternalLink className="w-3 h-3 ml-1" />
+      </Button>
+
+      {/* HTML 내보내기 버튼 */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleExportHTML}
+        className="text-green-600 border-green-200 hover:bg-green-50"
+      >
+        <Download className="w-4 h-4 mr-2" />
+        HTML 내보내기
       </Button>
 
       {/* 성공 메시지 */}

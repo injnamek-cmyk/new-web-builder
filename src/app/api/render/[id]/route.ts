@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // 특정 페이지의 렌더링 데이터(content) 조회를 위한 API
@@ -13,7 +13,7 @@ export async function GET(
   { params }: RouteParams
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: "Page ID is required" }, { status: 400 });
     }
