@@ -76,12 +76,7 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
           return {
             ...baseStyle,
             backgroundColor: "transparent",
-            borderLeft: `${width / 2}px solid transparent`,
-            borderRight: `${width / 2}px solid transparent`,
-            borderBottom: `${height}px solid ${actualBackgroundColor}`,
-            border: borderStyle !== "none" ? `${borderWidth}px ${borderStyle} ${borderColor}` : "none",
-            width: 0,
-            height: 0,
+            position: "relative",
           };
 
         case "diamond":
@@ -125,6 +120,51 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
       </svg>
     );
 
+    const renderTriangleSVG = () => {
+      const patternId = `triangle-pattern-${Math.random().toString(36).substr(2, 9)}`;
+
+      return (
+        <svg
+          width={width}
+          height={height}
+          viewBox="0 0 100 100"
+          style={{ display: "block" }}
+        >
+          {background?.type === "image" && background.imageUrl && (
+            <defs>
+              <pattern
+                id={patternId}
+                patternUnits="objectBoundingBox"
+                width="100%"
+                height="100%"
+              >
+                <image
+                  href={background.imageUrl}
+                  width="100"
+                  height="100"
+                  preserveAspectRatio={
+                    background.imageSize === "cover" ? "xMidYMid slice" :
+                    background.imageSize === "contain" ? "xMidYMid meet" :
+                    "none"
+                  }
+                />
+              </pattern>
+            </defs>
+          )}
+          <polygon
+            points="50,10 10,90 90,90"
+            fill={
+              background?.type === "image" && background.imageUrl
+                ? `url(#${patternId})`
+                : actualBackgroundColor
+            }
+            stroke={borderStyle !== "none" ? borderColor : "none"}
+            strokeWidth={borderWidth}
+          />
+        </svg>
+      );
+    };
+
     const renderHeartSVG = () => (
       <svg
         width={width}
@@ -138,6 +178,19 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
       </svg>
     );
+
+    if (shapeType === "triangle") {
+      return (
+        <div
+          ref={ref}
+          className={className}
+          {...props}
+          style={{ display: "inline-block", ...style }}
+        >
+          {renderTriangleSVG()}
+        </div>
+      );
+    }
 
     if (shapeType === "star") {
       return (
