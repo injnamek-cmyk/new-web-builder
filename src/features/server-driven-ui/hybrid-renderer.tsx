@@ -474,6 +474,9 @@ function renderElementContent(element: HybridRenderElement) {
       );
 
     case "shape":
+      if (element.shapeType === "triangle") {
+        return renderTriangleSVG(element);
+      }
       return (
         <div
           style={{
@@ -523,6 +526,58 @@ function getBoxShadow(shadowType?: string): string | undefined {
   }
 }
 
+function renderTriangleSVG(element: HybridRenderElement) {
+  const width = element.width || 100;
+  const height = element.height || 100;
+  const patternId = `triangle-pattern-${Math.random().toString(36).substr(2, 9)}`;
+
+  // 배경색 결정
+  const actualBackgroundColor = element.background?.type === "color"
+    ? element.background.color
+    : element.backgroundColor || "#3b82f6";
+
+  return (
+    <svg
+      width="100%"
+      height="100%"
+      viewBox={`0 0 ${width} ${height}`}
+      style={{ display: "block", overflow: "visible" }}
+    >
+      {element.background?.type === "image" && element.background.imageUrl && (
+        <defs>
+          <pattern
+            id={patternId}
+            patternUnits="objectBoundingBox"
+            width="100%"
+            height="100%"
+          >
+            <image
+              href={element.background.imageUrl}
+              width={width}
+              height={height}
+              preserveAspectRatio={
+                element.background.imageSize === "cover" ? "xMidYMid slice" :
+                element.background.imageSize === "contain" ? "xMidYMid meet" :
+                "none"
+              }
+            />
+          </pattern>
+        </defs>
+      )}
+      <polygon
+        points={`${width/2},10 10,${height-10} ${width-10},${height-10}`}
+        fill={
+          element.background?.type === "image" && element.background.imageUrl
+            ? `url(#${patternId})`
+            : actualBackgroundColor
+        }
+        stroke={element.borderStyle !== "none" ? element.borderColor : "none"}
+        strokeWidth={element.borderWidth || 0}
+      />
+    </svg>
+  );
+}
+
 function getShapeStyles(element: HybridRenderElement): React.CSSProperties {
   const baseStyle: React.CSSProperties = {
     border: `${element.borderWidth || 0}px ${element.borderStyle || "solid"} ${element.borderColor || "transparent"}`,
@@ -568,13 +623,7 @@ function getShapeStyles(element: HybridRenderElement): React.CSSProperties {
       baseStyle.borderRadius = element.borderRadius ? `${element.borderRadius}px` : "0px";
       break;
     case "triangle":
-      baseStyle.width = "0";
-      baseStyle.height = "0";
-      baseStyle.backgroundColor = "transparent";
-      baseStyle.borderLeft = "50px solid transparent";
-      baseStyle.borderRight = "50px solid transparent";
-      baseStyle.borderBottom = `100px solid ${element.background?.color || element.borderColor || "#000"}`;
-      baseStyle.border = "none";
+      // SVG로 렌더링하므로 특별한 스타일 불필요
       break;
     case "diamond":
       baseStyle.transform = "rotate(45deg)";
