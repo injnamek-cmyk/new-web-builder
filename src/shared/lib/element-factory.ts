@@ -189,6 +189,48 @@ export function createElement(
   }
 }
 
+export function createShapeElement(
+  shapeType: "rectangle" | "circle" | "triangle",
+  id: string,
+  x: number = 100,
+  y: number = 100,
+  options?: Partial<ShapeElement>
+): ShapeElement {
+  const baseElement = {
+    id,
+    x,
+    y,
+    zIndex: 0,
+    padding: {
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+    },
+  };
+
+  // 도형 타입별 기본 색상 설정
+  const shapeColors = {
+    rectangle: "#3b82f6", // 파란색
+    circle: "#ef4444", // 빨간색
+    triangle: "#10b981", // 초록색
+  };
+
+  return {
+    ...baseElement,
+    type: "shape",
+    width: 100,
+    height: 100,
+    shapeType,
+    backgroundColor: shapeColors[shapeType],
+    borderColor: "hsl(var(--border))",
+    borderWidth: 2,
+    borderStyle: "solid",
+    borderRadius: shapeType === "rectangle" ? 8 : 0,
+    ...options,
+  } as ShapeElement;
+}
+
 export function generateId(): string {
   return Math.random().toString(36).substr(2, 9);
 }

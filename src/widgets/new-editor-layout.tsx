@@ -10,7 +10,6 @@ import {
   ZoomOut,
   Type,
   Square,
-  Shapes,
   Container,
   Image as ImageIcon,
   ChevronDown,
@@ -19,13 +18,14 @@ import {
 import DragDropProvider from "@/features/drag-drop";
 import { useEditorStore } from "@/processes/editor-store";
 import { ModeProvider } from "@/shared/contexts/mode-context";
-import { createElement, generateId } from "@/shared/lib/element-factory";
+import { createElement, createShapeElement, generateId } from "@/shared/lib/element-factory";
 import { ElementType } from "@/shared/types";
 import { StoredPageData } from "@/shared/types/server-driven-ui";
 import Canvas from "@/widgets/canvas";
 import PropertyPanel from "@/widgets/property-panel";
 import LeftNavigation from "@/components/navigation/left-navigation";
 import PageActions from "@/features/editor-controls/page-actions";
+import ShapeDropdown from "@/components/shape-dropdown";
 
 interface NewEditorLayoutProps {
   initialPageData: StoredPageData;
@@ -54,6 +54,11 @@ function NewEditorLayoutContent({ initialPageData, pageId }: NewEditorLayoutProp
 
   const handleAddElement = (type: ElementType) => {
     const element = createElement(type, generateId());
+    addElement(element);
+  };
+
+  const handleAddShape = (shapeType: "rectangle" | "circle" | "triangle") => {
+    const element = createShapeElement(shapeType, generateId());
     addElement(element);
   };
 
@@ -194,15 +199,7 @@ function NewEditorLayoutContent({ initialPageData, pageId }: NewEditorLayoutProp
               <Calendar className="w-4 h-4" />
               캘린더
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleAddElement("shape")}
-              className="flex items-center gap-2"
-            >
-              <Shapes className="w-4 h-4" />
-              도형
-            </Button>
+            <ShapeDropdown onShapeSelect={handleAddShape} />
           </div>
         </div>
 
