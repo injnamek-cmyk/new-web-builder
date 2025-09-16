@@ -204,8 +204,6 @@ export default function Canvas() {
     }
   };
 
-  console.log("canvas", canvas);
-
   return (
     <div
       ref={canvasRef}
@@ -257,9 +255,10 @@ export default function Canvas() {
           {canvas?.elements
             .filter((element) => {
               // 다른 컨테이너의 자식인 요소는 캔버스에서 직접 렌더링하지 않음
-              const isChildOfContainer = canvas?.elements.some((containerElement) =>
-                containerElement.type === "container" &&
-                (containerElement as any).children?.includes(element.id)
+              const isChildOfContainer = canvas?.elements.some(
+                (containerElement) =>
+                  containerElement.type === "container" &&
+                  (containerElement as any).children?.includes(element.id)
               );
               return !isChildOfContainer;
             })
@@ -270,8 +269,10 @@ export default function Canvas() {
             const element = canvas.elements.find((el) => el.id === selectedId);
             if (!element) return null;
 
-            const elementWidth = typeof element.width === "number" ? element.width : 100;
-            const elementHeight = typeof element.height === "number" ? element.height : 100;
+            const elementWidth =
+              typeof element.width === "number" ? element.width : 100;
+            const elementHeight =
+              typeof element.height === "number" ? element.height : 100;
 
             return (
               <ResizeHandles

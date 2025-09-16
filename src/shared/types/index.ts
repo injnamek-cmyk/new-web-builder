@@ -51,7 +51,16 @@ export interface ImageElement extends BaseElement {
   src: string;
   alt: string;
   objectFit: "cover" | "contain" | "fill" | "none" | "scale-down";
-  objectPosition?: "center" | "top" | "bottom" | "left" | "right" | "top left" | "top right" | "bottom left" | "bottom right";
+  objectPosition?:
+    | "center"
+    | "top"
+    | "bottom"
+    | "left"
+    | "right"
+    | "top left"
+    | "top right"
+    | "bottom left"
+    | "bottom right";
   filter?: {
     brightness: number;
     contrast: number;
@@ -64,7 +73,13 @@ export interface ImageElement extends BaseElement {
 export interface ButtonElement extends BaseElement {
   type: "button";
   text: string;
-  variant: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+  variant:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
   size: "default" | "sm" | "lg" | "icon";
   href?: string;
   icon?: string; // Lucide icon name
@@ -77,9 +92,21 @@ export type LayoutMode = "absolute" | "flex" | "grid" | "flow";
 // Flex 레이아웃 속성
 export interface FlexLayoutProps {
   flexDirection?: "row" | "column" | "row-reverse" | "column-reverse";
-  justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly";
+  justifyContent?:
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-between"
+    | "space-around"
+    | "space-evenly";
   alignItems?: "stretch" | "flex-start" | "flex-end" | "center" | "baseline";
-  alignContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "stretch";
+  alignContent?:
+    | "flex-start"
+    | "flex-end"
+    | "center"
+    | "space-between"
+    | "space-around"
+    | "stretch";
   flexWrap?: "nowrap" | "wrap" | "wrap-reverse";
   gap?: number;
 }
@@ -101,7 +128,13 @@ export interface GridLayoutProps {
 // Flow 레이아웃 속성 (일반적인 block/inline 흐름)
 export interface FlowLayoutProps {
   display?: "block" | "inline" | "inline-block";
-  verticalAlign?: "baseline" | "top" | "middle" | "bottom" | "text-top" | "text-bottom";
+  verticalAlign?:
+    | "baseline"
+    | "top"
+    | "middle"
+    | "bottom"
+    | "text-top"
+    | "text-bottom";
   float?: "none" | "left" | "right";
   clear?: "none" | "left" | "right" | "both";
 }
@@ -115,16 +148,16 @@ export interface ContainerElement extends BaseElement {
   borderWidth?: number;
   borderColor?: string;
   boxShadow?: "none" | "sm" | "md" | "lg" | "xl" | "2xl";
-  
+
   // 하이브리드 레이아웃 시스템 (옵셔널 - 기존 호환성 유지)
   layoutMode?: LayoutMode;
   children?: string[]; // 자식 요소 ID 배열
-  
+
   // 레이아웃별 속성 (옵셔널)
   flex?: FlexLayoutProps;
   grid?: GridLayoutProps;
   flow?: FlowLayoutProps;
-  
+
   // 간격 조정 속성 (기존 SpacingStyle.padding 외에 추가)
   gap?: number; // 자식 요소간 간격
   childPadding?: {
@@ -162,11 +195,29 @@ export interface CalendarElement extends BaseElement {
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday, 1 = Monday, etc.
 }
 
+// 도형 배경 타입
+export interface ShapeBackground {
+  type: "color" | "image";
+  color?: string; // type이 "color"일 때
+  imageUrl?: string; // type이 "image"일 때
+  imageSize?: "cover" | "contain" | "stretch" | "repeat"; // 이미지 크기 조절 방식
+  imagePosition?:
+    | "center"
+    | "top"
+    | "bottom"
+    | "left"
+    | "right"
+    | "top left"
+    | "top right"
+    | "bottom left"
+    | "bottom right";
+}
+
 // 도형 요소
 export interface ShapeElement extends BaseElement {
   type: "shape";
   shapeType: "rectangle" | "circle" | "triangle" | "diamond" | "star" | "heart";
-  backgroundColor: string;
+  background: ShapeBackground; // 배경 설정 (색상 또는 이미지)
   borderColor: string;
   borderWidth: number;
   borderStyle: "solid" | "dashed" | "dotted" | "none";

@@ -24,7 +24,9 @@ import {
   ContainerElement,
   AccordionElement,
   CalendarElement,
+  ShapeElement,
 } from "@/shared/types";
+import ShapeProperties from "@/components/shape-properties";
 import { getValidPaddingValue } from "@/lib/utils";
 
 export default function PropertyPanel() {
@@ -1469,6 +1471,8 @@ export default function PropertyPanel() {
         return renderAccordionProperties(selectedElement);
       case "calendar":
         return renderCalendarProperties(selectedElement);
+      case "shape":
+        return <ShapeProperties element={selectedElement as ShapeElement} />;
       default:
         return null;
     }

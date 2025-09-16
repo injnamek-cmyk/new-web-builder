@@ -176,7 +176,10 @@ export function createElement(
         width: 100,
         height: 100,
         shapeType: "rectangle",
-        backgroundColor: "hsl(var(--primary))",
+        background: {
+          type: "color",
+          color: "hsl(var(--primary))",
+        },
         borderColor: "hsl(var(--border))",
         borderWidth: 2,
         borderStyle: "solid",
@@ -222,7 +225,10 @@ export function createShapeElement(
     width: 100,
     height: 100,
     shapeType,
-    backgroundColor: shapeColors[shapeType],
+    background: {
+      type: "color",
+      color: shapeColors[shapeType],
+    },
     borderColor: "hsl(var(--border))",
     borderWidth: 2,
     borderStyle: "solid",

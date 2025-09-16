@@ -1,14 +1,17 @@
 import * as React from "react";
+import { ShapeBackground } from "@/shared/types";
 
 interface ShapeProps extends React.HTMLAttributes<HTMLDivElement> {
   shapeType: "rectangle" | "circle" | "triangle" | "diamond" | "star" | "heart";
   width: number;
   height: number;
-  backgroundColor: string;
+  background: ShapeBackground;
   borderColor: string;
   borderWidth: number;
   borderStyle: "solid" | "dashed" | "dotted" | "none";
   borderRadius?: number;
+  // 하위 호환성을 위한 옵셔널 속성
+  backgroundColor?: string;
 }
 
 const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
@@ -17,7 +20,8 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
       shapeType,
       width,
       height,
-      backgroundColor,
+      background,
+      backgroundColor, // 하위 호환성
       borderColor,
       borderWidth,
       borderStyle,
@@ -28,11 +32,28 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
     },
     ref
   ) => {
+    // 실제 배경색 결정 (하위 호환성 지원)
+    const actualBackgroundColor = background?.type === "color"
+      ? background.color
+      : backgroundColor || "#3b82f6";
+
+    const getBackgroundStyle = (): React.CSSProperties => {
+      if (background?.type === "image" && background.imageUrl) {
+        return {
+          backgroundImage: `url(${background.imageUrl})`,
+          backgroundSize: background.imageSize === "stretch" ? "100% 100%" : background.imageSize || "cover",
+          backgroundPosition: background.imagePosition || "center",
+          backgroundRepeat: background.imageSize === "repeat" ? "repeat" : "no-repeat",
+        };
+      }
+      return { backgroundColor: actualBackgroundColor };
+    };
     const getShapeStyles = (): React.CSSProperties => {
+      const backgroundStyle = getBackgroundStyle();
       const baseStyle: React.CSSProperties = {
         width: width,
         height: height,
-        backgroundColor,
+        ...backgroundStyle,
         border: borderStyle !== "none" ? `${borderWidth}px ${borderStyle} ${borderColor}` : "none",
         display: "inline-block",
         ...style,
@@ -57,7 +78,7 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
             backgroundColor: "transparent",
             borderLeft: `${width / 2}px solid transparent`,
             borderRight: `${width / 2}px solid transparent`,
-            borderBottom: `${height}px solid ${backgroundColor}`,
+            borderBottom: `${height}px solid ${actualBackgroundColor}`,
             border: borderStyle !== "none" ? `${borderWidth}px ${borderStyle} ${borderColor}` : "none",
             width: 0,
             height: 0,
@@ -95,7 +116,7 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
         width={width}
         height={height}
         viewBox="0 0 24 24"
-        fill={backgroundColor}
+        fill={actualBackgroundColor}
         stroke={borderStyle !== "none" ? borderColor : "none"}
         strokeWidth={borderWidth}
         style={{ display: "block" }}
@@ -109,7 +130,7 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
         width={width}
         height={height}
         viewBox="0 0 24 24"
-        fill={backgroundColor}
+        fill={actualBackgroundColor}
         stroke={borderStyle !== "none" ? borderColor : "none"}
         strokeWidth={borderWidth}
         style={{ display: "block" }}
