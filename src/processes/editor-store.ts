@@ -20,8 +20,6 @@ interface EditorStore extends EditorState {
   leftPanelVisible: boolean;
   rightPanelVisible: boolean;
   canvasZoom: number;
-  // 추가된 속성
-  selectedElementIds: string[];
 
   // UI 조작
   toggleLeftPanel: () => void;
@@ -116,10 +114,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   rightPanelVisible: true,
   canvasZoom: 1,
 
-  // selectedElementIds getter
-  get selectedElementIds() {
-    return get().canvas.selectedElementIds;
-  },
 
   // setCanvas method
   setCanvas: (canvas) => {

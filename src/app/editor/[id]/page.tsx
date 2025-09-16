@@ -18,7 +18,7 @@ export default function EditorPage() {
 
   const { currentWebsite, getWebsiteById, setCurrentWebsite } =
     useWebsiteStore();
-  const { canvas, setCanvas, selectedElementIds } = useEditorStore();
+  const { canvas, setCanvas } = useEditorStore();
 
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -175,7 +175,7 @@ export default function EditorPage() {
           </div>
 
           {/* 오른쪽 속성 패널 */}
-          {currentPage && selectedElementIds.length > 0 && (
+          {currentPage && canvas.selectedElementIds.length > 0 && (
             <div className="w-80 border-l bg-white">
               <PropertyPanel />
             </div>

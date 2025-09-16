@@ -203,6 +203,7 @@ export default function Canvas() {
         return null;
     }
   };
+  console.log("canvas", canvas);
 
   return (
     <div
