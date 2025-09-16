@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { usePageStore } from "@/processes/page-store";
 import { useWebsiteStore } from "@/processes/website-store";
 import { CreatePageRequest, UpdatePageRequest, ValidationError, Page } from "@/shared/types";
@@ -192,6 +192,7 @@ export function EditorPageTabs({
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const lastSelectedPageIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (websiteId) {
@@ -203,12 +204,13 @@ export function EditorPageTabs({
     if (currentPageId && currentPageId !== activePageId) {
       setActivePageId(currentPageId);
     }
-  }, [currentPageId]);
+  }, [currentPageId, activePageId]);
 
   useEffect(() => {
-    if (activePageId && onPageSelect) {
+    if (activePageId && onPageSelect && activePageId !== lastSelectedPageIdRef.current) {
       const selectedPage = pages.find(p => p.id === activePageId);
       if (selectedPage) {
+        lastSelectedPageIdRef.current = activePageId;
         onPageSelect(selectedPage);
       }
     }
