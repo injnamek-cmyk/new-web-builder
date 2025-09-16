@@ -41,7 +41,7 @@ export const authOptions: AuthOptions = {
       },
     }),
   ],
-  
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -62,7 +62,7 @@ export const authOptions: AuthOptions = {
   session: {
     strategy: "jwt",
   },
-});
+};
 
 const handler = NextAuth(authOptions);
 

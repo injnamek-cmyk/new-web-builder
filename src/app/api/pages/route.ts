@@ -6,7 +6,7 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 const prisma = new PrismaClient();
 
 // 사용자의 모든 페이지 조회
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
         userId: userId,
       },
       orderBy: {
-        updatedAt: 'desc',
+        updatedAt: "desc",
       },
     });
 
@@ -53,10 +53,13 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ 
-      message: "Page created successfully", 
-      page: newPage 
-    }, { status: 201 }); // 201 Created 상태 코드 사용
+    return NextResponse.json(
+      {
+        message: "Page created successfully",
+        page: newPage,
+      },
+      { status: 201 }
+    ); // 201 Created 상태 코드 사용
   } catch (error) {
     console.error("Failed to create page:", error);
     return NextResponse.json(
