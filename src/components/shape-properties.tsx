@@ -278,8 +278,8 @@ export default function ShapeProperties({ element }: ShapePropertiesProps) {
               </Select>
             </div>
 
-            {/* 모서리 둥글기 (사각형과 삼각형만) */}
-            {(element.shapeType === "rectangle" || element.shapeType === "triangle") && (
+            {/* 모서리 둥글기 (사각형만) */}
+            {element.shapeType === "rectangle" && (
               <div>
                 <Label>모서리 둥글기</Label>
                 <Input

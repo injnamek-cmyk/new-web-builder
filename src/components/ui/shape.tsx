@@ -33,17 +33,22 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
     ref
   ) => {
     // 실제 배경색 결정 (하위 호환성 지원)
-    const actualBackgroundColor = background?.type === "color"
-      ? background.color
-      : backgroundColor || "#3b82f6";
+    const actualBackgroundColor =
+      background?.type === "color"
+        ? background.color
+        : backgroundColor || "#3b82f6";
 
     const getBackgroundStyle = (): React.CSSProperties => {
       if (background?.type === "image" && background.imageUrl) {
         return {
           backgroundImage: `url(${background.imageUrl})`,
-          backgroundSize: background.imageSize === "stretch" ? "100% 100%" : background.imageSize || "cover",
+          backgroundSize:
+            background.imageSize === "stretch"
+              ? "100% 100%"
+              : background.imageSize || "cover",
           backgroundPosition: background.imagePosition || "center",
-          backgroundRepeat: background.imageSize === "repeat" ? "repeat" : "no-repeat",
+          backgroundRepeat:
+            background.imageSize === "repeat" ? "repeat" : "no-repeat",
         };
       }
       return { backgroundColor: actualBackgroundColor };
@@ -54,7 +59,10 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
         width: width,
         height: height,
         ...backgroundStyle,
-        border: borderStyle !== "none" ? `${borderWidth}px ${borderStyle} ${borderColor}` : "none",
+        border:
+          borderStyle !== "none"
+            ? `${borderWidth}px ${borderStyle} ${borderColor}`
+            : "none",
         display: "inline-block",
         ...style,
       };
@@ -114,14 +122,19 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
         fill={actualBackgroundColor}
         stroke={borderStyle !== "none" ? borderColor : "none"}
         strokeWidth={borderWidth}
-        style={{ display: "block", borderRadius: borderRadius > 0 ? `${borderRadius}px` : 0 }}
+        style={{
+          display: "block",
+          borderRadius: borderRadius > 0 ? `${borderRadius}px` : 0,
+        }}
       >
         <polygon points="12,2 15,8 22,8 17,13 19,21 12,17 5,21 7,13 2,8 9,8" />
       </svg>
     );
 
     const renderTriangleSVG = () => {
-      const patternId = `triangle-pattern-${Math.random().toString(36).substr(2, 9)}`;
+      const patternId = `triangle-pattern-${Math.random()
+        .toString(36)
+        .substr(2, 9)}`;
 
       return (
         <svg
@@ -143,16 +156,20 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
                   width={width}
                   height={height}
                   preserveAspectRatio={
-                    background.imageSize === "cover" ? "xMidYMid slice" :
-                    background.imageSize === "contain" ? "xMidYMid meet" :
-                    "none"
+                    background.imageSize === "cover"
+                      ? "xMidYMid slice"
+                      : background.imageSize === "contain"
+                      ? "xMidYMid meet"
+                      : "none"
                   }
                 />
               </pattern>
             </defs>
           )}
           <polygon
-            points={`${width/2},10 10,${height-10} ${width-10},${height-10}`}
+            points={`${width / 2},10 10,${height - 10} ${width - 10},${
+              height - 10
+            }`}
             fill={
               background?.type === "image" && background.imageUrl
                 ? `url(#${patternId})`
@@ -173,7 +190,10 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
         fill={actualBackgroundColor}
         stroke={borderStyle !== "none" ? borderColor : "none"}
         strokeWidth={borderWidth}
-        style={{ display: "block", borderRadius: borderRadius > 0 ? `${borderRadius}px` : 0 }}
+        style={{
+          display: "block",
+          borderRadius: borderRadius > 0 ? `${borderRadius}px` : 0,
+        }}
       >
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
       </svg>
@@ -187,9 +207,9 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
           {...props}
           style={{
             display: "inline-block",
-            overflow: "hidden",
+            overflow: "visible",
             borderRadius: borderRadius > 0 ? `${borderRadius}px` : 0,
-            ...style
+            ...style,
           }}
         >
           {renderTriangleSVG()}
