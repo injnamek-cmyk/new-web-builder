@@ -20,6 +20,8 @@ interface EditorStore extends EditorState {
   leftPanelVisible: boolean;
   rightPanelVisible: boolean;
   canvasZoom: number;
+  // 추가된 속성
+  selectedElementIds: string[];
 
   // UI 조작
   toggleLeftPanel: () => void;
@@ -28,6 +30,7 @@ interface EditorStore extends EditorState {
   resetCanvasZoom: () => void;
 
   // 캔버스 조작
+  setCanvas: (canvas: Canvas) => void;
   addElement: (element: Element) => void;
   updateElement: (id: string, updates: Partial<Element>) => void;
   deleteElement: (id: string) => void;
@@ -112,6 +115,17 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   leftPanelVisible: true,
   rightPanelVisible: true,
   canvasZoom: 1,
+
+  // selectedElementIds getter
+  get selectedElementIds() {
+    return get().canvas.selectedElementIds;
+  },
+
+  // setCanvas method
+  setCanvas: (canvas) => {
+    set({ canvas });
+    get().saveToHistory();
+  },
 
   addElement: (element) => {
     set((state) => ({
