@@ -57,6 +57,11 @@ interface EditorStore extends EditorState {
   setDragging: (isDragging: boolean) => void;
   setResizing: (isResizing: boolean) => void;
 
+  // 리사이즈 관리
+  resizeElement: (id: string, width: number, height: number) => void;
+  resizeAndMoveElement: (id: string, x: number, y: number, width: number, height: number) => void;
+  resizeSelectedElements: (deltaWidth: number, deltaHeight: number) => void;
+
   // 히스토리 관리
   saveToHistory: () => void;
 
@@ -257,6 +262,48 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
   setResizing: (isResizing) => {
     set({ isResizing });
+  },
+
+  resizeElement: (id, width, height) => {
+    set((state) => ({
+      canvas: {
+        ...state.canvas,
+        elements: state.canvas.elements.map((element) =>
+          element.id === id ? { ...element, width, height } : element
+        ),
+      },
+    }));
+  },
+
+  resizeAndMoveElement: (id, x, y, width, height) => {
+    set((state) => ({
+      canvas: {
+        ...state.canvas,
+        elements: state.canvas.elements.map((element) =>
+          element.id === id ? { ...element, x, y, width, height } : element
+        ),
+      },
+    }));
+  },
+
+  resizeSelectedElements: (deltaWidth, deltaHeight) => {
+    set((state) => ({
+      canvas: {
+        ...state.canvas,
+        elements: state.canvas.elements.map((element) => {
+          if (state.canvas.selectedElementIds.includes(element.id)) {
+            const currentWidth = typeof element.width === "number" ? element.width : 100;
+            const currentHeight = typeof element.height === "number" ? element.height : 100;
+            return {
+              ...element,
+              width: Math.max(10, currentWidth + deltaWidth),
+              height: Math.max(10, currentHeight + deltaHeight),
+            };
+          }
+          return element;
+        }),
+      },
+    }));
   },
 
   saveToHistory: () => {

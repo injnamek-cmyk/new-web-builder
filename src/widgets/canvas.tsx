@@ -12,6 +12,7 @@ import AccordionElementComponent from "@/entities/accordion-element";
 import CalendarElementComponent from "@/entities/calendar-element";
 import ShapeElementComponent from "@/entities/shape-element";
 import GridOverlay from "@/components/ui/grid-overlay";
+import ResizeHandles from "@/components/resize-handles";
 
 export default function Canvas() {
   const {
@@ -256,13 +257,34 @@ export default function Canvas() {
           {canvas?.elements
             .filter((element) => {
               // 다른 컨테이너의 자식인 요소는 캔버스에서 직접 렌더링하지 않음
-              const isChildOfContainer = canvas?.elements.some((containerElement) => 
-                containerElement.type === "container" && 
+              const isChildOfContainer = canvas?.elements.some((containerElement) =>
+                containerElement.type === "container" &&
                 (containerElement as any).children?.includes(element.id)
               );
               return !isChildOfContainer;
             })
             .map(renderElement)}
+
+          {/* 선택된 요소들의 리사이즈 핸들 */}
+          {canvas?.selectedElementIds.map((selectedId) => {
+            const element = canvas.elements.find((el) => el.id === selectedId);
+            if (!element) return null;
+
+            const elementWidth = typeof element.width === "number" ? element.width : 100;
+            const elementHeight = typeof element.height === "number" ? element.height : 100;
+
+            return (
+              <ResizeHandles
+                key={`resize-${element.id}`}
+                elementId={element.id}
+                x={element.x}
+                y={element.y}
+                width={elementWidth}
+                height={elementHeight}
+                zoom={1} // Canvas 내부는 이미 scale이 적용된 상태이므로 1
+              />
+            );
+          })}
         </div>
       </div>
     </div>
