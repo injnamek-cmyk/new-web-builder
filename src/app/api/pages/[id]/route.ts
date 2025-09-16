@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { UpdatePageRequest, PageValidationError } from "@/shared/types";
+import { UpdatePageRequest, ValidationError } from "@/shared/types";
 
 const prisma = new PrismaClient();
 
@@ -15,8 +15,8 @@ function validatePagePath(path: string): boolean {
   return pathRegex.test(path) && path.length > 1 && path.length <= 255;
 }
 
-function validateUpdatePageData(data: UpdatePageRequest): PageValidationError[] {
-  const errors: PageValidationError[] = [];
+function validateUpdatePageData(data: UpdatePageRequest): ValidationError[] {
+  const errors: ValidationError[] = [];
 
   if (data.title !== undefined) {
     if (!data.title || data.title.trim().length === 0) {
@@ -49,6 +49,15 @@ export async function GET(
     const { id } = await params;
     const page = await prisma.page.findUnique({
       where: { id },
+      include: {
+        website: {
+          select: {
+            id: true,
+            name: true,
+            subdomain: true,
+          },
+        },
+      },
     });
 
     if (!page) {
@@ -121,7 +130,12 @@ export async function PUT(
     // 경로 중복 확인 (경로를 변경하는 경우)
     if (body.path && body.path !== existingPage.path) {
       const pathExists = await prisma.page.findUnique({
-        where: { path: body.path },
+        where: {
+          websiteId_path: {
+            websiteId: existingPage.websiteId,
+            path: body.path,
+          }
+        },
       });
 
       if (pathExists) {
@@ -154,6 +168,15 @@ export async function PUT(
     const updatedPage = await prisma.page.update({
       where: { id },
       data: updateData,
+      include: {
+        website: {
+          select: {
+            id: true,
+            name: true,
+            subdomain: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json({

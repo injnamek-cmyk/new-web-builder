@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { CreatePageRequest, PageValidationError } from "@/shared/types";
+import { CreatePageRequest, ValidationError } from "@/shared/types";
 
 const prisma = new PrismaClient();
 
@@ -12,8 +12,8 @@ function validatePagePath(path: string): boolean {
   return pathRegex.test(path) && path.length > 1 && path.length <= 255;
 }
 
-function validatePageData(data: CreatePageRequest): PageValidationError[] {
-  const errors: PageValidationError[] = [];
+function validatePageData(data: CreatePageRequest): ValidationError[] {
+  const errors: ValidationError[] = [];
 
   if (!data.title || data.title.trim().length === 0) {
     errors.push({ field: "title", message: "제목은 필수입니다." });
@@ -30,11 +30,15 @@ function validatePageData(data: CreatePageRequest): PageValidationError[] {
     });
   }
 
+  if (!data.websiteId || data.websiteId.trim().length === 0) {
+    errors.push({ field: "websiteId", message: "웹사이트 ID는 필수입니다." });
+  }
+
   return errors;
 }
 
-// 사용자의 모든 페이지 조회
-export async function GET(_request: NextRequest) {
+// 특정 웹사이트의 모든 페이지 조회
+export async function GET(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({
@@ -44,11 +48,41 @@ export async function GET(_request: NextRequest) {
   }
 
   try {
+    const { searchParams } = new URL(request.url);
+    const websiteId = searchParams.get('websiteId');
     const userId = session.user.id;
+
+    if (!websiteId) {
+      return NextResponse.json({
+        success: false,
+        error: "Website ID is required"
+      }, { status: 400 });
+    }
+
+    // 웹사이트 소유권 확인
+    const website = await prisma.website.findUnique({
+      where: { id: websiteId },
+    });
+
+    if (!website || website.userId !== userId) {
+      return NextResponse.json({
+        success: false,
+        error: "Website not found or access denied"
+      }, { status: 404 });
+    }
 
     const pages = await prisma.page.findMany({
       where: {
-        userId: userId,
+        websiteId: websiteId,
+      },
+      include: {
+        website: {
+          select: {
+            id: true,
+            name: true,
+            subdomain: true,
+          },
+        },
       },
       orderBy: {
         updatedAt: "desc",
@@ -92,9 +126,30 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // 경로 중복 확인
+    // 웹사이트 존재 및 소유권 확인
+    const website = await prisma.website.findUnique({
+      where: { id: body.websiteId },
+    });
+
+    if (!website || website.userId !== userId) {
+      return NextResponse.json({
+        success: false,
+        error: "Website not found or access denied",
+        validationErrors: [{
+          field: "websiteId",
+          message: "웹사이트를 찾을 수 없거나 접근 권한이 없습니다."
+        }]
+      }, { status: 404 });
+    }
+
+    // 웹사이트 내에서 경로 중복 확인
     const existingPage = await prisma.page.findUnique({
-      where: { path: body.path },
+      where: {
+        websiteId_path: {
+          websiteId: body.websiteId,
+          path: body.path,
+        }
+      },
     });
 
     if (existingPage) {
@@ -103,7 +158,7 @@ export async function POST(request: NextRequest) {
         error: "Path already exists",
         validationErrors: [{
           field: "path",
-          message: "이미 사용 중인 경로입니다."
+          message: "이 웹사이트에서 이미 사용 중인 경로입니다."
         }]
       }, { status: 409 });
     }
@@ -122,6 +177,16 @@ export async function POST(request: NextRequest) {
           ogImage: body.metadata?.ogImage || "",
         },
         userId: userId,
+        websiteId: body.websiteId,
+      },
+      include: {
+        website: {
+          select: {
+            id: true,
+            name: true,
+            subdomain: true,
+          },
+        },
       },
     });
 

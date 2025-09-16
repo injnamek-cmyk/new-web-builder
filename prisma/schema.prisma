@@ -10,18 +10,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Page {
+model Website {
   id          String   @id @default(cuid())
-  title       String
-  path        String   @unique
-  content     Json
-  metadata    Json
+  name        String
+  description String?
+  domain      String?
+  subdomain   String   @unique
   isPublished Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages  Page[]
+}
+
+model Page {
+  id          String   @id @default(cuid())
+  title       String
+  path        String
+  content     Json
+  metadata    Json
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  websiteId String
+  website   Website  @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@unique([websiteId, path])
 }
 
 model User {
@@ -33,6 +52,7 @@ model User {
   password      String?
   accounts      Account[]
   sessions      Session[]
+  websites      Website[]
   pages         Page[]
 }
 

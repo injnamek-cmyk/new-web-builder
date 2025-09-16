@@ -18,11 +18,11 @@ interface PageState {
   setError: (error: string | null) => void;
 
   // API calls
-  fetchPages: () => Promise<void>;
+  fetchPages: (websiteId: string) => Promise<void>;
   createPage: (data: CreatePageRequest) => Promise<PageResponse>;
   updatePageById: (id: string, data: UpdatePageRequest) => Promise<PageResponse>;
   deletePageById: (id: string) => Promise<PageResponse>;
-  getPageByPath: (path: string) => Promise<Page | null>;
+  getPageByPath: (websiteId: string, path: string) => Promise<Page | null>;
 }
 
 export const usePageStore = create<PageState>()(
@@ -59,10 +59,10 @@ export const usePageStore = create<PageState>()(
 
       setError: (error) => set({ error }),
 
-      fetchPages: async () => {
+      fetchPages: async (websiteId: string) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await fetch("/api/pages");
+          const response = await fetch(`/api/pages?websiteId=${websiteId}`);
           const result = await response.json();
 
           if (result.success) {
@@ -158,9 +158,9 @@ export const usePageStore = create<PageState>()(
         }
       },
 
-      getPageByPath: async (path) => {
+      getPageByPath: async (websiteId: string, path: string) => {
         try {
-          const response = await fetch(`/api/pages/path${path}`);
+          const response = await fetch(`/api/websites/${websiteId}/pages${path}`);
           const result = await response.json();
 
           if (result.success) {

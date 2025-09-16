@@ -7,15 +7,39 @@ import { Page, Element, PageMetadata } from "@/shared/types";
 const prisma = new PrismaClient();
 
 interface PageProps {
-  params: Promise<{ slug: string[] }>;
+  params: Promise<{ subdomain: string; path: string[] }>;
 }
 
-async function getPageByPath(path: string): Promise<Page | null> {
+async function getPageBySubdomainAndPath(subdomain: string, path: string): Promise<Page | null> {
   try {
+    // 먼저 웹사이트를 찾습니다
+    const website = await prisma.website.findUnique({
+      where: {
+        subdomain,
+        isPublished: true,
+      },
+    });
+
+    if (!website) return null;
+
+    // 해당 웹사이트에서 페이지를 찾습니다
     const page = await prisma.page.findUnique({
       where: {
-        path,
+        websiteId_path: {
+          websiteId: website.id,
+          path,
+        },
         isPublished: true,
+      },
+      include: {
+        website: {
+          select: {
+            id: true,
+            name: true,
+            subdomain: true,
+            domain: true,
+          },
+        },
       },
     });
 
@@ -35,10 +59,10 @@ async function getPageByPath(path: string): Promise<Page | null> {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const path = "/" + slug.join("/");
+  const { subdomain, path } = await params;
+  const fullPath = "/" + (path ? path.join("/") : "");
 
-  const page = await getPageByPath(path);
+  const page = await getPageBySubdomainAndPath(subdomain, fullPath);
 
   if (!page) {
     return {
@@ -48,6 +72,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const metadata = page.metadata as PageMetadata;
+  const websiteName = page.website?.name || "Website";
 
   return {
     title: metadata?.title || page.title,
@@ -58,6 +83,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: metadata?.ogDescription || metadata?.description || "",
       images: metadata?.ogImage ? [metadata.ogImage] : [],
       type: "website",
+      siteName: websiteName,
     },
     twitter: {
       card: "summary_large_image",
@@ -69,10 +95,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function DynamicPage({ params }: PageProps) {
-  const { slug } = await params;
-  const path = "/" + slug.join("/");
+  const { subdomain, path } = await params;
+  const fullPath = "/" + (path ? path.join("/") : "");
 
-  const page = await getPageByPath(path);
+  const page = await getPageBySubdomainAndPath(subdomain, fullPath);
 
   if (!page) {
     notFound();

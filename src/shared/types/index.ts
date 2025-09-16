@@ -272,7 +272,7 @@ export interface ElementProperties {
   [key: string]: string | number | boolean | object;
 }
 
-// 페이지 관리 타입 정의
+// 페이지 메타데이터 타입 정의
 export interface PageMetadata {
   title: string;
   description?: string;
@@ -282,6 +282,35 @@ export interface PageMetadata {
   ogImage?: string;
 }
 
+// 웹사이트 관리 타입 정의
+export interface Website {
+  id: string;
+  name: string;
+  description?: string;
+  domain?: string;
+  subdomain: string;
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+}
+
+export interface CreateWebsiteRequest {
+  name: string;
+  description?: string;
+  domain?: string;
+  subdomain: string;
+}
+
+export interface UpdateWebsiteRequest {
+  name?: string;
+  description?: string;
+  domain?: string;
+  subdomain?: string;
+  isPublished?: boolean;
+}
+
+// 페이지 관리 타입 정의 (웹사이트와 연결)
 export interface Page {
   id: string;
   title: string;
@@ -291,11 +320,14 @@ export interface Page {
   createdAt: Date;
   updatedAt: Date;
   isPublished: boolean;
+  websiteId: string;
+  website?: Website;
 }
 
 export interface CreatePageRequest {
   title: string;
   path: string;
+  websiteId: string;
   metadata?: Partial<PageMetadata>;
 }
 
@@ -307,14 +339,20 @@ export interface UpdatePageRequest {
   isPublished?: boolean;
 }
 
-export interface PageValidationError {
+// 유효성 검사 및 응답 타입
+export interface ValidationError {
   field: string;
   message: string;
 }
 
-export interface PageResponse {
+export interface ApiResponse<T = unknown> {
   success: boolean;
-  data?: Page;
+  data?: T;
   error?: string;
-  validationErrors?: PageValidationError[];
+  validationErrors?: ValidationError[];
 }
+
+export type PageResponse = ApiResponse<Page>;
+export type WebsiteResponse = ApiResponse<Website>;
+export type WebsitesResponse = ApiResponse<Website[]>;
+export type PagesResponse = ApiResponse<Page[]>;
