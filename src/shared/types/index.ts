@@ -221,7 +221,7 @@ export interface ShapeElement extends BaseElement {
   borderColor: string;
   borderWidth: number;
   borderStyle: "solid" | "dashed" | "dotted" | "none";
-  borderRadius?: number; // rectangle에만 적용
+  borderRadius?: number; // 모든 도형에 적용 가능
 }
 
 // 모든 요소 타입의 유니온

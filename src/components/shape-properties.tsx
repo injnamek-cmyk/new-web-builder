@@ -59,6 +59,10 @@ export default function ShapeProperties({ element }: ShapePropertiesProps) {
     updateElement(element.id, { borderStyle });
   };
 
+  const handleBorderRadiusChange = (borderRadius: number) => {
+    updateElement(element.id, { borderRadius });
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -273,6 +277,23 @@ export default function ShapeProperties({ element }: ShapePropertiesProps) {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* 모서리 둥글기 (사각형과 삼각형만) */}
+            {(element.shapeType === "rectangle" || element.shapeType === "triangle") && (
+              <div>
+                <Label>모서리 둥글기</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={element.borderRadius || 0}
+                  onChange={(e) =>
+                    handleBorderRadiusChange(Number(e.target.value))
+                  }
+                  placeholder="0"
+                  className="mt-1"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

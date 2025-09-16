@@ -114,7 +114,7 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
         fill={actualBackgroundColor}
         stroke={borderStyle !== "none" ? borderColor : "none"}
         strokeWidth={borderWidth}
-        style={{ display: "block" }}
+        style={{ display: "block", borderRadius: borderRadius > 0 ? `${borderRadius}px` : 0 }}
       >
         <polygon points="12,2 15,8 22,8 17,13 19,21 12,17 5,21 7,13 2,8 9,8" />
       </svg>
@@ -173,7 +173,7 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
         fill={actualBackgroundColor}
         stroke={borderStyle !== "none" ? borderColor : "none"}
         strokeWidth={borderWidth}
-        style={{ display: "block" }}
+        style={{ display: "block", borderRadius: borderRadius > 0 ? `${borderRadius}px` : 0 }}
       >
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
       </svg>
@@ -185,7 +185,12 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
           ref={ref}
           className={className}
           {...props}
-          style={{ display: "inline-block", overflow: "visible", ...style }}
+          style={{
+            display: "inline-block",
+            overflow: "hidden",
+            borderRadius: borderRadius > 0 ? `${borderRadius}px` : 0,
+            ...style
+          }}
         >
           {renderTriangleSVG()}
         </div>

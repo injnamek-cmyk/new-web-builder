@@ -537,44 +537,53 @@ function renderTriangleSVG(element: HybridRenderElement) {
     : element.backgroundColor || "#3b82f6";
 
   return (
-    <svg
-      width="100%"
-      height="100%"
-      viewBox={`0 0 ${width} ${height}`}
-      style={{ display: "block", overflow: "visible" }}
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        overflow: "hidden",
+        borderRadius: element.borderRadius && element.borderRadius > 0 ? `${element.borderRadius}px` : 0,
+      }}
     >
-      {element.background?.type === "image" && element.background.imageUrl && (
-        <defs>
-          <pattern
-            id={patternId}
-            patternUnits="objectBoundingBox"
-            width="100%"
-            height="100%"
-          >
-            <image
-              href={element.background.imageUrl}
-              width={width}
-              height={height}
-              preserveAspectRatio={
-                element.background.imageSize === "cover" ? "xMidYMid slice" :
-                element.background.imageSize === "contain" ? "xMidYMid meet" :
-                "none"
-              }
-            />
-          </pattern>
-        </defs>
-      )}
-      <polygon
-        points={`${width/2},10 10,${height-10} ${width-10},${height-10}`}
-        fill={
-          element.background?.type === "image" && element.background.imageUrl
-            ? `url(#${patternId})`
-            : actualBackgroundColor
-        }
-        stroke={element.borderStyle !== "none" ? element.borderColor : "none"}
-        strokeWidth={element.borderWidth || 0}
-      />
-    </svg>
+      <svg
+        width="100%"
+        height="100%"
+        viewBox={`0 0 ${width} ${height}`}
+        style={{ display: "block", overflow: "visible" }}
+      >
+        {element.background?.type === "image" && element.background.imageUrl && (
+          <defs>
+            <pattern
+              id={patternId}
+              patternUnits="objectBoundingBox"
+              width="100%"
+              height="100%"
+            >
+              <image
+                href={element.background.imageUrl}
+                width={width}
+                height={height}
+                preserveAspectRatio={
+                  element.background.imageSize === "cover" ? "xMidYMid slice" :
+                  element.background.imageSize === "contain" ? "xMidYMid meet" :
+                  "none"
+                }
+              />
+            </pattern>
+          </defs>
+        )}
+        <polygon
+          points={`${width/2},10 10,${height-10} ${width-10},${height-10}`}
+          fill={
+            element.background?.type === "image" && element.background.imageUrl
+              ? `url(#${patternId})`
+              : actualBackgroundColor
+          }
+          stroke={element.borderStyle !== "none" ? element.borderColor : "none"}
+          strokeWidth={element.borderWidth || 0}
+        />
+      </svg>
+    </div>
   );
 }
 
