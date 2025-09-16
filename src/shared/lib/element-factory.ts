@@ -170,11 +170,13 @@ export function createElement(
       } as CalendarElement;
 
     case "shape":
+      const shapeType = (options as Partial<ShapeElement>)?.shapeType || "rectangle";
+      const shapeSize = shapeType === "triangle" ? { width: 200, height: 150 } : { width: 100, height: 100 };
+
       return {
         ...baseElement,
         type: "shape",
-        width: 100,
-        height: 100,
+        ...shapeSize,
         shapeType: "rectangle",
         background: {
           type: "color",
@@ -219,11 +221,13 @@ export function createShapeElement(
     triangle: "#10b981", // 초록색
   };
 
+  // 삼각형일 때 더 큰 초기 크기 설정
+  const defaultSize = shapeType === "triangle" ? { width: 200, height: 150 } : { width: 100, height: 100 };
+
   return {
     ...baseElement,
     type: "shape",
-    width: 100,
-    height: 100,
+    ...defaultSize,
     shapeType,
     background: {
       type: "color",

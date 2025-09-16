@@ -127,8 +127,8 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
         <svg
           width={width}
           height={height}
-          viewBox="0 0 100 100"
-          style={{ display: "block" }}
+          viewBox={`0 0 ${width} ${height}`}
+          style={{ display: "block", overflow: "visible" }}
         >
           {background?.type === "image" && background.imageUrl && (
             <defs>
@@ -140,8 +140,8 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
               >
                 <image
                   href={background.imageUrl}
-                  width="100"
-                  height="100"
+                  width={width}
+                  height={height}
                   preserveAspectRatio={
                     background.imageSize === "cover" ? "xMidYMid slice" :
                     background.imageSize === "contain" ? "xMidYMid meet" :
@@ -152,7 +152,7 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
             </defs>
           )}
           <polygon
-            points="50,10 10,90 90,90"
+            points={`${width/2},10 10,${height-10} ${width-10},${height-10}`}
             fill={
               background?.type === "image" && background.imageUrl
                 ? `url(#${patternId})`
@@ -185,7 +185,7 @@ const Shape = React.forwardRef<HTMLDivElement, ShapeProps>(
           ref={ref}
           className={className}
           {...props}
-          style={{ display: "inline-block", ...style }}
+          style={{ display: "inline-block", overflow: "visible", ...style }}
         >
           {renderTriangleSVG()}
         </div>
