@@ -110,6 +110,20 @@ interface HybridRenderElement extends Omit<RenderElement, 'size'> {
   defaultMonth?: Date;
   fixedWeeks?: boolean;
   weekStartsOn?: number;
+
+  // 도형 속성
+  shapeType?: "rectangle" | "circle" | "triangle" | "diamond" | "star" | "heart";
+  background?: {
+    type: "color" | "image";
+    color?: string;
+    imageUrl?: string;
+    imageSize?: "cover" | "contain" | "stretch" | "repeat";
+    imagePosition?: string;
+  };
+  borderColor?: string;
+  borderWidth?: number;
+  borderStyle?: "solid" | "dashed" | "dotted" | "none";
+  borderRadius?: number;
 }
 
 interface HybridRendererProps {
@@ -459,6 +473,19 @@ function renderElementContent(element: HybridRenderElement) {
         />
       );
 
+    case "shape":
+      return (
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            position: "relative",
+            ...getShapeStyles(element),
+            ...element.style,
+          }}
+        />
+      );
+
     default:
       console.warn(`Unknown element type: ${element.type}`);
       return (
@@ -494,4 +521,101 @@ function getBoxShadow(shadowType?: string): string | undefined {
     default:
       return undefined;
   }
+}
+
+function getShapeStyles(element: HybridRenderElement): React.CSSProperties {
+  const baseStyle: React.CSSProperties = {
+    border: `${element.borderWidth || 0}px ${element.borderStyle || "solid"} ${element.borderColor || "transparent"}`,
+  };
+
+  // 배경 스타일 설정
+  if (element.background) {
+    if (element.background.type === "color") {
+      baseStyle.backgroundColor = element.background.color;
+    } else if (element.background.type === "image" && element.background.imageUrl) {
+      baseStyle.backgroundImage = `url(${element.background.imageUrl})`;
+      baseStyle.backgroundPosition = element.background.imagePosition || "center";
+
+      switch (element.background.imageSize) {
+        case "cover":
+          baseStyle.backgroundSize = "cover";
+          break;
+        case "contain":
+          baseStyle.backgroundSize = "contain";
+          break;
+        case "stretch":
+          baseStyle.backgroundSize = "100% 100%";
+          break;
+        case "repeat":
+          baseStyle.backgroundRepeat = "repeat";
+          break;
+        default:
+          baseStyle.backgroundSize = "cover";
+      }
+
+      if (element.background.imageSize !== "repeat") {
+        baseStyle.backgroundRepeat = "no-repeat";
+      }
+    }
+  }
+
+  // 도형별 스타일 적용
+  switch (element.shapeType) {
+    case "circle":
+      baseStyle.borderRadius = "50%";
+      break;
+    case "rectangle":
+      baseStyle.borderRadius = element.borderRadius ? `${element.borderRadius}px` : "0px";
+      break;
+    case "triangle":
+      baseStyle.width = "0";
+      baseStyle.height = "0";
+      baseStyle.backgroundColor = "transparent";
+      baseStyle.borderLeft = "50px solid transparent";
+      baseStyle.borderRight = "50px solid transparent";
+      baseStyle.borderBottom = `100px solid ${element.background?.color || element.borderColor || "#000"}`;
+      baseStyle.border = "none";
+      break;
+    case "diamond":
+      baseStyle.transform = "rotate(45deg)";
+      break;
+    case "star":
+      baseStyle.clipPath = "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)";
+      break;
+    case "heart":
+      baseStyle.position = "relative";
+      baseStyle.width = "100px";
+      baseStyle.height = "90px";
+      baseStyle.transform = "rotate(-45deg)";
+      baseStyle.borderRadius = "50px 50px 0 0";
+      baseStyle.setProperty?.("--heart-before", `
+        content: '';
+        width: 52px;
+        height: 80px;
+        position: absolute;
+        left: 50px;
+        top: 0;
+        background: ${element.background?.color || element.borderColor || "#000"};
+        border-radius: 50px 50px 0 0;
+        transform: rotate(-45deg);
+        transform-origin: 0 100%;
+      `);
+      baseStyle.setProperty?.("--heart-after", `
+        content: '';
+        width: 52px;
+        height: 80px;
+        position: absolute;
+        left: 0;
+        top: -25px;
+        background: ${element.background?.color || element.borderColor || "#000"};
+        border-radius: 50px 50px 0 0;
+        transform: rotate(45deg);
+        transform-origin: 100% 100%;
+      `);
+      break;
+    default:
+      break;
+  }
+
+  return baseStyle;
 }

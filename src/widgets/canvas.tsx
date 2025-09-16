@@ -264,10 +264,10 @@ export default function Canvas() {
             })
             .map(renderElement)}
 
-          {/* 선택된 요소들의 리사이즈 핸들 */}
+          {/* Shape 요소의 리사이즈 핸들만 표시 */}
           {canvas?.selectedElementIds.map((selectedId) => {
             const element = canvas.elements.find((el) => el.id === selectedId);
-            if (!element) return null;
+            if (!element || element.type !== "shape") return null;
 
             const elementWidth =
               typeof element.width === "number" ? element.width : 100;
