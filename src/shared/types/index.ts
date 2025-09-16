@@ -271,3 +271,50 @@ export interface DragData {
 export interface ElementProperties {
   [key: string]: string | number | boolean | object;
 }
+
+// 페이지 관리 타입 정의
+export interface PageMetadata {
+  title: string;
+  description?: string;
+  keywords?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+}
+
+export interface Page {
+  id: string;
+  title: string;
+  path: string;
+  content: Element[];
+  metadata: PageMetadata;
+  createdAt: Date;
+  updatedAt: Date;
+  isPublished: boolean;
+}
+
+export interface CreatePageRequest {
+  title: string;
+  path: string;
+  metadata?: Partial<PageMetadata>;
+}
+
+export interface UpdatePageRequest {
+  title?: string;
+  path?: string;
+  content?: Element[];
+  metadata?: Partial<PageMetadata>;
+  isPublished?: boolean;
+}
+
+export interface PageValidationError {
+  field: string;
+  message: string;
+}
+
+export interface PageResponse {
+  success: boolean;
+  data?: Page;
+  error?: string;
+  validationErrors?: PageValidationError[];
+}
