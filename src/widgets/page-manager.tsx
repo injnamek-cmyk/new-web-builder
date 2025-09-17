@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { usePageStore } from "@/processes/page-store";
-import { CreatePageRequest, UpdatePageRequest, PageValidationError } from "@/shared/types";
+import { useWebsiteStore } from "@/processes/website-store";
+import { CreatePageRequest, UpdatePageRequest, ValidationError, PageMetadata } from "@/shared/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,7 +52,7 @@ interface PageFormProps {
   onSubmit: (data: PageFormData) => Promise<void>;
   onCancel: () => void;
   isLoading: boolean;
-  validationErrors: PageValidationError[];
+  validationErrors: ValidationError[];
 }
 
 function PageForm({ initialData, onSubmit, onCancel, isLoading, validationErrors }: PageFormProps) {
@@ -175,18 +176,28 @@ export function PageManager() {
     deletePageById,
   } = usePageStore();
 
+  const { currentWebsite } = useWebsiteStore();
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<PageValidationError[]>([]);
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
 
   useEffect(() => {
-    fetchPages();
-  }, [fetchPages]);
+    if (currentWebsite?.id) {
+      fetchPages(currentWebsite.id);
+    }
+  }, [fetchPages, currentWebsite?.id]);
 
   const handleCreatePage = async (formData: PageFormData) => {
+    if (!currentWebsite?.id) {
+      setValidationErrors([{ field: "websiteId", message: "웹사이트를 선택해주세요." }]);
+      return;
+    }
+
     const pageData: CreatePageRequest = {
       title: formData.title,
       path: formData.path,
+      websiteId: currentWebsite.id,
       metadata: {
         title: formData.metaTitle || formData.title,
         description: formData.metaDescription,

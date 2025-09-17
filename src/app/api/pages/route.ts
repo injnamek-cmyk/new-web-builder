@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 function validatePagePath(path: string): boolean {
   // 경로는 /로 시작하고, 영문자, 숫자, 하이픈, 슬래시만 허용
   const pathRegex = /^\/[a-zA-Z0-9\-\/]*$/;
-  return pathRegex.test(path) && path.length > 1 && path.length <= 255;
+  return pathRegex.test(path) && path.length >= 1 && path.length <= 255;
 }
 
 function validatePageData(data: CreatePageRequest): ValidationError[] {

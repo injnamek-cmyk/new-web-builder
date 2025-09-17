@@ -81,6 +81,11 @@ export function createElement(
         size: "default",
         icon: "none",
         iconPosition: "left",
+        // 새로운 링크/액션 속성들의 기본값
+        actionType: "link",
+        linkType: "page",
+        targetPageId: "",
+        customUrl: "",
         ...options,
       } as ButtonElement;
 
@@ -137,12 +142,12 @@ export function createElement(
         height: "auto",
         items: [
           {
-            id: Math.random().toString(36).substr(2, 9),
+            id: Math.random().toString(36).substring(2, 11),
             title: "항목 1",
             content: "내용을 입력하세요",
           },
           {
-            id: Math.random().toString(36).substr(2, 9),
+            id: Math.random().toString(36).substring(2, 11),
             title: "항목 2",
             content: "내용을 입력하세요",
           },
@@ -242,5 +247,5 @@ export function createShapeElement(
 }
 
 export function generateId(): string {
-  return Math.random().toString(36).substr(2, 9);
+  return Math.random().toString(36).substring(2, 11);
 }

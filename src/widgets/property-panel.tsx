@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useWebsitePages } from "@/hooks/use-pages";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUploader } from "@/components/image-uploader";
 import { useEditorStore } from "@/processes/editor-store";
+import { Plus, Trash2 } from "lucide-react";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import {
   Element,
@@ -39,7 +41,11 @@ export default function PropertyPanel() {
     removeChildFromContainer,
     selectElement,
     savePage,
+    currentWebsiteId,
   } = useEditorStore();
+
+  // 웹사이트 페이지 목록 불러오기
+  const { data: websitePages = [] } = useWebsitePages(currentWebsiteId);
   if (!canvas) {
     return null;
   }
@@ -679,9 +685,118 @@ export default function PropertyPanel() {
           </div>
         </div>
 
+        {/* 버튼 액션/링크 설정 */}
+        <div className="border-t pt-2 lg:pt-4">
+          <Label className="text-xs font-medium">버튼 동작</Label>
+          <div className="mt-1">
+            <Select
+              value={element.actionType || "link"}
+              onValueChange={(value) => {
+                handlePropertyChange("actionType", value);
+                // 액션 타입 변경시 관련 속성 초기화
+                if (value === "action") {
+                  handlePropertyChange("linkType", "");
+                  handlePropertyChange("targetPageId", "");
+                  handlePropertyChange("customUrl", "");
+                }
+              }}
+            >
+              <SelectTrigger className="text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="link">링크</SelectItem>
+                <SelectItem value="action">액션</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {element.actionType === "action" && (
+            <div className="mt-2 p-2 bg-gray-50 rounded text-xs text-gray-600">
+              액션 기능은 추후 구현 예정입니다.
+            </div>
+          )}
+
+          {(!element.actionType || element.actionType === "link") && (
+            <div className="mt-2 space-y-2">
+              <div>
+                <Label htmlFor="linkType" className="text-xs">
+                  링크 유형
+                </Label>
+                <Select
+                  value={element.linkType || "page"}
+                  onValueChange={(value) => {
+                    handlePropertyChange("linkType", value);
+                    // 링크 타입 변경시 관련 속성 초기화
+                    if (value === "page") {
+                      handlePropertyChange("customUrl", "");
+                    } else {
+                      handlePropertyChange("targetPageId", "");
+                    }
+                  }}
+                >
+                  <SelectTrigger className="text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="page">페이지 선택</SelectItem>
+                    <SelectItem value="custom">직접 입력</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {(!element.linkType || element.linkType === "page") && (
+                <div>
+                  <Label htmlFor="targetPage" className="text-xs">
+                    대상 페이지
+                  </Label>
+                  <Select
+                    value={element.targetPageId || ""}
+                    onValueChange={(value) =>
+                      handlePropertyChange("targetPageId", value)
+                    }
+                  >
+                    <SelectTrigger className="text-xs">
+                      <SelectValue placeholder="페이지를 선택하세요" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {websitePages.length > 0 ? (
+                        websitePages.map((page) => (
+                          <SelectItem key={page.id} value={page.path}>
+                            {page.title}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="" disabled>
+                          페이지가 없습니다
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {element.linkType === "custom" && (
+                <div>
+                  <Label htmlFor="customUrl" className="text-xs">
+                    URL
+                  </Label>
+                  <Input
+                    id="customUrl"
+                    value={element.customUrl || ""}
+                    onChange={(e) => handlePropertyChange("customUrl", e.target.value)}
+                    placeholder="https://example.com"
+                    className="text-xs"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <div>
           <Label htmlFor="href" className="text-xs">
-            링크 (선택사항)
+            링크 (이전 방식, 선택사항)
           </Label>
           <Input
             id="href"
@@ -1011,7 +1126,7 @@ export default function PropertyPanel() {
               if (elementType) {
                 const newId = generateId();
                 const newElement = createElement(
-                  elementType as any,
+                  elementType as "text" | "button" | "image" | "container" | "accordion" | "calendar" | "shape",
                   newId,
                   0,
                   0

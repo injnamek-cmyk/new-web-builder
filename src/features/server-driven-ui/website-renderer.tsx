@@ -25,6 +25,20 @@ export function WebsiteRenderer({
 }: WebsiteRendererProps) {
   const [currentPath, setCurrentPath] = useState(currentPagePath);
 
+  // 가상 페이지 전환 함수
+  const navigateToPage = (pageId: string) => {
+    // pageId로 페이지 찾기 (실제로는 페이지 슬러그나 경로를 사용해야 함)
+    const targetPage = websiteData.pages.find(page =>
+      page.path === `/${pageId}` ||
+      page.path === pageId ||
+      pageId === 'home' && page.path === '/'
+    );
+
+    if (targetPage) {
+      setCurrentPath(targetPage.path);
+    }
+  };
+
   // 현재 페이지 찾기 (루트 경로 우선)
   const currentPage = websiteData.pages.find(page => page.path === currentPath)
     || websiteData.pages.find(page => page.path === "/")
@@ -73,6 +87,7 @@ export function WebsiteRenderer({
           element={element}
           elementMap={elementMap}
           isTopLevel={true}
+          navigateToPage={navigateToPage}
         />
       ))}
     </div>
@@ -83,12 +98,14 @@ interface WebsiteElementProps {
   element: Element;
   elementMap: Map<string, Element>;
   isTopLevel?: boolean;
+  navigateToPage?: (pageId: string) => void;
 }
 
 function WebsiteElement({
   element,
   elementMap,
   isTopLevel = false,
+  navigateToPage,
 }: WebsiteElementProps) {
   // 컨테이너의 자식 요소들 가져오기
   const getChildElements = (): Element[] => {
@@ -179,6 +196,7 @@ function WebsiteElement({
             key={child.id}
             element={child}
             elementMap={elementMap}
+            navigateToPage={navigateToPage}
           />
         ))}
       </div>
@@ -186,10 +204,10 @@ function WebsiteElement({
   }
 
   // 다른 요소 타입들은 기존 방식대로 렌더링
-  return <div style={elementStyle}>{renderElementContent(element)}</div>;
+  return <div style={elementStyle}>{renderElementContent(element, navigateToPage)}</div>;
 }
 
-function renderElementContent(element: Element) {
+function renderElementContent(element: Element, navigateToPage?: (pageId: string) => void) {
   switch (element.type) {
     case "text":
       const textElement = element as Extract<Element, { type: "text" }>;
@@ -250,15 +268,29 @@ function renderElementContent(element: Element) {
 
     case "button":
       const buttonElement = element as Extract<Element, { type: "button" }>;
+
+      const handleButtonClick = () => {
+        // 새로운 링크 시스템 우선 처리
+        if (buttonElement.actionType === "link" || !buttonElement.actionType) {
+          if (buttonElement.linkType === "page" && buttonElement.targetPageId) {
+            // 페이지 내 가상 라우팅
+            navigateToPage?.(buttonElement.targetPageId);
+          } else if (buttonElement.linkType === "custom" && buttonElement.customUrl) {
+            // 외부 URL로 이동
+            window.open(buttonElement.customUrl, "_blank");
+          } else if (buttonElement.href) {
+            // 이전 방식 호환
+            window.open(buttonElement.href, "_blank");
+          }
+        }
+        // actionType === "action"인 경우는 아직 구현하지 않음
+      };
+
       return (
         <Button
           variant={buttonElement.variant || "default"}
           size={buttonElement.size || "default"}
-          onClick={() => {
-            if (buttonElement.href) {
-              window.open(buttonElement.href, "_blank");
-            }
-          }}
+          onClick={handleButtonClick}
         >
           {buttonElement.icon && buttonElement.icon !== "none" && buttonElement.iconPosition === "left" && (
             <span className="mr-2">{buttonElement.icon}</span>
@@ -365,7 +397,7 @@ function renderTriangleSVG(element: Extract<Element, { type: "shape" }>) {
   const height = typeof element.height === "number" ? element.height : 100;
   const patternId = `triangle-pattern-${Math.random()
     .toString(36)
-    .substr(2, 9)}`;
+    .substring(2, 11)}`;
 
   const actualBackgroundColor =
     element.background?.type === "color"

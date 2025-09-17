@@ -69,6 +69,12 @@ export interface ImageElement extends BaseElement {
   };
 }
 
+// 버튼 액션 타입
+export type ButtonActionType = "link" | "action";
+
+// 버튼 링크 타입
+export type ButtonLinkType = "page" | "custom";
+
 // 버튼 요소
 export interface ButtonElement extends BaseElement {
   type: "button";
@@ -84,6 +90,12 @@ export interface ButtonElement extends BaseElement {
   href?: string;
   icon?: string; // Lucide icon name
   iconPosition?: "left" | "right";
+
+  // 새로운 링크/액션 속성
+  actionType?: ButtonActionType; // "link" | "action"
+  linkType?: ButtonLinkType; // "page" | "custom"
+  targetPageId?: string; // 페이지 선택 시 페이지 ID
+  customUrl?: string; // 직접 입력 시 URL
 }
 
 // 레이아웃 모드 타입 (하이브리드 서버 드리븐 UI)

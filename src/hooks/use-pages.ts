@@ -1,23 +1,54 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  getPages, 
-  getPage, 
-  createPage, 
-  updatePage, 
+import {
+  getPages,
+  getPage,
+  createPage,
+  updatePage,
   deletePage,
   CreatePageRequest,
-  UpdatePageRequest 
+  UpdatePageRequest
 } from '@/lib/api/pages';
+import { apiClient } from '@/lib/api';
 import { Page } from '@prisma/client';
 
 export const PAGES_QUERY_KEY = 'pages';
 export const PAGE_QUERY_KEY = 'page';
+export const WEBSITE_PAGES_QUERY_KEY = 'websitePages';
 
 // 페이지 목록 조회
 export const usePages = () => {
   return useQuery({
     queryKey: [PAGES_QUERY_KEY],
     queryFn: getPages,
+  });
+};
+
+// 특정 웹사이트의 페이지 목록 조회
+export const useWebsitePages = (websiteId: string | null) => {
+  return useQuery({
+    queryKey: [WEBSITE_PAGES_QUERY_KEY, websiteId],
+    queryFn: async () => {
+      if (!websiteId) return [];
+
+      try {
+        const response = await apiClient.get<{ success: boolean; data: Page[] }>(
+          `/api/websites/${websiteId}/pages`
+        );
+
+        if (response.success && response.data) {
+          return response.data.map((page: Page) => ({
+            id: page.id,
+            title: page.title,
+            path: page.path.startsWith('/') ? page.path.slice(1) : page.path,
+          }));
+        }
+        return [];
+      } catch (error) {
+        console.error('Failed to fetch website pages:', error);
+        return [];
+      }
+    },
+    enabled: !!websiteId,
   });
 };
 
