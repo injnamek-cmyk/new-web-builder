@@ -260,11 +260,11 @@ function renderElementContent(element: Element) {
             }
           }}
         >
-          {buttonElement.icon && buttonElement.iconPosition === "left" && (
+          {buttonElement.icon && buttonElement.icon !== "none" && buttonElement.iconPosition === "left" && (
             <span className="mr-2">{buttonElement.icon}</span>
           )}
           {buttonElement.text}
-          {buttonElement.icon && buttonElement.iconPosition === "right" && (
+          {buttonElement.icon && buttonElement.icon !== "none" && buttonElement.iconPosition === "right" && (
             <span className="ml-2">{buttonElement.icon}</span>
           )}
         </Button>

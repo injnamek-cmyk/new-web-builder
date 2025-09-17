@@ -209,20 +209,6 @@ export default function Canvas() {
       ref={canvasRef}
       className="flex-1 bg-gray-50 relative overflow-auto hide-scrollbar"
     >
-      {/* 선택된 요소 정보 표시 */}
-      {canvas && canvas.selectedElementIds.length > 0 && (
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10 bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-3 text-sm font-medium text-gray-700">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <span className="font-semibold">
-              {canvas.selectedElementIds.length}개 요소 선택됨
-            </span>
-          </div>
-          <div className="text-xs text-gray-500 mt-1 hidden lg:block">
-            화살표 키: 이동 | Shift+화살표: 빠른 이동 | Delete 키: 삭제
-          </div>
-        </div>
-      )}
 
       <div
         className="relative bg-white shadow-lg mx-auto my-2 lg:my-8"
