@@ -118,14 +118,14 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
             selectedElementIds: [],
           },
         };
-        initializeEditor(newPage.id, pageData.title, pageData.canvas);
+        initializeEditor(newPage.id, pageData.title, pageData.canvas, websiteId);
       } else {
         initializeEditor("", "Untitled", {
           width: 1920,
           height: 1080,
           elements: [],
           selectedElementIds: [],
-        });
+        }, websiteId);
       }
     },
     [currentPage, canvas.elements, initializeEditor, currentWebsite, savePage]
@@ -155,7 +155,7 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
                 selectedElementIds: [],
               },
             };
-            initializeEditor(firstPage.id, pageData.title, pageData.canvas);
+            initializeEditor(firstPage.id, pageData.title, pageData.canvas, websiteId);
           } else {
             setCurrentPage(null);
             initializeEditor("", "Untitled", {
@@ -163,7 +163,7 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
               height: 1080,
               elements: [],
               selectedElementIds: [],
-            });
+            }, websiteId);
           }
         }
         if (isMounted) {

@@ -67,6 +67,46 @@ export interface UpdatePageRequest {
   canvas?: import("@/shared/types").Canvas;
 }
 
+// Website 렌더 데이터 (여러 페이지 포함)
+export interface WebsiteRenderData {
+  websiteId: string;
+  name: string;
+  description?: string;
+  domain?: string;
+  subdomain: string;
+  isPublished: boolean;
+  pages: PageRenderInfo[];
+  metadata: {
+    createdAt: Date;
+    updatedAt: Date;
+  };
+}
+
+// 페이지 렌더 정보 (Website에 포함되는 페이지)
+export interface PageRenderInfo {
+  id: string;
+  title: string;
+  path: string;
+  content: import("@/shared/types").Element[];
+  metadata: {
+    title: string;
+    description?: string;
+    keywords?: string;
+    ogTitle?: string;
+    ogDescription?: string;
+    ogImage?: string;
+  };
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+
+// Website 렌더 응답 타입
+export interface WebsiteRenderResponse {
+  data: WebsiteRenderData;
+}
+
 // 에러 응답 타입
 export interface ErrorResponse {
   error: string;

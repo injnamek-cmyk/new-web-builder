@@ -15,6 +15,7 @@ interface EditorStore extends EditorState {
   // 페이지 관리
   currentPageId: string | null;
   currentPageTitle: string;
+  currentWebsiteId: string | null;
   isSaving: boolean;
   // UI 상태
   leftPanelVisible: boolean;
@@ -80,7 +81,7 @@ interface EditorStore extends EditorState {
   getPreviewUrl: () => string | null;
 
   // 페이지 데이터로 에디터 상태를 초기화하는 함수
-  initializeEditor: (pageId: string, title: string, canvas: Canvas) => void;
+  initializeEditor: (pageId: string, title: string, canvas: Canvas, websiteId?: string) => void;
 }
 
 const initialCanvas: Canvas = {
@@ -109,6 +110,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   grid: initialGrid,
   currentPageId: null,
   currentPageTitle: "새 페이지",
+  currentWebsiteId: null,
   isSaving: false,
   leftPanelVisible: true,
   rightPanelVisible: true,
@@ -377,10 +379,11 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     set({ canvasZoom: 1 });
   },
 
-  initializeEditor: (pageId, title, canvas) => {
+  initializeEditor: (pageId, title, canvas, websiteId) => {
     set({
       currentPageId: pageId,
       currentPageTitle: title,
+      currentWebsiteId: websiteId || null,
       canvas: canvas,
       history: [canvas],
       historyIndex: 0,
@@ -519,10 +522,10 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
 
   getPreviewUrl: () => {
     const state = get();
-    if (!state.currentPageId) {
+    if (!state.currentWebsiteId) {
       return null;
     }
-    return `/preview/${state.currentPageId}`;
+    return `/preview/${state.currentWebsiteId}`;
   },
 
   // 컨테이너 자식 관리 함수들 (하이브리드 레이아웃)
