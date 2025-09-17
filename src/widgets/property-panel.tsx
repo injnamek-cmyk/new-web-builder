@@ -761,11 +761,13 @@ export default function PropertyPanel() {
                     </SelectTrigger>
                     <SelectContent>
                       {websitePages.length > 0 ? (
-                        websitePages.map((page) => (
-                          <SelectItem key={page.id} value={page.title}>
-                            {page.title}
-                          </SelectItem>
-                        ))
+                        websitePages
+                          .filter((page) => page.path && page.path.trim() !== "")
+                          .map((page) => (
+                            <SelectItem key={page.id} value={page.path}>
+                              {page.title}
+                            </SelectItem>
+                          ))
                       ) : (
                         <SelectItem value="no-pages" disabled>
                           페이지가 없습니다
