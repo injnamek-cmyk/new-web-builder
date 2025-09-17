@@ -32,7 +32,7 @@ export const useWebsitePages = (websiteId: string | null) => {
 
       try {
         const response = await apiClient.get<{ success: boolean; data: Page[] }>(
-          `/api/websites/${websiteId}/pages`
+          `/api/pages?websiteId=${websiteId}`
         );
 
         if (response.success && response.data) {

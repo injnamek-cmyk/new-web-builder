@@ -49,6 +49,7 @@ export default function PropertyPanel() {
   if (!canvas) {
     return null;
   }
+  console.log("website pages", websitePages);
 
   // 타입 자동 추론을 위한 핸들러 함수
   const createAutoTypeHandler = (property: string, elementId: string) => {
@@ -393,7 +394,6 @@ export default function PropertyPanel() {
   );
 
   const renderImageProperties = (element: ImageElement) => {
-
     const handleImageUploadSuccess = (url: string) => {
       // 1. 로컬 상태(UI) 즉시 업데이트
       handlePropertyChange("src", url);
@@ -762,7 +762,7 @@ export default function PropertyPanel() {
                     <SelectContent>
                       {websitePages.length > 0 ? (
                         websitePages.map((page) => (
-                          <SelectItem key={page.id} value={page.path}>
+                          <SelectItem key={page.id} value={page.title}>
                             {page.title}
                           </SelectItem>
                         ))
@@ -784,7 +784,9 @@ export default function PropertyPanel() {
                   <Input
                     id="customUrl"
                     value={element.customUrl || ""}
-                    onChange={(e) => handlePropertyChange("customUrl", e.target.value)}
+                    onChange={(e) =>
+                      handlePropertyChange("customUrl", e.target.value)
+                    }
                     placeholder="https://example.com"
                     className="text-xs"
                   />
@@ -1126,7 +1128,14 @@ export default function PropertyPanel() {
               if (elementType) {
                 const newId = generateId();
                 const newElement = createElement(
-                  elementType as "text" | "button" | "image" | "container" | "accordion" | "calendar" | "shape",
+                  elementType as
+                    | "text"
+                    | "button"
+                    | "image"
+                    | "container"
+                    | "accordion"
+                    | "calendar"
+                    | "shape",
                   newId,
                   0,
                   0
@@ -1591,7 +1600,8 @@ export default function PropertyPanel() {
 
       <div className="space-y-3 lg:space-y-6">
         {renderSpecificProperties()}
-        {selectedElement.type !== "button" && renderSpacingControls(selectedElement)}
+        {selectedElement.type !== "button" &&
+          renderSpacingControls(selectedElement)}
         {renderCommonProperties(selectedElement)}
       </div>
     </Card>
