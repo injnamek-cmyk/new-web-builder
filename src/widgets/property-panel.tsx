@@ -767,7 +767,7 @@ export default function PropertyPanel() {
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem value="" disabled>
+                        <SelectItem value="no-pages" disabled>
                           페이지가 없습니다
                         </SelectItem>
                       )}
