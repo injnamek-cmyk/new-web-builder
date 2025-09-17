@@ -170,7 +170,21 @@ export const useWebsiteStore = create<WebsiteState>()(
           const result: WebsiteResponse = await response.json();
 
           if (result.success && result.data) {
-            return result.data;
+            // content가 string일 경우 JSON.parse를 시도
+            const parsedPages = result.data.pages.map(page => {
+              if (typeof page.content === 'string') {
+                try {
+                  return { ...page, content: JSON.parse(page.content) };
+                } catch (e) {
+                  console.error(`Failed to parse content for page ${page.id}:`, e);
+                  // 파싱 실패 시 content를 빈 배열로 설정하여 에러 방지
+                  return { ...page, content: [] };
+                }
+              }
+              // content가 이미 객체이거나 다른 타입일 경우 그대로 반환
+              return page;
+            });
+            return { ...result.data, pages: parsedPages };
           }
           return null;
         } catch (error) {

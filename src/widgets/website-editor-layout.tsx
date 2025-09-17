@@ -15,14 +15,13 @@ import {
   ChevronDown,
   Calendar,
   ArrowLeftIcon,
-  SaveIcon,
 } from "lucide-react";
 
 import { useWebsiteStore } from "@/processes/website-store";
 import { useEditorStore } from "@/processes/editor-store";
 import { Page } from "@/shared/types";
 import { StoredPageData } from "@/shared/types/server-driven-ui";
-import { ElementType } from "@/shared/types";
+import { ElementType, Element } from "@/shared/types";
 import {
   createElement,
   createShapeElement,
@@ -58,13 +57,14 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
     initializeEditor,
     canvas,
   } = useEditorStore();
+  console.log("currentWebsite", currentWebsite);
 
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const savePage = useCallback(
-    async (pageId: string, elements: any[]) => {
+    async (pageId: string, elements: Element[]) => {
       try {
         const response = await fetch(`/api/pages/${pageId}`, {
           method: "PUT",
@@ -76,7 +76,7 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
           console.log(`Page ${pageId} saved successfully`);
           if (currentWebsite) {
             const updatedPages = currentWebsite.pages.map((p) =>
-              p.id === pageId ? { ...p, content: elements } : p,
+              p.id === pageId ? { ...p, content: elements } : p
             );
             setCurrentWebsite({ ...currentWebsite, pages: updatedPages });
           }
@@ -87,7 +87,7 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
         console.error(`Error saving page ${pageId}:`, error);
       }
     },
-    [currentWebsite, setCurrentWebsite],
+    [currentWebsite, setCurrentWebsite]
   );
 
   const handlePageSelect = useCallback(
@@ -102,11 +102,14 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
 
       if (newPage) {
         const freshPageData = currentWebsite?.pages.find(
-          (p) => p.id === newPage.id,
+          (p) => p.id === newPage.id
         );
         const elements = freshPageData?.content || newPage.content || [];
 
         const pageData: StoredPageData = {
+          id: newPage.id,
+          createdAt: newPage.createdAt,
+          updatedAt: newPage.updatedAt,
           title: newPage.title || "Untitled",
           canvas: {
             width: 1920,
@@ -125,13 +128,7 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
         });
       }
     },
-    [
-      currentPage,
-      canvas.elements,
-      initializeEditor,
-      currentWebsite,
-      savePage,
-    ],
+    [currentPage, canvas.elements, initializeEditor, currentWebsite, savePage]
   );
 
   useEffect(() => {
@@ -147,6 +144,9 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
             const firstPage = website.pages[0];
             setCurrentPage(firstPage);
             const pageData: StoredPageData = {
+              id: firstPage.id,
+              createdAt: firstPage.createdAt,
+              updatedAt: firstPage.updatedAt,
               title: firstPage.title || "Untitled",
               canvas: {
                 width: 1920,

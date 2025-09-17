@@ -293,6 +293,7 @@ export interface Website {
   createdAt: Date;
   updatedAt: Date;
   userId: string;
+  pages: Page[];
 }
 
 export interface CreateWebsiteRequest {
