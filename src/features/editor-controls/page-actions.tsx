@@ -8,28 +8,26 @@ import { cn } from "@/lib/utils";
 
 interface PageActionsProps {
   className?: string;
+  onSave: () => Promise<void>;
+  isSaving: boolean;
 }
 
-export default function PageActions({ className }: PageActionsProps) {
-  const {
-    isSaving,
-    savePage,
-    getPreviewUrl,
-    canvas,
-    currentPageTitle,
-    currentPageId,
-  } = useEditorStore();
+export default function PageActions({
+  className,
+  onSave,
+  isSaving,
+}: PageActionsProps) {
+  const { getPreviewUrl, canvas, currentPageTitle, currentPageId } =
+    useEditorStore();
 
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployUrl, setDeployUrl] = useState<string | null>(null);
 
   const handleSave = async () => {
-    const pageId = await savePage();
-    if (pageId) {
-      setShowSuccessMessage(true);
-      setTimeout(() => setShowSuccessMessage(false), 2000);
-    }
+    await onSave();
+    setShowSuccessMessage(true);
+    setTimeout(() => setShowSuccessMessage(false), 2000);
   };
 
   const handlePreview = () => {
@@ -56,17 +54,17 @@ export default function PageActions({ className }: PageActionsProps) {
     setDeployUrl(null);
 
     try {
-      const response = await fetch('/api/deploy', {
-        method: 'POST',
+      const response = await fetch("/api/deploy", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           pageId: currentPageId,
           config: {
-            projectName: currentPageTitle || 'My Website',
+            projectName: currentPageTitle || "My Website",
             analytics: false,
-          }
+          },
         }),
       });
 
@@ -79,8 +77,8 @@ export default function PageActions({ className }: PageActionsProps) {
         alert(`배포 실패: ${result.error}`);
       }
     } catch (error) {
-      console.error('Deploy error:', error);
-      alert('배포 중 오류가 발생했습니다.');
+      console.error("Deploy error:", error);
+      alert("배포 중 오류가 발생했습니다.");
     } finally {
       setIsDeploying(false);
     }
@@ -110,11 +108,7 @@ export default function PageActions({ className }: PageActionsProps) {
       </Button>
 
       {/* 미리보기 버튼 */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handlePreview}
-      >
+      <Button variant="outline" size="sm" onClick={handlePreview}>
         <Eye className="w-4 h-4 mr-2" />
         미리보기
         <ExternalLink className="w-3 h-3 ml-1" />
@@ -146,7 +140,7 @@ export default function PageActions({ className }: PageActionsProps) {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => window.open(deployUrl, '_blank')}
+          onClick={() => window.open(deployUrl, "_blank")}
           className="text-blue-600 border-blue-200 hover:bg-blue-50"
         >
           <ExternalLink className="w-4 h-4 mr-2" />
