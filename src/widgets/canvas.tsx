@@ -203,7 +203,6 @@ export default function Canvas() {
         return null;
     }
   };
-  console.log("canvas", canvas);
 
   return (
     <div
@@ -257,9 +256,13 @@ export default function Canvas() {
             .filter((element) => {
               // 다른 컨테이너의 자식인 요소는 캔버스에서 직접 렌더링하지 않음
               const isChildOfContainer = canvas?.elements.some(
-                (containerElement) =>
-                  containerElement.type === "container" &&
-                  (containerElement as any).children?.includes(element.id)
+                (containerElement) => {
+                  if (containerElement.type === "container") {
+                    const container = containerElement as { children?: string[] };
+                    return container.children?.includes(element.id) || false;
+                  }
+                  return false;
+                }
               );
               return !isChildOfContainer;
             })

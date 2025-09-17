@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { usePageStore } from "@/processes/page-store";
 import { useWebsiteStore } from "@/processes/website-store";
 import { CreatePageRequest, UpdatePageRequest, ValidationError, Page } from "@/shared/types";
@@ -166,7 +166,7 @@ function PageForm({ websiteId, initialData, onSubmit, onCancel, isLoading, valid
 interface EditorPageTabsProps {
   websiteId: string;
   currentPageId?: string;
-  onPageSelect?: (page: Page) => void;
+  onPageSelect?: (page: Page | null) => void;
   onPageContentChange?: (pageId: string, content: any) => void;
 }
 
@@ -188,33 +188,15 @@ export function EditorPageTabs({
 
   const { currentWebsite } = useWebsiteStore();
 
-  const [activePageId, setActivePageId] = useState<string | null>(currentPageId || null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
-  const lastSelectedPageIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (websiteId) {
       fetchPages(websiteId);
     }
   }, [websiteId, fetchPages]);
-
-  useEffect(() => {
-    if (currentPageId && currentPageId !== activePageId) {
-      setActivePageId(currentPageId);
-    }
-  }, [currentPageId, activePageId]);
-
-  useEffect(() => {
-    if (activePageId && onPageSelect && activePageId !== lastSelectedPageIdRef.current) {
-      const selectedPage = pages.find(p => p.id === activePageId);
-      if (selectedPage) {
-        lastSelectedPageIdRef.current = activePageId;
-        onPageSelect(selectedPage);
-      }
-    }
-  }, [activePageId, pages, onPageSelect]);
 
   const handleCreatePage = async (formData: PageFormData) => {
     const pageData: CreatePageRequest = {
@@ -235,7 +217,9 @@ export function EditorPageTabs({
     if (result.success && result.data) {
       setIsCreateDialogOpen(false);
       setValidationErrors([]);
-      setActivePageId(result.data.id);
+      if (onPageSelect) {
+        onPageSelect(result.data);
+      }
     } else {
       setValidationErrors(result.validationErrors || []);
     }
@@ -265,10 +249,12 @@ export function EditorPageTabs({
   };
 
   const handleDeletePage = async (id: string) => {
+    const wasActive = currentPageId === id;
     await deletePageById(id);
-    if (activePageId === id) {
-      const remainingPages = pages.filter(p => p.id !== id);
-      setActivePageId(remainingPages.length > 0 ? remainingPages[0].id : null);
+    if (wasActive && onPageSelect) {
+      // Let the parent component handle selecting a new page
+      // by notifying that the current selection is gone.
+      onPageSelect(null);
     }
   };
 
@@ -345,11 +331,11 @@ export function EditorPageTabs({
             <div
               key={page.id}
               className={`group flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors ${
-                activePageId === page.id
+                currentPageId === page.id
                   ? "bg-blue-100 border border-blue-200"
                   : "hover:bg-gray-100"
               }`}
-              onClick={() => setActivePageId(page.id)}
+              onClick={() => onPageSelect && onPageSelect(page)}
             >
               <div className="flex items-center space-x-2 flex-1 min-w-0">
                 <FileIcon className="w-4 h-4 text-gray-500 flex-shrink-0" />
