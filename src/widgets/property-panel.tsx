@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, Upload } from "lucide-react";
+import { ImageUploader } from "@/components/image-uploader";
 import { useEditorStore } from "@/processes/editor-store";
 import { createElement, generateId } from "@/shared/lib/element-factory";
 import {
@@ -386,16 +386,15 @@ export default function PropertyPanel() {
   );
 
   const renderImageProperties = (element: ImageElement) => {
-    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const file = event.target.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const src = e.target?.result as string;
-          handlePropertyChange("src", src);
-        };
-        reader.readAsDataURL(file);
-      }
+    const { savePage } = useEditorStore();
+
+    const handleImageUploadSuccess = (url: string) => {
+      // 1. 로컬 상태(UI) 즉시 업데이트
+      handlePropertyChange("src", url);
+      // 2. 변경사항 DB에 저장
+      setTimeout(() => {
+        savePage();
+      }, 100);
     };
 
     return (
@@ -403,22 +402,7 @@ export default function PropertyPanel() {
         <div>
           <Label className="text-xs">이미지 업로드</Label>
           <div className="flex gap-2 mt-1">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs"
-              onClick={() => document.getElementById("image-upload")?.click()}
-            >
-              <Upload className="w-3 h-3 mr-1" />
-              파일 선택
-            </Button>
-            <input
-              id="image-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFileUpload}
-            />
+            <ImageUploader onUploadSuccess={handleImageUploadSuccess} />
           </div>
         </div>
 

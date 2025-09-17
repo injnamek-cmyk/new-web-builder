@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Upload, Palette } from "lucide-react";
+import { ImageUploader } from "@/components/image-uploader";
 import { ShapeElement, ShapeBackground } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
 
@@ -21,7 +21,7 @@ interface ShapePropertiesProps {
 }
 
 export default function ShapeProperties({ element }: ShapePropertiesProps) {
-  const { updateElement } = useEditorStore();
+  const { updateElement, savePage } = useEditorStore();
 
   const handleBackgroundTypeChange = (value: string) => {
     const type = value as "color" | "image";
@@ -37,6 +37,20 @@ export default function ShapeProperties({ element }: ShapePropertiesProps) {
     };
 
     updateElement(element.id, { background: newBackground });
+  };
+
+  const handleImageUploadSuccess = (url: string) => {
+    const newBackground: ShapeBackground = {
+      ...element.background,
+      type: "image",
+      imageUrl: url,
+    };
+    // 1. 로컬 상태(UI) 즉시 업데이트
+    updateElement(element.id, { background: newBackground });
+    // 2. 변경사항 DB에 저장
+    setTimeout(() => {
+      savePage();
+    }, 100);
   };
 
   const handleColorChange = (color: string) => {
@@ -63,23 +77,7 @@ export default function ShapeProperties({ element }: ShapePropertiesProps) {
     updateElement(element.id, { borderRadius });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // 임시로 로컬 URL 생성 (실제로는 서버에 업로드해야 함)
-    const imageUrl = URL.createObjectURL(file);
-
-    updateElement(element.id, {
-      background: {
-        ...element.background,
-        type: "image",
-        imageUrl,
-        imageSize: element.background.imageSize || "cover",
-        imagePosition: element.background.imagePosition || "center",
-      },
-    });
-  };
+  
 
   const handleImageSizeChange = (
     imageSize: "cover" | "contain" | "stretch" | "repeat"
@@ -156,12 +154,7 @@ export default function ShapeProperties({ element }: ShapePropertiesProps) {
                 <div>
                   <Label>이미지 업로드</Label>
                   <div className="mt-1">
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
-                    />
+                    <ImageUploader onUploadSuccess={handleImageUploadSuccess} />
                   </div>
                   {element.background.imageUrl && (
                     <div className="mt-2">
