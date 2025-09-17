@@ -25,8 +25,10 @@ export function WebsiteRenderer({
 }: WebsiteRendererProps) {
   const [currentPath, setCurrentPath] = useState(currentPagePath);
 
-  // 현재 페이지 찾기
-  const currentPage = websiteData.pages.find(page => page.path === currentPath) || websiteData.pages[0];
+  // 현재 페이지 찾기 (루트 경로 우선)
+  const currentPage = websiteData.pages.find(page => page.path === currentPath)
+    || websiteData.pages.find(page => page.path === "/")
+    || websiteData.pages[0];
 
   if (!currentPage) {
     return (
@@ -57,53 +59,22 @@ export function WebsiteRenderer({
   });
 
   return (
-    <div className="min-h-screen">
-      {/* 네비게이션 (여러 페이지가 있는 경우만 표시) */}
-      {websiteData.pages.length > 1 && (
-        <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <h1 className="text-xl font-semibold text-gray-900">
-                {websiteData.name}
-              </h1>
-              <div className="flex space-x-4">
-                {websiteData.pages.map((page) => (
-                  <button
-                    key={page.id}
-                    onClick={() => setCurrentPath(page.path)}
-                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                      currentPath === page.path
-                        ? "bg-blue-100 text-blue-700"
-                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    {page.title}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </nav>
-      )}
-
-      {/* 페이지 캔버스 */}
-      <div
-        className="relative bg-white"
-        style={{
-          width: "1920px",
-          height: "1080px",
-          margin: "0 auto",
-        }}
-      >
-        {topLevelElements.map((element) => (
-          <WebsiteElement
-            key={element.id}
-            element={element}
-            elementMap={elementMap}
-            isTopLevel={true}
-          />
-        ))}
-      </div>
+    <div
+      className="relative bg-white"
+      style={{
+        width: "1920px",
+        height: "1080px",
+        margin: "0 auto",
+      }}
+    >
+      {topLevelElements.map((element) => (
+        <WebsiteElement
+          key={element.id}
+          element={element}
+          elementMap={elementMap}
+          isTopLevel={true}
+        />
+      ))}
     </div>
   );
 }

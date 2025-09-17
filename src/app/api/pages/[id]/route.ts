@@ -12,7 +12,7 @@ interface RouteParams {
 
 function validatePagePath(path: string): boolean {
   const pathRegex = /^\/[a-zA-Z0-9\-\/]*$/;
-  return pathRegex.test(path) && path.length > 1 && path.length <= 255;
+  return pathRegex.test(path) && path.length >= 1 && path.length <= 255;
 }
 
 function validateUpdatePageData(data: UpdatePageRequest): ValidationError[] {
