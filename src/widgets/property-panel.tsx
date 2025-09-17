@@ -38,6 +38,7 @@ export default function PropertyPanel() {
     addChildToContainer,
     removeChildFromContainer,
     selectElement,
+    savePage,
   } = useEditorStore();
   if (!canvas) {
     return null;
@@ -386,7 +387,6 @@ export default function PropertyPanel() {
   );
 
   const renderImageProperties = (element: ImageElement) => {
-    const { savePage } = useEditorStore();
 
     const handleImageUploadSuccess = (url: string) => {
       // 1. 로컬 상태(UI) 즉시 업데이트

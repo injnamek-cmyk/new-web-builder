@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageUploader } from "@/components/image-uploader";
 import { ShapeElement, ShapeBackground } from "@/shared/types";
 import { useEditorStore } from "@/processes/editor-store";
+import { Palette, Upload } from "lucide-react";
 
 interface ShapePropertiesProps {
   element: ShapeElement;
