@@ -10,9 +10,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-
 import { Element } from "@/shared/types";
 import { WebsiteRenderData } from "@/shared/types/server-driven-ui";
+import { renderIcon } from "@/shared/lib/icon-utils";
 
 interface WebsiteRendererProps {
   websiteData: WebsiteRenderData;
@@ -292,13 +292,13 @@ function renderElementContent(element: Element, navigateToPage?: (pageId: string
           size={buttonElement.size || "default"}
           onClick={handleButtonClick}
         >
-          {buttonElement.icon && buttonElement.icon !== "none" && buttonElement.iconPosition === "left" && (
-            <span className="mr-2">{buttonElement.icon}</span>
-          )}
+          {buttonElement.icon && buttonElement.icon !== "none" && buttonElement.iconPosition === "left" &&
+            renderIcon(buttonElement.icon, "w-4 h-4 mr-2")
+          }
           {buttonElement.text}
-          {buttonElement.icon && buttonElement.icon !== "none" && buttonElement.iconPosition === "right" && (
-            <span className="ml-2">{buttonElement.icon}</span>
-          )}
+          {buttonElement.icon && buttonElement.icon !== "none" && buttonElement.iconPosition === "right" &&
+            renderIcon(buttonElement.icon, "w-4 h-4 ml-2")
+          }
         </Button>
       );
 

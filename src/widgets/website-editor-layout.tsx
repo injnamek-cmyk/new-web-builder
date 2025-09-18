@@ -244,6 +244,7 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
       </div>
     );
   }
+  console.log(currentPage);
 
   return (
     <div className="h-screen flex flex-col relative bg-gray-50">

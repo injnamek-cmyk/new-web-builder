@@ -5,28 +5,7 @@ import { ButtonElement } from "@/shared/types";
 import { cn, getValidPaddingValue } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useMode } from "@/shared/contexts/mode-context";
-import {
-  Home,
-  User,
-  Settings,
-  Mail,
-  Phone,
-  Search,
-  Download,
-  Upload,
-  Heart,
-  Star,
-  Plus,
-  Minus,
-  Check,
-  X,
-  ChevronRight,
-  ChevronLeft,
-  ArrowRight,
-  ArrowLeft,
-  ShoppingCart,
-  CreditCard,
-} from "lucide-react";
+import { renderIcon } from "@/shared/lib/icon-utils";
 
 interface ButtonElementProps {
   element: ButtonElement;
@@ -34,34 +13,6 @@ interface ButtonElementProps {
   onSelect: (e: React.MouseEvent) => void;
 }
 
-// 아이콘 렌더링 함수
-const renderIcon = (iconName: string, className: string) => {
-  const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-    Home,
-    User,
-    Settings,
-    Mail,
-    Phone,
-    Search,
-    Download,
-    Upload,
-    Heart,
-    Star,
-    Plus,
-    Minus,
-    Check,
-    X,
-    ChevronRight,
-    ChevronLeft,
-    ArrowRight,
-    ArrowLeft,
-    ShoppingCart,
-    CreditCard,
-  };
-
-  const IconComponent = iconMap[iconName];
-  return IconComponent ? <IconComponent className={className} /> : null;
-};
 
 export default function ButtonElementComponent({
   element,
