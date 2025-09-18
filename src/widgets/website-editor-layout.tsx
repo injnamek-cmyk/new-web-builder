@@ -72,7 +72,6 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
         });
 
         if (response.ok) {
-          console.log(`Page ${pageId} saved successfully`);
           if (currentWebsite) {
             const updatedPages = currentWebsite.pages.map((p) =>
               p.id === pageId ? { ...p, content: elements } : p

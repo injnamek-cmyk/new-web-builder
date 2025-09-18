@@ -45,7 +45,6 @@ export default function PropertyPanel() {
 
   // 웹사이트 페이지 목록 불러오기
   const { pages } = usePageStore();
-  console.log("pages", pages);
 
   // 타입 자동 추론을 위한 핸들러 함수
   const createAutoTypeHandler = (property: string, elementId: string) => {
