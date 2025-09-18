@@ -3,17 +3,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { usePageStore } from "@/processes/page-store";
 import { useWebsiteStore } from "@/processes/website-store";
-import { CreatePageRequest, UpdatePageRequest, ValidationError, Page } from "@/shared/types";
+import {
+  CreatePageRequest,
+  UpdatePageRequest,
+  ValidationError,
+  Page,
+} from "@/shared/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -47,7 +47,7 @@ import {
   EditIcon,
   TrashIcon,
   FileIcon,
-  ExternalLinkIcon
+  ExternalLinkIcon,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -68,7 +68,14 @@ interface PageFormProps {
   validationErrors: ValidationError[];
 }
 
-function PageForm({ websiteId, initialData, onSubmit, onCancel, isLoading, validationErrors }: PageFormProps) {
+function PageForm({
+  websiteId,
+  initialData,
+  onSubmit,
+  onCancel,
+  isLoading,
+  validationErrors,
+}: PageFormProps) {
   const [formData, setFormData] = useState<PageFormData>(
     initialData || {
       title: "",
@@ -80,7 +87,7 @@ function PageForm({ websiteId, initialData, onSubmit, onCancel, isLoading, valid
   );
 
   const getFieldError = (field: string) => {
-    return validationErrors.find(error => error.field === field)?.message;
+    return validationErrors.find((error) => error.field === field)?.message;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,7 +101,7 @@ function PageForm({ websiteId, initialData, onSubmit, onCancel, isLoading, valid
       path = "/" + path;
     }
     path = path.replace(/\/+/g, "/").toLowerCase();
-    setFormData(prev => ({ ...prev, path }));
+    setFormData((prev) => ({ ...prev, path }));
   };
 
   return (
@@ -105,7 +112,9 @@ function PageForm({ websiteId, initialData, onSubmit, onCancel, isLoading, valid
           id="title"
           type="text"
           value={formData.title}
-          onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, title: e.target.value }))
+          }
           placeholder="페이지 제목을 입력하세요"
           className={getFieldError("title") ? "border-red-500" : ""}
         />
@@ -135,7 +144,9 @@ function PageForm({ websiteId, initialData, onSubmit, onCancel, isLoading, valid
           id="metaTitle"
           type="text"
           value={formData.metaTitle}
-          onChange={(e) => setFormData(prev => ({ ...prev, metaTitle: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({ ...prev, metaTitle: e.target.value }))
+          }
           placeholder="검색 엔진에 표시될 제목"
         />
       </div>
@@ -145,7 +156,12 @@ function PageForm({ websiteId, initialData, onSubmit, onCancel, isLoading, valid
         <Textarea
           id="metaDescription"
           value={formData.metaDescription}
-          onChange={(e) => setFormData(prev => ({ ...prev, metaDescription: e.target.value }))}
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              metaDescription: e.target.value,
+            }))
+          }
           placeholder="검색 엔진에 표시될 설명"
           rows={3}
         />
@@ -167,14 +183,12 @@ interface EditorPageTabsProps {
   websiteId: string;
   currentPageId?: string;
   onPageSelect?: (page: Page | null) => void;
-  onPageContentChange?: (pageId: string, content: any) => void;
 }
 
 export function EditorPageTabs({
   websiteId,
   currentPageId,
   onPageSelect,
-  onPageContentChange
 }: EditorPageTabsProps) {
   const {
     pages,
@@ -190,7 +204,9 @@ export function EditorPageTabs({
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>(
+    []
+  );
 
   useEffect(() => {
     if (websiteId) {
@@ -259,7 +275,7 @@ export function EditorPageTabs({
   };
 
   const getEditFormData = (pageId: string): PageFormData | undefined => {
-    const page = pages.find(p => p.id === pageId);
+    const page = pages.find((p) => p.id === pageId);
     if (!page) return undefined;
 
     const metadata = page.metadata;
@@ -274,13 +290,17 @@ export function EditorPageTabs({
 
   const getWebsiteUrl = () => {
     if (!currentWebsite) return "";
-    return currentWebsite.domain || `${currentWebsite.subdomain}.yourdomain.com`;
+    return (
+      currentWebsite.domain || `${currentWebsite.subdomain}.yourdomain.com`
+    );
   };
 
   if (error) {
     return (
       <div className="p-4 bg-red-50 border border-red-200 rounded-md">
-        <p className="text-red-600">페이지를 불러오는 중 오류가 발생했습니다: {error}</p>
+        <p className="text-red-600">
+          페이지를 불러오는 중 오류가 발생했습니다: {error}
+        </p>
       </div>
     );
   }
@@ -296,11 +316,13 @@ export function EditorPageTabs({
             </p>
           </div>
 
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
             <DialogTrigger asChild>
               <Button size="sm">
-                <PlusIcon className="w-4 h-4 mr-1" />
-                새 페이지
+                <PlusIcon className="w-4 h-4 mr-1" />새 페이지
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md">
@@ -343,9 +365,7 @@ export function EditorPageTabs({
                   <p className="text-sm font-medium text-gray-900 truncate">
                     {page.title}
                   </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {page.path}
-                  </p>
+                  <p className="text-xs text-gray-500 truncate">{page.path}</p>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Badge
@@ -413,7 +433,9 @@ export function EditorPageTabs({
                       <PageForm
                         websiteId={websiteId}
                         initialData={getEditFormData(page.id)}
-                        onSubmit={(formData) => handleUpdatePage(page.id, formData)}
+                        onSubmit={(formData) =>
+                          handleUpdatePage(page.id, formData)
+                        }
                         onCancel={() => {
                           setEditingPage(null);
                           setValidationErrors([]);
@@ -438,8 +460,8 @@ export function EditorPageTabs({
                       <AlertDialogHeader>
                         <AlertDialogTitle>페이지 삭제</AlertDialogTitle>
                         <AlertDialogDescription>
-                          정말로 &quot;{page.title}&quot; 페이지를 삭제하시겠습니까?
-                          이 작업은 되돌릴 수 없습니다.
+                          정말로 &quot;{page.title}&quot; 페이지를
+                          삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -464,12 +486,8 @@ export function EditorPageTabs({
               <p className="text-sm text-gray-600 mb-3">
                 아직 페이지가 없습니다
               </p>
-              <Button
-                size="sm"
-                onClick={() => setIsCreateDialogOpen(true)}
-              >
-                <PlusIcon className="w-4 h-4 mr-1" />
-                첫 페이지 생성
+              <Button size="sm" onClick={() => setIsCreateDialogOpen(true)}>
+                <PlusIcon className="w-4 h-4 mr-1" />첫 페이지 생성
               </Button>
             </div>
           )}
@@ -477,7 +495,9 @@ export function EditorPageTabs({
           {isLoading && (
             <div className="text-center py-4">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="text-sm text-gray-600 mt-2">페이지를 불러오는 중...</p>
+              <p className="text-sm text-gray-600 mt-2">
+                페이지를 불러오는 중...
+              </p>
             </div>
           )}
         </div>

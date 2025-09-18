@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { useWebsitePages } from "@/hooks/use-pages";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -30,6 +29,7 @@ import {
 } from "@/shared/types";
 import ShapeProperties from "@/components/shape-properties";
 import { getValidPaddingValue } from "@/lib/utils";
+import { usePageStore } from "@/processes/page-store";
 
 export default function PropertyPanel() {
   const {
@@ -41,15 +41,11 @@ export default function PropertyPanel() {
     removeChildFromContainer,
     selectElement,
     savePage,
-    currentWebsiteId,
   } = useEditorStore();
 
   // 웹사이트 페이지 목록 불러오기
-  const { data: websitePages = [] } = useWebsitePages(currentWebsiteId);
-  if (!canvas) {
-    return null;
-  }
-  console.log("website pages", websitePages);
+  const { pages } = usePageStore();
+  console.log("pages", pages);
 
   // 타입 자동 추론을 위한 핸들러 함수
   const createAutoTypeHandler = (property: string, elementId: string) => {
@@ -760,12 +756,19 @@ export default function PropertyPanel() {
                       <SelectValue placeholder="페이지를 선택하세요" />
                     </SelectTrigger>
                     <SelectContent>
-                      {websitePages.length > 0 ? (
-                        websitePages
-                          .filter((page) => page.path && page.path.trim() !== "")
+                      {pages.length > 0 ? (
+                        pages
+                          .filter(
+                            (page) => page.path && page.path.trim() !== ""
+                          )
                           .map((page) => (
                             <SelectItem key={page.id} value={page.path}>
-                              {page.title}
+                              <div>
+                                <span>{page.title}</span>{" "}
+                                <span className="text-gray-400 text-sm">
+                                  ({page.path})
+                                </span>
+                              </div>
                             </SelectItem>
                           ))
                       ) : (
