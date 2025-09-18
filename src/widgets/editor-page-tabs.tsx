@@ -357,15 +357,19 @@ export function EditorPageTabs({
               }`}
               onClick={() => onPageSelect && onPageSelect(page)}
             >
-              <div className="flex items-center space-x-2 flex-1 min-w-0">
-                <FileIcon className="w-4 h-4 text-gray-500 flex-shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {page.title}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">{page.path}</p>
+              <div className="flex items-center space-x-2 flex-1">
+                <div className="flex items-center gap-2 flex-1 max-w-[150px]">
+                  <FileIcon className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {page.title}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {page.path}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1 ml-auto">
                   <Badge
                     variant={page.isPublished ? "default" : "secondary"}
                     className="text-xs"
