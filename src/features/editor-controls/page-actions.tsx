@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 
 interface PageActionsProps {
   className?: string;
-  onSave: () => Promise<void>;
-  isSaving: boolean;
+  onSave?: () => Promise<void>;
+  isSaving?: boolean;
 }
 
 export default function PageActions({
@@ -25,6 +25,7 @@ export default function PageActions({
   const [deployUrl, setDeployUrl] = useState<string | null>(null);
 
   const handleSave = async () => {
+    if (!onSave) return null;
     await onSave();
     setShowSuccessMessage(true);
     setTimeout(() => setShowSuccessMessage(false), 2000);

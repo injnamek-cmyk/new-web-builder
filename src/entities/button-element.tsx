@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { ButtonElement } from "@/shared/types";
-import { cn, getValidPaddingValue } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useMode } from "@/shared/contexts/mode-context";
 import { renderIcon } from "@/shared/lib/icon-utils";
@@ -12,7 +12,6 @@ interface ButtonElementProps {
   isSelected: boolean;
   onSelect: (e: React.MouseEvent) => void;
 }
-
 
 export default function ButtonElementComponent({
   element,
@@ -75,7 +74,7 @@ export default function ButtonElementComponent({
         size={(element.size as "default" | "sm" | "lg" | "icon") || "default"}
         onDoubleClick={(e) => {
           e.stopPropagation();
-          if (element.href && mode === 'preview') {
+          if (element.href && mode === "preview") {
             window.open(element.href, "_blank");
           }
         }}

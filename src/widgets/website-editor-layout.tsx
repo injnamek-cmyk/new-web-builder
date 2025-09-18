@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ChevronLeft,
@@ -34,7 +33,6 @@ import DragDropProvider from "@/features/drag-drop";
 import { Button } from "@/components/ui/button";
 import Canvas from "@/widgets/canvas";
 import PropertyPanel from "@/widgets/property-panel";
-import PageActions from "@/features/editor-controls/page-actions";
 import ShapeDropdown from "@/components/shape-dropdown";
 import { EditorPageTabs } from "@/widgets/editor-page-tabs";
 
@@ -60,7 +58,6 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
 
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
 
   const savePage = useCallback(
     async (pageId: string, elements: Element[]) => {
@@ -136,7 +133,14 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
         );
       }
     },
-    [currentPage, canvas.elements, initializeEditor, currentWebsite, savePage]
+    [
+      currentPage,
+      canvas.elements,
+      initializeEditor,
+      currentWebsite,
+      savePage,
+      websiteId,
+    ]
   );
 
   useEffect(() => {
@@ -196,12 +200,6 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
     };
   }, [websiteId, getWebsiteById, setCurrentWebsite, initializeEditor]);
 
-  const handleSave = async () => {
-    if (!currentPage) return;
-    setIsSaving(true);
-    await savePage(currentPage.id, canvas.elements);
-    setIsSaving(false);
-  };
 
   const handleAddElement = (type: ElementType) => {
     const element = createElement(type, generateId());
@@ -244,38 +242,9 @@ function WebsiteEditorLayoutContent({ websiteId }: WebsiteEditorLayoutProps) {
       </div>
     );
   }
-  console.log(currentPage);
 
   return (
     <div className="h-screen flex flex-col relative bg-gray-50">
-      {/* Header */}
-      <header className="px-5 py-[14px] bg-white border-b border-stone-300/50 relative z-50">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/websites" className="flex items-center">
-              <Image src="/logo/ditto.svg" alt="Ditto" width={32} height={32} />
-              <Image
-                src="/logo/ditto_text.svg"
-                alt="Ditto"
-                width={64}
-                height={32}
-              />
-            </Link>
-            <div>
-              <h1 className="font-semibold text-gray-900">
-                {currentWebsite.name}
-              </h1>
-              <p className="text-sm text-gray-600">
-                {currentPage ? currentPage.title : "페이지를 선택하세요"}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <PageActions onSave={handleSave} isSaving={isSaving} />
-          </div>
-        </div>
-      </header>
-
       <div className="flex-1 relative overflow-hidden">
         {/* Left Panel */}
         <div
