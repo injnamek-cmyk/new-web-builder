@@ -1,9 +1,10 @@
 // 플랫한 구조의 서버 드리븐 UI 타입 정의
+import { ElementType } from "./index";
 
 export interface FlatUIElement {
   id: string;
-  type: string;
-  style: Record<string, any>;
+  type: ElementType;
+  style: Record<string, unknown>;
   content?: string; // 텍스트 내용이나 이미지 경로
   action?: {
     type: string;
@@ -15,52 +16,69 @@ export interface FlatUIElement {
 export type FlatUIStructure = FlatUIElement[];
 
 // Canvas를 플랫한 구조로 변환하는 함수
-import { Canvas } from "@/shared/types";
+import {
+  Canvas,
+  Element,
+  ContainerElement,
+  TextElement,
+  ImageElement,
+  ButtonElement,
+} from "./index";
 
 export function convertToFlatStructure(canvas: Canvas): FlatUIStructure {
   const result: FlatUIElement[] = [];
-  
-  canvas.elements.forEach(element => {
+
+  canvas.elements.forEach((element) => {
     const flatElement: FlatUIElement = {
       id: element.id,
       type: element.type,
       style: extractElementStyle(element),
     };
 
-    // 하이브리드 레이아웃 지원
-    if ((element as any).layoutMode && (element as any).layoutMode !== 'absolute') {
-      flatElement.style.layoutMode = (element as any).layoutMode;
-      
-      if ((element as any).flexProps) {
-        flatElement.style.flexProps = (element as any).flexProps;
-      }
-      if ((element as any).gridProps) {
-        flatElement.style.gridProps = (element as any).gridProps;
-      }
-      if ((element as any).flowProps) {
-        flatElement.style.flowProps = (element as any).flowProps;
+    // 하이브리드 레이아웃 지원 (컨테이너 요소만)
+    if (element.type === "container") {
+      const containerElement = element as ContainerElement;
+      if (
+        containerElement.layoutMode &&
+        containerElement.layoutMode !== "absolute"
+      ) {
+        flatElement.style.layoutMode = containerElement.layoutMode;
+
+        if (containerElement.flex) {
+          flatElement.style.flexProps = containerElement.flex;
+        }
+        if (containerElement.grid) {
+          flatElement.style.gridProps = containerElement.grid;
+        }
+        if (containerElement.flow) {
+          flatElement.style.flowProps = containerElement.flow;
+        }
       }
     }
 
-    // 자식 요소 정보 추가
-    if ((element as any).children && (element as any).children.length > 0) {
-      flatElement.children = (element as any).children;
+    // 자식 요소 정보 추가 (컨테이너 요소만)
+    if (element.type === "container") {
+      const containerElement = element as ContainerElement;
+      if (containerElement.children && containerElement.children.length > 0) {
+        flatElement.children = containerElement.children;
+      }
     }
 
     // content 설정
     switch (element.type) {
       case "text":
-        flatElement.content = (element as any).content;
+        flatElement.content = (element as TextElement).content;
         break;
       case "image":
-        flatElement.content = (element as any).src;
+        flatElement.content = (element as ImageElement).src;
         break;
       case "button":
-        flatElement.content = (element as any).text;
-        if ((element as any).href) {
+        const buttonElement = element as ButtonElement;
+        flatElement.content = buttonElement.text;
+        if (buttonElement.href) {
           flatElement.action = {
             type: "페이지 이동",
-            value: (element as any).href
+            value: buttonElement.href,
           };
         }
         break;
@@ -72,15 +90,15 @@ export function convertToFlatStructure(canvas: Canvas): FlatUIStructure {
   return result;
 }
 
-function extractElementStyle(element: any): Record<string, any> {
-  const style: any = {
+function extractElementStyle(element: Element): Record<string, unknown> {
+  const style: Record<string, unknown> = {
     position: {
       x: element.x,
-      y: element.y
+      y: element.y,
     },
     size: {
       width: element.width,
-      height: element.height
+      height: element.height,
     },
     zIndex: element.zIndex,
   };
@@ -91,46 +109,47 @@ function extractElementStyle(element: any): Record<string, any> {
 
   switch (element.type) {
     case "text":
+      const textElement = element as TextElement;
       return {
         ...style,
-        fontSize: element.fontSize,
-        fontFamily: element.fontFamily,
-        color: element.color,
-        textAlign: element.textAlign,
-        fontWeight: element.fontWeight,
-        textDecoration: element.textDecoration,
-        lineHeight: element.lineHeight,
+        fontSize: textElement.fontSize,
+        fontFamily: textElement.fontFamily,
+        color: textElement.color,
+        textAlign: textElement.textAlign,
+        fontWeight: textElement.fontWeight,
+        textDecoration: textElement.textDecoration,
+        lineHeight: textElement.lineHeight,
       };
-    
+
     case "image":
+      const imageElement = element as ImageElement;
       return {
         ...style,
-        objectFit: element.objectFit,
-        objectPosition: element.objectPosition,
-        filter: element.filter,
+        objectFit: imageElement.objectFit,
+        objectPosition: imageElement.objectPosition,
+        filter: imageElement.filter,
       };
-    
+
     case "button":
+      const buttonElement = element as ButtonElement;
       return {
         ...style,
-        backgroundColor: element.backgroundColor,
-        textColor: element.textColor,
-        borderRadius: element.borderRadius,
-        variant: element.variant,
-        size: element.size,
+        variant: buttonElement.variant,
+        size: buttonElement.size,
       };
-    
+
     case "container":
+      const containerElement = element as ContainerElement;
       return {
         ...style,
-        backgroundColor: element.backgroundColor,
-        borderRadius: element.borderRadius,
-        borderStyle: element.borderStyle,
-        borderWidth: element.borderWidth,
-        borderColor: element.borderColor,
-        boxShadow: element.boxShadow,
+        backgroundColor: containerElement.backgroundColor,
+        borderRadius: containerElement.borderRadius,
+        borderStyle: containerElement.borderStyle,
+        borderWidth: containerElement.borderWidth,
+        borderColor: containerElement.borderColor,
+        boxShadow: containerElement.boxShadow,
       };
-    
+
     default:
       return style;
   }

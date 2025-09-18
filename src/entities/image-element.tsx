@@ -43,15 +43,6 @@ export default function ImageElementComponent({
   const originalWidth = element.width === "auto" ? 100 : element.width;
   const originalHeight = element.height === "auto" ? 100 : element.height;
 
-  // 실제 표시 크기 (패딩 포함)
-  const actualWidth =
-    element.width === "auto"
-      ? "auto"
-      : Math.max(element.width + safePadding.left + safePadding.right, 20);
-  const actualHeight =
-    element.height === "auto"
-      ? "auto"
-      : Math.max(element.height + safePadding.top + safePadding.bottom, 20);
 
   return (
     <div

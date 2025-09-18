@@ -42,7 +42,7 @@ function validateWebsiteData(data: CreateWebsiteRequest): ValidationError[] {
 }
 
 // 사용자의 모든 웹사이트 조회
-export async function GET(_request: NextRequest) {
+export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({

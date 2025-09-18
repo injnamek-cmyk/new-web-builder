@@ -1,40 +1,5 @@
 // 서버 드리븐 UI를 위한 타입 정의
 
-// 렌더링을 위한 요소 정의
-export interface RenderElement {
-  id: string;
-  type: string;
-  position: {
-    x: number;
-    y: number;
-  };
-  size: {
-    width: number | "auto";
-    height: number | "auto";
-  };
-  zIndex: number;
-  style?: Record<string, any>;
-  props?: Record<string, any>;
-}
-
-// 렌더링을 위한 캔버스 정의
-export interface RenderCanvas {
-  width: number;
-  height: number;
-  elements: RenderElement[];
-}
-
-// 페이지 렌더 데이터
-export interface PageRenderData {
-  pageId: string;
-  title: string;
-  canvas: RenderCanvas;
-  metadata: {
-    createdAt: Date;
-    updatedAt: Date;
-  };
-}
-
 // 저장된 페이지 데이터
 export interface StoredPageData {
   id: string;
@@ -51,10 +16,6 @@ export interface PageListResponse {
 
 export interface PageResponse {
   page: StoredPageData;
-}
-
-export interface RenderDataResponse {
-  data: PageRenderData;
 }
 
 export interface CreatePageRequest {
@@ -88,14 +49,7 @@ export interface PageRenderInfo {
   title: string;
   path: string;
   content: import("@/shared/types").Element[];
-  metadata: {
-    title: string;
-    description?: string;
-    keywords?: string;
-    ogTitle?: string;
-    ogDescription?: string;
-    ogImage?: string;
-  };
+  metadata: import("@/shared/types").PageMetadata;
   isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;

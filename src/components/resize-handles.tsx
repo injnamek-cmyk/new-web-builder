@@ -20,7 +20,7 @@ export default function ResizeHandles({
   height,
   zoom,
 }: ResizeHandlesProps) {
-  const { resizeElement, resizeAndMoveElement, setResizing } = useEditorStore();
+  const { resizeAndMoveElement, setResizing } = useEditorStore();
   const isDragging = useRef(false);
   const startPos = useRef({ x: 0, y: 0 });
   const startSize = useRef({ width: 0, height: 0 });
@@ -59,22 +59,30 @@ export default function ResizeHandles({
           case "sw": // 남서쪽 (왼쪽 아래) - X 위치 변경, 높이 증가
             newWidth = Math.max(10, startSize.current.width - deltaX);
             newHeight = Math.max(10, startSize.current.height + deltaY);
-            newX = startElementPos.current.x + (startSize.current.width - newWidth);
+            newX =
+              startElementPos.current.x + (startSize.current.width - newWidth);
             break;
           case "ne": // 북동쪽 (오른쪽 위) - Y 위치 변경, 폭 증가
             newWidth = Math.max(10, startSize.current.width + deltaX);
             newHeight = Math.max(10, startSize.current.height - deltaY);
-            newY = startElementPos.current.y + (startSize.current.height - newHeight);
+            newY =
+              startElementPos.current.y +
+              (startSize.current.height - newHeight);
             break;
           case "nw": // 북서쪽 (왼쪽 위) - X, Y 위치 모두 변경
             newWidth = Math.max(10, startSize.current.width - deltaX);
             newHeight = Math.max(10, startSize.current.height - deltaY);
-            newX = startElementPos.current.x + (startSize.current.width - newWidth);
-            newY = startElementPos.current.y + (startSize.current.height - newHeight);
+            newX =
+              startElementPos.current.x + (startSize.current.width - newWidth);
+            newY =
+              startElementPos.current.y +
+              (startSize.current.height - newHeight);
             break;
           case "n": // 북쪽 (위) - Y 위치 변경, 높이 변경
             newHeight = Math.max(10, startSize.current.height - deltaY);
-            newY = startElementPos.current.y + (startSize.current.height - newHeight);
+            newY =
+              startElementPos.current.y +
+              (startSize.current.height - newHeight);
             break;
           case "s": // 남쪽 (아래) - 위치 고정, 높이만 변경
             newHeight = Math.max(10, startSize.current.height + deltaY);
@@ -84,7 +92,8 @@ export default function ResizeHandles({
             break;
           case "w": // 서쪽 (왼쪽) - X 위치 변경, 폭 변경
             newWidth = Math.max(10, startSize.current.width - deltaX);
-            newX = startElementPos.current.x + (startSize.current.width - newWidth);
+            newX =
+              startElementPos.current.x + (startSize.current.width - newWidth);
             break;
         }
 

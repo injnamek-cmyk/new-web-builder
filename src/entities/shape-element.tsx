@@ -58,7 +58,7 @@ export default function ShapeElementComponent({
           style={{
             width: element.width === "auto" ? "100px" : element.width,
             height: element.height === "auto" ? "100px" : element.height,
-            backgroundColor: element.background?.color || (element as any).backgroundColor || "#3b82f6",
+            backgroundColor: element.background?.color || "#3b82f6",
           }}
           className="w-full h-full"
         />
@@ -90,7 +90,7 @@ export default function ShapeElementComponent({
         shapeType={element.shapeType}
         width={element.width === "auto" ? 100 : (element.width as number)}
         height={element.height === "auto" ? 100 : (element.height as number)}
-        background={element.background || { type: "color", color: (element as any).backgroundColor || "#3b82f6" }}
+        background={element.background || { type: "color", color: "#3b82f6" }}
         borderColor={element.borderColor}
         borderWidth={element.borderWidth}
         borderStyle={element.borderStyle}

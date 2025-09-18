@@ -4,7 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { useEditorStore } from "@/processes/editor-store";
 import { convertToFlatStructure } from "@/shared/types/flat-ui-structure";
-import { Code, FileCode } from "lucide-react";
+import { FileCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface WebsiteGeneratorButtonProps {

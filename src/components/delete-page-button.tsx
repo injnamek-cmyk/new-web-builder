@@ -58,7 +58,7 @@ export function DeletePageButton({ pageId, pageTitle, onDelete }: DeletePageButt
         <AlertDialogHeader>
           <AlertDialogTitle>페이지 삭제</AlertDialogTitle>
           <AlertDialogDescription>
-            "{pageTitle}" 페이지를 정말 삭제하시겠습니까?
+            &ldquo;{pageTitle}&rdquo; 페이지를 정말 삭제하시겠습니까?
             <br />
             <span className="text-red-600 font-medium">이 작업은 되돌릴 수 없습니다.</span>
           </AlertDialogDescription>
